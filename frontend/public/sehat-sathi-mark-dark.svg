@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="Sehat Sathi">
+  <rect x="1.5" y="1.5" width="45" height="45" rx="5" fill="#16211D" stroke="#5FB3A9" stroke-width="3"/>
+  <path
+    d="M5 24h7l2.5-6 4 15 4.5-24 4.5 21 3-6h3"
+    fill="none"
+    stroke="#5FB3A9"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M33.5 24H43" stroke="#F0AC44" stroke-width="3" stroke-linecap="round"/>
+</svg>

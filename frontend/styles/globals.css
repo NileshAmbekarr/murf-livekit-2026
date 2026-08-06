@@ -4,82 +4,129 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Sehat Sathi — "health register" design system.
+ *
+ * The whole interface is meant to read like a paper health record kept at a
+ * primary health centre: pale sage paper, dark green ink, ruled lines, and a
+ * marigold accent used sparingly. Sindoor red is reserved exclusively for
+ * emergency/alert states so that it never loses its meaning.
+ */
+
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.25rem; /* paper forms have corners, not pills */
+
+  /* Paper & ink */
+  --background: #eef1e4; /* pale sage paper */
+  --foreground: #17231f; /* near-black green ink */
+  --card: #f6f8ef; /* a fresh sheet, slightly brighter than the desk */
+  --card-foreground: #17231f;
+  --popover: #f6f8ef;
+  --popover-foreground: #17231f;
+
+  /* Deep teal — the primary "stamp" colour */
+  --primary: #1d4e49;
+  --primary-foreground: #f6f8ef;
+
+  --secondary: #e2e7d5;
+  --secondary-foreground: #1d4e49;
+  --muted: #e4e8d8;
+  --muted-foreground: #5c6b62;
+
+  /* Marigold — accent only: highlights, markers, active rules */
+  --accent: #e2951f;
+  --accent-foreground: #17231f;
+
+  /* Sindoor — alerts and emergencies ONLY */
+  --destructive: #c2432b;
+
+  --border: #c9cdb8; /* ledger rule */
+  --input: #c9cdb8;
+  --ring: #1d4e49;
+
+  /* Design-system extras */
+  --rule: #c9cdb8;
+  --rule-strong: #a8b096;
+  --marigold: #e2951f;
+  --sindoor: #c2432b;
+  --teal: #1d4e49;
+
+  --chart-1: #1d4e49;
+  --chart-2: #e2951f;
+  --chart-3: #5c6b62;
+  --chart-4: #c2432b;
+  --chart-5: #a8b096;
+
+  --sidebar: #e4e8d8;
+  --sidebar-foreground: #17231f;
+  --sidebar-primary: #1d4e49;
+  --sidebar-primary-foreground: #f6f8ef;
+  --sidebar-accent: #e2e7d5;
+  --sidebar-accent-foreground: #1d4e49;
+  --sidebar-border: #c9cdb8;
+  --sidebar-ring: #1d4e49;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Night shift at the health centre: the same register, under lamplight. */
+  --background: #101815;
+  --foreground: #e8eddd;
+  --card: #16211d;
+  --card-foreground: #e8eddd;
+  --popover: #16211d;
+  --popover-foreground: #e8eddd;
+
+  --primary: #5fb3a9;
+  --primary-foreground: #0b1210;
+
+  --secondary: #1e2b26;
+  --secondary-foreground: #e8eddd;
+  --muted: #1e2b26;
+  --muted-foreground: #93a399;
+
+  --accent: #f0ac44;
+  --accent-foreground: #0b1210;
+
+  --destructive: #e0684c;
+
+  --border: #2a3a34;
+  --input: #2a3a34;
+  --ring: #5fb3a9;
+
+  --rule: #2a3a34;
+  --rule-strong: #3c5049;
+  --marigold: #f0ac44;
+  --sindoor: #e0684c;
+  --teal: #5fb3a9;
+
+  --chart-1: #5fb3a9;
+  --chart-2: #f0ac44;
+  --chart-3: #93a399;
+  --chart-4: #e0684c;
+  --chart-5: #3c5049;
+
+  --sidebar: #16211d;
+  --sidebar-foreground: #e8eddd;
+  --sidebar-primary: #5fb3a9;
+  --sidebar-primary-foreground: #0b1210;
+  --sidebar-accent: #1e2b26;
+  --sidebar-accent-foreground: #e8eddd;
+  --sidebar-border: #2a3a34;
+  --sidebar-ring: #5fb3a9;
 }
 
 @theme inline {
+  /* Fraunces for display, IBM Plex Sans for body (it carries Devanagari, which
+     matters when the agent replies in Hindi), IBM Plex Mono for record fields. */
   --font-sans:
-    var(--font-public-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    var(--font-plex-sans), var(--font-plex-devanagari), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  /* Devanagari first, for headings and labels written in Hindi. */
+  --font-devanagari: var(--font-plex-devanagari), var(--font-plex-sans), sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, Cambria, 'Times New Roman', serif;
   --font-mono:
-    var(--font-commit-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+    var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -99,6 +146,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-marigold: var(--marigold);
+  --color-sindoor: var(--sindoor);
+  --color-teal: var(--teal);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -116,9 +170,67 @@
 
 @layer base {
   * {
-    @apply border-foreground/20 outline-ring/50;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* The ruled paper the whole app sits on. */
+  .paper-rules {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 31px,
+      var(--rule) 31px,
+      var(--rule) 32px
+    );
+    background-position: 0 0;
+  }
+
+  /* A record card: double-ruled edge, like a stamped form. */
+  .register-card {
+    background-color: var(--card);
+    border: 1px solid var(--rule-strong);
+    box-shadow:
+      0 0 0 1px var(--card) inset,
+      0 0 0 3px var(--rule) inset;
+  }
+
+  /* A form field with a dotted leader, as on a paper intake sheet. */
+  .record-field {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .record-field::after {
+    content: '';
+    flex: 1 1 auto;
+    height: 0;
+    border-bottom: 1px dotted var(--rule-strong);
+    transform: translateY(-0.2em);
+  }
+
+  /* Section label — small, tracked-out, mono, the way a form labels a box. */
+  .field-label {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+}
+
+/* Respect users who ask for less motion: the ECG trace holds still for them. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

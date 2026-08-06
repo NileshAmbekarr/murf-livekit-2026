@@ -14,59 +14,35 @@ export interface AppConfig {
   logoDark?: string;
   accentDark?: string;
 
-  audioVisualizerType?: 'bar' | 'wave' | 'grid' | 'radial' | 'aura';
-  audioVisualizerColor?: `#${string}`;
-  audioVisualizerColorDark?: `#${string}`;
-  audioVisualizerColorShift?: number;
-  audioVisualizerBarCount?: number;
-  audioVisualizerGridRowCount?: number;
-  audioVisualizerGridColumnCount?: number;
-  audioVisualizerRadialBarCount?: number;
-  audioVisualizerRadialRadius?: number;
-  audioVisualizerWaveLineWidth?: number;
-
-  // agent dispatch configuration
+  /** Agent dispatch configuration — must match `agent_name` in backend/src/agent.py. */
   agentName?: string;
 
-  // LiveKit Cloud Sandbox configuration
+  /** LiveKit Cloud Sandbox configuration. */
   sandboxId?: string;
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Murf AI',
-  pageTitle: 'Voice Agent Starter',
-  pageDescription: 'A voice agent powered by Murf Falcon — the fastest TTS API',
+  companyName: 'Sehat Sathi',
+  pageTitle: 'Sehat Sathi — your health companion',
+  pageDescription:
+    'A Hindi and English voice companion for health access across India. Ask about symptoms, government health schemes and helplines. Powered by Murf Falcon TTS on LiveKit.',
 
   supportsChatInput: true,
-  supportsVideoInput: true,
-  supportsScreenShare: true,
+  // A health helpline is a voice and text service — camera and screen share
+  // would only add friction (and a privacy question) for the people it is for.
+  supportsVideoInput: false,
+  supportsScreenShare: false,
   isPreConnectBufferEnabled: true,
 
-  logo: '/murf-logo.svg',
-  accent: '#6366F1',
-  logoDark: '/murf-logo-dark.svg',
-  accentDark: '#818cf8',
-  startButtonText: 'Start talking',
+  logo: '/sehat-sathi-mark.svg',
+  logoDark: '/sehat-sathi-mark-dark.svg',
+  // Deep teal / lamplit teal — kept in step with --primary in styles/globals.css.
+  accent: '#1D4E49',
+  accentDark: '#5FB3A9',
+  startButtonText: 'Baat shuru karein',
 
-  // optional: audio visualization configuration
-  // audioVisualizerType: 'bar',
-  // audioVisualizerColor: '#002cf2',
-  // audioVisualizerColorDark: '#1fd5f9',
-  // audioVisualizerColorShift: 0.3,
-  // audioVisualizerBarCount: 5,
-  // audioVisualizerType: 'radial',
-  // audioVisualizerRadialBarCount: 24,
-  // audioVisualizerRadialRadius: 100,
-  // audioVisualizerType: 'grid',
-  // audioVisualizerGridRowCount: 25,
-  // audioVisualizerGridColumnCount: 25,
-  // audioVisualizerType: 'wave',
-  // audioVisualizerWaveLineWidth: 3,
-  // audioVisualizerType: 'aura',
+  // Explicit dispatch: the backend worker registers under this name.
+  agentName: process.env.AGENT_NAME ?? 'sehat-sathi',
 
-  // agent dispatch configuration
-  agentName: process.env.AGENT_NAME ?? undefined,
-
-  // LiveKit Cloud Sandbox configuration
   sandboxId: undefined,
 };
