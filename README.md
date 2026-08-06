@@ -1,278 +1,182 @@
-# Voice Agent Starter — Powered by Murf Falcon
+# Sehat Sathi — सेहत साथी
 
-Build a production voice AI agent in 5 minutes. Powered by the fastest TTS on the market - swap the system prompt to build anything from customer support to language tutors.
+A Hindi/English health-access voice companion, built on [LiveKit Agents](https://docs.livekit.io/agents)
+and speaking through **[Murf Falcon](https://murf.ai/api/docs)** TTS.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Murf Falcon](https://img.shields.io/badge/TTS-Murf%20Falcon-6366F1)](https://murf.ai/api/docs/text-to-speech/streaming) [![LiveKit](https://img.shields.io/badge/Transport-LiveKit-002cf2)](https://docs.livekit.io) [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+Built for **#VoiceForBharat** (10 Days of AI Voice Agents, by Murf AI) — **Health Access** track.
+
+> **Sehat Sathi is not a doctor.** It does not diagnose and it does not prescribe.
+> It explains, it points people to the right public health service, and it escalates
+> fast when something sounds serious.
 
 ---
 
-## Why Murf Falcon
+## What it does
 
-- **55ms model latency** - fastest production TTS
-- **130ms time-to-first-audio** across 10+ global regions
-- **$0.01/1000 characters** - up to 10x cheaper than alternatives
-- **150+ voices** across 35+ languages
-- **99.38% pronunciation accuracy**
+"Sehat Sathi" means *health companion*. It is the voice equivalent of a well-informed
+neighbour — the person you ask before you decide whether the clinic trip is worth a
+day's lost wages.
+
+- **Speaks the way people actually speak.** Callers slide between Hindi and English
+  mid-sentence, and the agent mirrors whatever mix they use. Deepgram `nova-3` runs in
+  multilingual mode so `"mujhe do din se fever hai"` transcribes as one thought rather
+  than two broken ones.
+- **Explains without diagnosing.** It will tell you what a three-week cough with weight
+  loss is worth getting checked for. It will not tell you that you have TB.
+- **Knows what is free.** Government schemes and helplines — PM-JAY, JSY, JSSK, the TB
+  programme, Tele-MANAS — looked up from a curated table rather than recalled from the
+  model's memory.
+- **Escalates on danger signs.** Chest pain, breathlessness, a seizure, bleeding in
+  pregnancy, or any mention of self-harm triggers a tool call *before* the model says
+  anything else, and the emergency numbers come from code, not from the LLM.
+
+### The safety design
+
+Health advice is the part of this that can actually hurt someone, so the guardrails
+are structural rather than just prompt text:
+
+| Risk | How it's handled |
+| --- | --- |
+| Wrong emergency number | `escalate_to_emergency_care` returns 108/112 from constants — the model never recites them from memory |
+| Escalation buried after chit-chat | The tool is defined as call-first; the prompt forbids gathering history before escalating |
+| Dosing advice | Refused in the prompt, and covered by a dedicated eval (`test_refuses_to_prescribe`) |
+| Confident diagnosis | Refused in the prompt, and covered by `test_does_not_diagnose` |
+| Stale scheme details | `health_resources.py` describes benefits qualitatively and always tells the caller to confirm with their ASHA worker or PHC |
+
+---
+
+## The interface
+
+The UI is styled as a **paper health register** — the kind kept at a primary health
+centre — rather than the usual dark-mode assistant.
+
+- **Palette:** pale sage paper (`#EEF1E4`), near-black green ink (`#17231F`), deep teal
+  (`#1D4E49`), marigold (`#E2951F`). Sindoor red (`#C2432B`) is reserved *exclusively*
+  for emergency and alert states so it never loses its meaning.
+- **Type:** Fraunces for display, IBM Plex Sans for body, IBM Plex Sans Devanagari so
+  Hindi replies render properly mid-transcript, IBM Plex Mono for record fields.
+- **The transcript is a record.** Case notes with a timestamp and speaker in the left
+  margin, one ruled row per turn — a document you could print and hand to a doctor.
+- **The visualizer is an ECG.** A scrolling cardiac trace on graph paper, synthesised
+  from a real PQRST complex. Its rate tracks agent state (a resting 66 bpm while
+  listening, 104 while thinking) and its amplitude is driven by the live Murf Falcon
+  audio while speaking. It honours `prefers-reduced-motion` by rendering a static trace.
+
+Both light and dark themes are fully built; light is the default because paper is the
+identity of the thing.
 
 ---
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    A[🎙️ User speaks] -->|audio| B[Deepgram STT]
-    B -->|text| C[LLM]
-    C -->|response text| D[Murf Falcon TTS]
-    D -->|audio| E[LiveKit]
-    E -->|stream| F[🔊 User hears]
+```
+Caller ──▶ LiveKit WebRTC ──▶ Deepgram nova-3 (multi)   ── speech to text
+                                     │
+                                     ▼
+                              Gemini (LLM + tools)      ── reasoning, escalation
+                                     │
+                                     ▼
+                              Murf Falcon TTS           ── voice: Anisha, en-IN
+                                     │
+Caller ◀── LiveKit WebRTC ◀──────────┘
+```
 
-    style A fill:#444441,stroke:#888780,color:#fff
-    style B fill:#185FA5,stroke:#85B7EB,color:#fff
-    style C fill:#534AB7,stroke:#AFA9EC,color:#fff
-    style D fill:#0F6E56,stroke:#5DCAA5,color:#fff
-    style E fill:#D85A30,stroke:#F0997B,color:#fff
-    style F fill:#444441,stroke:#888780,color:#fff
+| Layer | Choice |
+| --- | --- |
+| Transport | LiveKit Agents (`AgentServer`, explicit dispatch as `sehat-sathi`) |
+| STT | Deepgram `nova-3`, `language=multi` for Hindi/English code-switching |
+| LLM | Google Gemini |
+| **TTS** | **Murf Falcon** — `voice=Anisha`, `locale=en-IN`, `style=Conversation` |
+| Turn detection | LiveKit `MultilingualModel` + Silero VAD |
+| Noise cancellation | BVC (BVCTelephony for SIP callers) |
+| Frontend | Next.js 15, React 19, Tailwind v4, Motion |
+
+### Repository layout
+
+```
+backend/
+  src/agent.py              Agent persona, tools, and the LiveKit session
+  src/health_resources.py   Curated helplines, schemes, red-flag signs + lookup
+  tests/test_agent.py       Safety evals + unit tests for the lookup layer
+frontend/
+  app/                      Next.js routes, layout, social card
+  components/sehat/         Sehat Sathi UI: ECG visualizer, register views, transcript
+  styles/globals.css        The "health register" design system
 ```
 
 ---
 
-## Quickstart
+## Running it
 
 ### Prerequisites
 
-- **Python** 3.10+
-- **[uv](https://docs.astral.sh/uv/)** - fast Python package manager
-  ```bash
-  # macOS/Linux
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  # Windows (PowerShell)
-  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-  ```
-- **Node.js** 18+
-- **pnpm** — fast Node package manager
-  ```bash
-  npm install -g pnpm
-  ```
-- A [LiveKit](https://cloud.livekit.io/) project (free tier available)
+- Python 3.10+ and [`uv`](https://docs.astral.sh/uv/)
+- Node 20+ and `pnpm`
+- API keys: [LiveKit Cloud](https://cloud.livekit.io/), [Murf](https://murf.ai/api/dashboard),
+  [Deepgram](https://deepgram.com), [Google AI Studio](https://aistudio.google.com/apikey)
 
-### Step 1: Clone the repo
+### Setup
 
 ```bash
-git clone https://github.com/murf-ai/murf-livekit-starter.git
-cd murf-livekit-starter
-```
-
-### Step 2: Set up environment variables
-
-Create `.env.local` in both `backend/` and `frontend/` (copy from `.env.example` in each). You need:
-
-| Variable                               | Where to get it                                        | Required |
-| -------------------------------------- | ------------------------------------------------------ | -------- |
-| `LIVEKIT_URL`                          | LiveKit Cloud dashboard                                | Yes      |
-| `LIVEKIT_API_KEY`                      | LiveKit Cloud dashboard                                | Yes      |
-| `LIVEKIT_API_SECRET`                   | LiveKit Cloud dashboard                                | Yes      |
-| `MURF_API_KEY`                         | [murf.ai/api/dashboard](https://murf.ai/api/dashboard) | Yes      |
-| `DEEPGRAM_API_KEY`                     | [deepgram.com](https://deepgram.com)                   | Yes      |
-| `GOOGLE_API_KEY` (or `OPENAI_API_KEY`) | Depends on LLM choice                                  | Yes      |
-
-### Step 3: Install backend dependencies
-
-```bash
+# Backend
 cd backend
+cp .env.example .env.local     # fill in your keys
 uv sync
-uv run python src/agent.py download-files
-```
 
-### Step 4: Install frontend dependencies
-
-```bash
-cd frontend
+# Frontend
+cd ../frontend
+cp .env.example .env.local     # fill in your LiveKit keys
 pnpm install
 ```
 
-### Step 5: Run it
+Both `.env.local` files need the **same** LiveKit project credentials, and
+`AGENT_NAME` must match on both sides (it defaults to `sehat-sathi`).
 
-**Option A - All-in-one (from repo root):**
+### Run
 
 ```bash
-# macOS/Linux
-chmod +x start_app.sh
-./start_app.sh
-
-# Windows (PowerShell)
-.\start_app.ps1
+./start_app.sh          # macOS / Linux
+./start_app.ps1         # Windows
 ```
 
-**Option B - Separate terminals:**
+Or run the two halves separately:
 
 ```bash
-# Terminal 1 — LiveKit Server
-livekit-server --dev
-
-# Terminal 2 — Backend agent
-cd backend && uv run python src/agent.py dev
-
-# Terminal 3 — Frontend
+cd backend  && uv run python src/agent.py dev
 cd frontend && pnpm dev
 ```
 
-Then open **http://localhost:3000** in your browser.
+Then open http://localhost:3000.
 
-You should now see the voice agent UI. Click **Start talking**, allow microphone access, and speak — the agent will respond with Murf Falcon TTS. Ensure your backend and (if using Option B) LiveKit server are running.
+### Tests
+
+```bash
+cd backend && uv run pytest
+```
+
+The lookup-layer tests run offline. The four behavioural evals are LLM-judged and need
+LiveKit inference credentials.
 
 ---
 
-## Deploy
+## Try saying
 
-Want to deploy this beyond localhost? You'll need to deploy **two services**: the backend agent and the frontend. Both must use the same LiveKit project.
-
-> This is a two-service app — the backend agent and the frontend UI deploy separately. You'll need both running and connected to the same LiveKit project.
-
-### Backend (Python agent) — Deploy to Railway
-
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/tIVCF1?referralCode=cNjn2P&utm_medium=integration&utm_source=template&utm_campaign=generic)
-
-Set these environment variables in Railway:
-
-- `MURF_API_KEY`
-- `DEEPGRAM_API_KEY`
-- `GOOGLE_API_KEY` or `OPENAI_API_KEY`
-- `LIVEKIT_URL`
-- `LIVEKIT_API_KEY`
-- `LIVEKIT_API_SECRET`
-
-The backend runs as a long-lived Python process that connects to LiveKit as an agent. Railway handles this well.
-
-### Frontend (Next.js) — Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/murf-ai/murf-livekit-starter&root-directory=frontend&env=LIVEKIT_URL,LIVEKIT_API_KEY,LIVEKIT_API_SECRET&project-name=murf-voice-agent&repository-name=murf-voice-agent)
-
-Set these environment variables in Vercel:
-
-- `LIVEKIT_URL`
-- `LIVEKIT_API_KEY`
-- `LIVEKIT_API_SECRET`
-- `AGENT_NAME` (optional — for explicit agent dispatch)
-
-The frontend is a standard Next.js app. Point it at the same LiveKit instance your backend agent is connected to.
-
-### Connecting them
-
-The frontend and backend don't call each other directly — they both connect to **LiveKit**, which handles the real-time audio transport.
-
-1. Use the **same** `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` on both Railway and Vercel
-2. Set `AGENT_NAME=my-agent` on Vercel — this matches the `agent_name="my-agent"` registered in `backend/src/agent.py`
-3. Verify: Railway logs should show the agent connected to LiveKit. Open your Vercel URL, click **Start talking** — the agent should respond
-
-If the agent doesn't connect, double-check that both services point to the same LiveKit project and that the backend is running (check Railway logs).
+| In Hindi/Hinglish | What it should do |
+| --- | --- |
+| *"Mujhe teen hafte se khansi hai aur weight kam ho raha hai"* | Explain why that's worth checking, mention free TB testing — without naming a diagnosis |
+| *"Meri wife pregnant hai, koi sarkari madad milegi?"* | JSY / JSSK, and the 102 ambulance |
+| *"Operation ka kharcha nahi utha sakta"* | Ayushman Bharat PM-JAY, helpline 14555 |
+| *"Bahut tension rehti hai aajkal"* | Tele-MANAS on 14416, gently |
+| *"Papa ko seene mein dard ho raha hai"* | **Immediate escalation** — call 108, stay with them, don't wait |
 
 ---
 
-## Change the Use Case
+## Credits
 
-The default system prompt makes this a **customer support agent**. You can change the agent’s behavior by editing the prompt.
+Built on the [`murf-livekit-starter`](https://github.com/murf-ai/murf-livekit-starter)
+template. Voice by [Murf Falcon](https://murf.ai/api/docs). Real-time transport by
+[LiveKit](https://livekit.io).
 
-**Where the prompt lives:** `backend/src/agent.py`- the `SYSTEM_PROMPT` constant (near the top of the file, after the imports). Change that string to change what your voice agent does.
-
-### Example prompts (copy-paste)
-
-**Customer Support (default):**
-
-```
-You are a friendly and efficient customer support agent for a tech company. Help users with account issues, billing questions, and product troubleshooting. Be concise, empathetic, and solution-oriented. If you don't know something, say so honestly and offer to escalate.
-```
-
-**Language Tutor:**
-
-```
-You are a patient and encouraging language tutor helping the user practice conversational Spanish. Speak primarily in Spanish but switch to English to explain grammar or vocabulary when needed. Correct mistakes gently and suggest better phrasing. Keep conversations natural and fun.
-```
-
-**AI Receptionist:**
-
-```
-You are a professional receptionist for a medical clinic. Help callers schedule appointments, answer questions about office hours and services, and take messages for doctors. Be warm but efficient. Ask for the caller's name and reason for calling upfront.
-```
-
-See the Configuration section below for voice, STT, and LLM options.
-
----
-
-## Configuration
-
-### Murf voice
-
-Edit the `tts=murf.TTS(...)` call in `backend/src/agent.py`. Set the `voice` argument to any Murf voice ID. Examples:
-
-- `Anisha` — Indian English (female, default in this starter)
-- `Pooja` — Indian English (female)
-- `Samar` — Indian English (male)
-- `Amara` — US English (female)
-- `Gordon` — US English (male)
-- `Hazel` — UK English (female)
-- `Bertie` — UK English (male)
-
-Browse all voices: [Murf Voice Library](https://murf.ai/api/docs/voices-styles/voice-library).
-
-### STT provider
-
-STT is configured in `backend/src/agent.py` in the `AgentSession(stt=...)` call. The default is Deepgram (`deepgram.STT(model="nova-3")`). You can swap to another LiveKit-compatible STT plugin if needed.
-
-### LLM (Gemini vs OpenAI)
-
-- **Gemini (default):** Set `GOOGLE_API_KEY` and use `llm=google.LLM(model="gemini-3.5-flash-lite")` in `agent.py`.
-- **OpenAI:** Set `OPENAI_API_KEY`, add the OpenAI plugin, and use the corresponding `llm=openai.LLM(...)` in `agent.py`.
-
-### Audio format
-
-Murf Falcon and LiveKit handle audio format internally. For advanced options, see [Murf API docs](https://murf.ai/api/docs) and [LiveKit docs](https://docs.livekit.io).
-
----
-
-## Project Structure
-
-```
-murf-livekit-starter/
-├── backend/                 # Python voice agent (LiveKit Agents + Murf Falcon)
-│   ├── src/
-│   │   └── agent.py         # Agent entrypoint, pipeline (STT/LLM/TTS), system prompt
-│   ├── tests/               # Agent tests
-│   ├── .env.example         # Backend env template
-│   ├── pyproject.toml       # Python deps (uv)
-│   └── railway.toml         # Railway deploy config
-├── frontend/                # Next.js UI for voice sessions
-│   ├── app/
-│   │   ├── page.tsx         # Main page
-│   │   └── api/token/       # LiveKit token endpoint (dev)
-│   ├── components/          # UI (agents-ui, app config, theme)
-│   ├── app-config.ts        # Branding, title, button text, accent
-│   ├── .env.example         # Frontend env template
-│   └── package.json         # Node deps (pnpm)
-├── start_app.sh             # Start LiveKit + backend + frontend (macOS/Linux)
-├── start_app.ps1            # Start LiveKit + backend + frontend (Windows)
-├── README.md                # This file
-```
-
-For deeper documentation on each part, see:
-
-- [Backend Documentation](./backend/README.md) — agent pipeline, voice/LLM/STT configuration, testing, deployment
-- [Frontend Documentation](./frontend/README.md) — UI customization, visualizers, theming, component architecture
-
----
-
-## Links
-
-- [Murf API Docs](https://murf.ai/api/docs)
-- [Murf Voice Library](https://murf.ai/api/docs/voices-styles/voice-library)
-- [LiveKit Docs](https://docs.livekit.io)
-- [Deepgram Docs](https://developers.deepgram.com)
-- [Murf Falcon Benchmarks](https://murf.ai/falcon/benchmarks)
-- [TTS Latency Benchmarker](https://github.com/sahilsgupta/tts-latency-benchmarker) — run your own p50/p95 tests across providers
-- [Murf Discord](https://discord.gg/FbKAy96Sz7)
-- [Murf Startup Incubator](https://murf.ai/api) — 50M free characters for startups
-
----
-
-## License
-
-MIT
+Health scheme and helpline information is general public information and is not
+personalised advice — always confirm current details with your ASHA worker or nearest
+primary health centre.

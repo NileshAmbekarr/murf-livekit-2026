@@ -1,255 +1,121 @@
-import { headers } from 'next/headers';
 import { ImageResponse } from 'next/og';
-import getImageSize from 'buffer-image-size';
-import mime from 'mime';
-import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { APP_CONFIG_DEFAULTS } from '@/app-config';
-import { getAppConfig } from '@/lib/utils';
 
-type Dimensions = {
-  width: number;
-  height: number;
-};
+/**
+ * Social card for Sehat Sathi.
+ *
+ * Deliberately self-contained: no font downloads, no image files to resolve.
+ * Everything is drawn from the design tokens in styles/globals.css, so the card
+ * cannot break the build if an asset path changes.
+ */
 
-type ImageData = {
-  base64: string;
-  dimensions: Dimensions;
-};
-
-// Image metadata
-export const alt = 'About Acme';
-export const size = {
-  width: 1200,
-  height: 628,
-};
-
-function isRemoteFile(uri: string) {
-  return uri.startsWith('http');
-}
-
-function doesLocalFileExist(uri: string) {
-  return existsSync(join(process.cwd(), uri));
-}
-
-// LOCAL FILES MUST BE IN PUBLIC FOLDER
-async function loadFileData(filePath: string): Promise<ArrayBuffer> {
-  if (isRemoteFile(filePath)) {
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${filePath} - ${response.status} ${response.statusText}`);
-    }
-    return await response.arrayBuffer();
-  }
-
-  // Try file system first (works in local development)
-  if (doesLocalFileExist(filePath)) {
-    const buffer = await readFile(join(process.cwd(), filePath));
-    return buffer.buffer.slice(
-      buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength
-    ) as ArrayBuffer;
-  }
-
-  // Fallback to fetching from public URL (works in production)
-  const publicFilePath = filePath.replace('public/', '');
-  const fontUrl = `https://${process.env.VERCEL_URL}/${publicFilePath}`;
-
-  const response = await fetch(fontUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${fontUrl} - ${response.status} ${response.statusText}`);
-  }
-
-  return await response.arrayBuffer();
-}
-
-async function getImageData(uri: string, fallbackUri?: string): Promise<ImageData> {
-  try {
-    const fileData = await loadFileData(uri);
-    const buffer = Buffer.from(fileData);
-    const mimeType = mime.getType(uri);
-
-    return {
-      base64: `data:${mimeType};base64,${buffer.toString('base64')}`,
-      dimensions: getImageSize(buffer),
-    };
-  } catch (e) {
-    if (fallbackUri) {
-      return getImageData(fallbackUri, fallbackUri);
-    }
-    throw e;
-  }
-}
-
-function scaleImageSize(size: { width: number; height: number }, desiredHeight: number) {
-  const scale = desiredHeight / size.height;
-  return {
-    width: size.width * scale,
-    height: desiredHeight,
-  };
-}
-
-function cleanPageTitle(appName: string) {
-  if (appName === APP_CONFIG_DEFAULTS.pageTitle) {
-    return 'Voice agent';
-  }
-
-  return appName;
-}
-
+export const alt = 'Sehat Sathi — a Hindi and English health companion, powered by Murf Falcon';
+export const size = { width: 1200, height: 628 };
 export const contentType = 'image/png';
 
-// Image generation
-export default async function Image() {
-  const hdrs = await headers();
-  const appConfig = await getAppConfig(hdrs);
+const PAPER = '#EEF1E4';
+const INK = '#17231F';
+const TEAL = '#1D4E49';
+const MARIGOLD = '#E2951F';
+const RULE = '#C9CDB8';
 
-  const pageTitle = cleanPageTitle(appConfig.pageTitle);
-  const logoUri = appConfig.logoDark || appConfig.logo;
-  const isLogoUriLocal = logoUri.includes('lk-logo');
-  const wordmarkUri = logoUri === APP_CONFIG_DEFAULTS.logoDark ? 'public/lk-wordmark.svg' : logoUri;
+// One PQRST complex, repeated across the card.
+const PULSE =
+  'M0 60 H70 l10 -6 l8 14 l10 -52 l12 92 l10 -50 l8 12 h12 q10 0 14 -14 q4 -14 8 0 q4 14 14 14 H240';
 
-  // Load fonts - use file system in dev, fetch in production
-  let commitMonoData: ArrayBuffer | undefined;
-  let everettLightData: ArrayBuffer | undefined;
-
-  try {
-    commitMonoData = await loadFileData('public/commit-mono-400-regular.woff');
-    everettLightData = await loadFileData('public/everett-light.woff');
-  } catch (e) {
-    console.error('Failed to load fonts:', e);
-    // Continue without custom fonts - will fall back to system fonts
-  }
-
-  // bg
-  const { base64: bgSrcBase64 } = await getImageData('public/opengraph-image-bg.png');
-
-  // wordmark
-  const { base64: wordmarkSrcBase64, dimensions: wordmarkDimensions } = isLogoUriLocal
-    ? await getImageData(wordmarkUri)
-    : await getImageData(logoUri);
-  const wordmarkSize = scaleImageSize(wordmarkDimensions, isLogoUriLocal ? 32 : 64);
-
-  // logo
-  const { base64: logoSrcBase64, dimensions: logoDimensions } = await getImageData(
-    logoUri,
-    'public/lk-logo-dark.svg'
-  );
-  const logoSize = scaleImageSize(logoDimensions, 24);
-
+export default function Image() {
   return new ImageResponse(
     (
-      // ImageResponse JSX element
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           width: size.width,
           height: size.height,
-          backgroundImage: `url(${bgSrcBase64})`,
-          backgroundSize: '100% 100%',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          backgroundColor: PAPER,
+          // Ruled paper.
+          backgroundImage: `repeating-linear-gradient(to bottom, ${PAPER} 0px, ${PAPER} 39px, ${RULE} 39px, ${RULE} 40px)`,
+          padding: 64,
+          fontFamily: 'sans-serif',
         }}
       >
-        {/* wordmark */}
+        {/* Masthead */}
         <div
           style={{
-            position: 'absolute',
-            top: 30,
-            left: 30,
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <img src={wordmarkSrcBase64} width={wordmarkSize.width} height={wordmarkSize.height} />
-        </div>
-        {/* logo */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 200,
-            left: 460,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <img src={logoSrcBase64} width={logoSize.width} height={logoSize.height} />
-        </div>
-        {/* title */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 100,
-            left: 30,
-            width: '380px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
+            justifyContent: 'space-between',
+            borderBottom: `2px solid ${TEAL}`,
+            paddingBottom: 20,
           }}
         >
           <div
             style={{
-              backgroundColor: '#1F1F1F',
-              padding: '2px 8px',
-              borderRadius: 4,
-              width: 72,
-              fontSize: 12,
-              fontFamily: 'CommitMono',
+              display: 'flex',
+              fontSize: 20,
+              letterSpacing: 4,
+              color: TEAL,
               fontWeight: 600,
-              color: '#999999',
-              letterSpacing: 0.8,
             }}
           >
-            SANDBOX
+            HEALTH ACCESS · #VOICEFORBHARAT
           </div>
+          <div style={{ display: 'flex', fontSize: 20, letterSpacing: 2, color: '#5C6B62' }}>
+            LiveKit Agents
+          </div>
+        </div>
+
+        {/* Title block */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div
+            style={{ display: 'flex', fontSize: 96, fontWeight: 700, color: INK, lineHeight: 1 }}
+          >
+            Sehat Sathi
+          </div>
+          <div style={{ display: 'flex', fontSize: 34, color: TEAL, lineHeight: 1.3 }}>
+            A health companion that speaks the way you do.
+          </div>
+          <div style={{ display: 'flex', fontSize: 26, color: '#5C6B62', maxWidth: 820 }}>
+            Hindi and English, mixed freely. Symptoms explained, schemes and helplines found, and a
+            straight line to real care when it matters.
+          </div>
+        </div>
+
+        {/* ECG strip */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <svg width={1072} height={120} viewBox="0 0 1072 120">
+            <rect x="0" y="0" width="1072" height="120" fill="#F6F8EF" stroke={RULE} />
+            {[0, 240, 480, 720, 960].map((offset) => (
+              <g key={offset} transform={`translate(${offset}, 0)`}>
+                <path
+                  d={PULSE}
+                  fill="none"
+                  stroke={TEAL}
+                  strokeWidth={4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </g>
+            ))}
+          </svg>
+
           <div
             style={{
-              fontSize: 48,
-              fontWeight: 300,
-              fontFamily: 'Everett',
-              color: 'white',
-              lineHeight: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: 24,
             }}
           >
-            {pageTitle}
+            <div style={{ display: 'flex', color: '#5C6B62' }}>
+              Voice by{' '}
+              <span style={{ color: MARIGOLD, fontWeight: 700, marginLeft: 8 }}>Murf Falcon</span>
+            </div>
+            <div style={{ display: 'flex', color: '#5C6B62' }}>Emergency? Call 108</div>
           </div>
         </div>
       </div>
     ),
-    // ImageResponse options
-    {
-      // For convenience, we can re-use the exported opengraph-image
-      // size config to also set the ImageResponse's width and height.
-      ...size,
-      fonts: [
-        ...(commitMonoData
-          ? [
-              {
-                name: 'CommitMono',
-                data: commitMonoData,
-                style: 'normal' as const,
-                weight: 400 as const,
-              },
-            ]
-          : []),
-        ...(everettLightData
-          ? [
-              {
-                name: 'Everett',
-                data: everettLightData,
-                style: 'normal' as const,
-                weight: 300 as const,
-              },
-            ]
-          : []),
-      ],
-    }
+    size
   );
 }

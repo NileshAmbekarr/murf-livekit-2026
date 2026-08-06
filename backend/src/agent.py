@@ -1,4 +1,17 @@
+"""Sehat Sathi — a Hindi/English health-access voice companion.
+
+Built for the #VoiceForBharat challenge (Health Access track) on LiveKit Agents,
+speaking through Murf Falcon TTS.
+
+Sehat Sathi is deliberately *not* a diagnosis engine. It is the voice equivalent
+of a well-informed neighbour: it listens in whatever mix of Hindi and English
+the caller is comfortable with, explains what public health services exist, and
+gets people to a real human — an ASHA worker, a PHC, or an ambulance — quickly
+when that is what the situation needs.
+"""
+
 import logging
+import os
 
 from dotenv import load_dotenv
 from livekit import rtc
@@ -8,43 +21,196 @@ from livekit.agents import (
     AgentSession,
     JobContext,
     JobProcess,
+    RunContext,
     cli,
-    inference,
-    tokenize,
+    function_tool,
     room_io,
+    tokenize,
 )
-from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
+from livekit.plugins import deepgram, google, murf, noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
-logger = logging.getLogger("agent")
+from health_resources import (
+    EMERGENCY_AMBULANCE,
+    NATIONAL_EMERGENCY,
+    RED_FLAG_SIGNS,
+    find_helplines,
+    find_schemes,
+)
+
+logger = logging.getLogger("sehat-sathi")
 
 load_dotenv(".env.local")
 
-# Change this prompt to change what your voice agent does.
-# See README.md for example prompts (customer support, language tutor, receptionist).
-SYSTEM_PROMPT = """You are a friendly and efficient customer support agent for a tech company. Help users with account issues, billing questions, and product troubleshooting. Be concise, empathetic, and solution-oriented. If you don't know something, say so honestly and offer to escalate. Your responses are concise and without complex formatting, emojis, or symbols."""
+AGENT_NAME = "sehat-sathi"
+
+# --- Model configuration -----------------------------------------------------
+# Pinned to values verified against the Murf Voice Library and Google AI Studio,
+# but overridable from .env.local so a demo can be re-voiced without a code change.
+MURF_VOICE = os.getenv("MURF_VOICE_ID", "Anisha")
+MURF_LOCALE = os.getenv("MURF_LOCALE", "en-IN")
+MURF_STYLE = os.getenv("MURF_STYLE", "Conversation")
+LLM_MODEL = os.getenv("GOOGLE_LLM_MODEL", "gemini-3.5-flash-lite")
+
+# Deepgram nova-3 in multilingual mode is what lets a caller slide between Hindi
+# and English mid-sentence ("mujhe do din se fever hai"), which is how people
+# actually speak. Set DEEPGRAM_LANGUAGE=en to fall back to English-only.
+STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "multi")
 
 
-class Assistant(Agent):
+SYSTEM_PROMPT = f"""
+You are Sehat Sathi, a warm health companion for people across India. Your name
+means "health companion" and that is exactly what you are — a knowledgeable
+friend, never a doctor.
+
+# Language
+Speak naturally in the language the caller uses. Most callers mix Hindi and
+English, so mirror their mix rather than correcting it. If they speak only
+Hindi, reply in simple Hindi. If they speak only English, reply in Indian
+English. Use "aap", never "tum". Keep the register warm and respectful, the way
+a good ASHA didi speaks — never clinical, never condescending.
+
+# What you are for
+- Explaining what a symptom or condition generally means in plain language.
+- Telling people which government health service, scheme or helpline can help
+  them, and what to carry when they go.
+- Preventive basics: nutrition, hydration, hygiene, vaccination schedules,
+  antenatal check-ups, medication adherence.
+- Preparing someone for a clinic visit: what to describe to the doctor, what
+  questions to ask.
+
+# What you must never do
+- Never diagnose. Do not name a specific disease as the caller's condition.
+  Say what the symptoms *could* relate to, and that only an examination can tell.
+- Never prescribe. Do not name a specific medicine, dose, or duration, and do
+  not tell anyone to start, stop or change a medicine. Doses in particular can
+  kill; refuse them every time, gently.
+- Never suggest home remedies as a substitute for care for anything serious.
+- Never claim a symptom is definitely harmless.
+- Never ask for or repeat back identifying details: no Aadhaar, no full address,
+  no bank information. If a caller offers them, tell them they do not need to
+  share that with you.
+
+# Escalation — this is the most important part of your job
+If the caller mentions any danger sign, stop everything else and use the
+`escalate_to_emergency_care` tool immediately, before continuing the
+conversation. Danger signs include: {"; ".join(RED_FLAG_SIGNS)}.
+Do not gather more history first. Do not reassure first. Escalate, then stay on
+the line and keep them calm.
+
+For anything persistent, worsening, or involving a pregnancy, a newborn, or an
+elderly person, direct them to their ASHA worker or nearest PHC even if it is
+not an emergency.
+
+# Tools
+- `escalate_to_emergency_care` — for danger signs. Gives you the exact numbers.
+- `find_health_service` — for helplines and government schemes. Use it rather
+  than reciting numbers from memory, so the caller gets current information.
+
+# How you speak
+Your words are converted to speech, so write for the ear:
+- Two or three short sentences per turn. Never monologue.
+- No markdown, no bullet points, no emoji, no asterisks, no numbered lists.
+- Say numbers as words the way a person would: "one zero eight", not "108".
+- Ask one question at a time, then wait.
+- If you do not know something, say so plainly and point them to a human.
+
+Open by asking how they are feeling today and what you can help with.
+""".strip()
+
+
+class SehatSathi(Agent):
+    """The Sehat Sathi persona, with its escalation and lookup tools."""
+
     def __init__(self) -> None:
         super().__init__(instructions=SYSTEM_PROMPT)
 
-    # To add tools, use the @function_tool decorator.
-    # Here's an example that adds a simple weather tool.
-    # You also have to add `from livekit.agents import function_tool, RunContext` to the top of this file
-    # @function_tool
-    # async def lookup_weather(self, context: RunContext, location: str):
-    #     """Use this tool to look up current weather information in the given location.
-    #
-    #     If the location is not supported by the weather service, the tool will indicate this. You must tell the user the location's weather is unavailable.
-    #
-    #     Args:
-    #         location: The location to look up weather information for (e.g. city name)
-    #     """
-    #
-    #     logger.info(f"Looking up weather for {location}")
-    #
-    #     return "sunny with a temperature of 70 degrees."
+    @function_tool
+    async def escalate_to_emergency_care(
+        self,
+        context: RunContext,
+        danger_sign: str,
+        is_pregnancy_related: bool = False,
+    ) -> str:
+        """Use IMMEDIATELY when the caller describes a medical danger sign.
+
+        Call this before asking any follow-up questions. It returns the exact
+        emergency guidance to deliver. Examples of when to call it: chest pain,
+        breathlessness, fainting, a seizure, uncontrolled bleeding, slurred
+        speech or a drooping face, a serious injury, a newborn who will not
+        feed, bleeding during pregnancy, or any mention of self-harm.
+
+        Args:
+            danger_sign: What the caller described, in their own words.
+            is_pregnancy_related: True if the caller is pregnant or has a newborn.
+        """
+        logger.warning(
+            "emergency escalation triggered",
+            extra={"danger_sign": danger_sign, "pregnancy": is_pregnancy_related},
+        )
+
+        maternal_line = (
+            " For a pregnancy or a newborn they can also call one zero two, which "
+            "is the free ambulance for mothers and babies."
+            if is_pregnancy_related
+            else ""
+        )
+
+        return (
+            "EMERGENCY. Deliver this now, calmly, in the caller's language, in "
+            "short sentences.\n"
+            f"1. Tell them to call {EMERGENCY_AMBULANCE} for an ambulance right "
+            f"now, or {NATIONAL_EMERGENCY} if that does not connect. Say the "
+            "digits as words.\n"
+            f"{maternal_line}\n"
+            "2. Tell them to get someone nearby to stay with the patient.\n"
+            "3. Tell them not to wait to see if it improves on its own, and not "
+            "to drive themselves.\n"
+            "4. Say you will stay with them, and ask if someone is with them.\n"
+            "Do not diagnose. Do not suggest any medicine. Do not offer home "
+            "remedies. Keep every sentence short."
+        )
+
+    @function_tool
+    async def find_health_service(self, context: RunContext, topic: str) -> str:
+        """Look up Indian health helplines and government schemes for a topic.
+
+        Use this whenever the caller asks where to go, what help exists, whether
+        something is free, or how to afford treatment.
+
+        Args:
+            topic: What the caller needs help with, e.g. "pregnancy", "TB
+                treatment", "cost of an operation", "child vaccination",
+                "feeling depressed".
+        """
+        logger.info("health service lookup", extra={"topic": topic})
+
+        helplines = find_helplines(topic)
+        schemes = find_schemes(topic)
+
+        if not helplines and not schemes:
+            return (
+                "No specific match. Tell the caller their nearest primary health "
+                "centre or their ASHA worker is the right first stop, and that "
+                "the national health helpline is one zero seven five."
+            )
+
+        parts: list[str] = []
+        for helpline in helplines:
+            parts.append(
+                f"Helpline {helpline.number} — {helpline.name}. {helpline.detail}"
+            )
+        for scheme in schemes:
+            parts.append(
+                f"Scheme: {scheme.name}. {scheme.summary} Where: {scheme.where}"
+            )
+
+        return (
+            "\n".join(parts)
+            + "\n\nShare at most two of these, whichever fit best. Say phone "
+            "numbers as separate words. Remind them to confirm details with "
+            "their ASHA worker or PHC, since schemes vary by state."
+        )
 
 
 server = AgentServer()
@@ -57,63 +223,33 @@ def prewarm(proc: JobProcess):
 server.setup_fnc = prewarm
 
 
-@server.rtc_session(agent_name="my-agent")
-async def my_agent(ctx: JobContext):
-    # Logging setup
-    # Add any other context you want in all log entries here
-    ctx.log_context_fields = {
-        "room": ctx.room.name,
-    }
+@server.rtc_session(agent_name=AGENT_NAME)
+async def sehat_sathi(ctx: JobContext):
+    ctx.log_context_fields = {"room": ctx.room.name}
 
-    # Set up a voice AI pipeline using Murf Falcon, Gemini, Deepgram, and the LiveKit turn detector
     session = AgentSession(
-        # Speech-to-text (STT) is your agent's ears, turning the user's speech into text that the LLM can understand
-        # See all available models at https://docs.livekit.io/agents/models/stt/
-        stt=deepgram.STT(model="nova-3"),
-        # A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
-        # See all available models at https://docs.livekit.io/agents/models/llm/
-        llm=google.LLM(
-                model="gemini-3.5-flash-lite",
-            ),
-        # Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
-        # See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
+        # Ears — nova-3 in multilingual mode handles Hindi/English code-switching.
+        stt=deepgram.STT(model="nova-3", language=STT_LANGUAGE),
+        # Brain
+        llm=google.LLM(model=LLM_MODEL),
+        # Voice — Murf Falcon, the fastest TTS API.
         tts=murf.TTS(
-                voice="Anisha", 
-                locale="en-IN",
-                style="Conversation",
-                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-                text_pacing=True
-            ),
-        # VAD and turn detection are used to determine when the user is speaking and when the agent should respond
-        # See more at https://docs.livekit.io/agents/build/turns
+            voice=MURF_VOICE,
+            locale=MURF_LOCALE,
+            style=MURF_STYLE,
+            model="FALCON",
+            # Short sentence chunks keep first-audio latency low, which matters a
+            # lot on the 3G connections this agent is meant to work over.
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True,
+        ),
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        # allow the LLM to generate a response while waiting for the end of turn
-        # See more at https://docs.livekit.io/agents/build/audio/#preemptive-generation
         preemptive_generation=True,
     )
 
-    # To use a realtime model instead of a voice pipeline, use the following session setup instead.
-    # (Note: This is for the OpenAI Realtime API. For other providers, see https://docs.livekit.io/agents/models/realtime/))
-    # 1. Install livekit-agents[openai]
-    # 2. Set OPENAI_API_KEY in .env.local
-    # 3. Add `from livekit.plugins import openai` to the top of this file
-    # 4. Use the following session setup instead of the version above
-    # session = AgentSession(
-    #     llm=openai.realtime.RealtimeModel(voice="marin")
-    # )
-
-    # # Add a virtual avatar to the session, if desired
-    # # For other providers, see https://docs.livekit.io/agents/models/avatar/
-    # avatar = hedra.AvatarSession(
-    #   avatar_id="...",  # See https://docs.livekit.io/agents/models/avatar/plugins/hedra
-    # )
-    # # Start the avatar and wait for it to join
-    # await avatar.start(session, room=ctx.room)
-
-    # Start the session, which initializes the voice pipeline and warms up the models
     await session.start(
-        agent=Assistant(),
+        agent=SehatSathi(),
         room=ctx.room,
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
@@ -127,8 +263,14 @@ async def my_agent(ctx: JobContext):
         ),
     )
 
-    # Join the room and connect to the user
     await ctx.connect()
+
+    # A fixed opening line rather than a generated one: it makes the first thing
+    # a caller hears predictable, and it sets the Hindi/English tone immediately.
+    await session.say(
+        "Namaste, main Sehat Sathi hoon. Aap apni sehat ke baare mein kuch bhi "
+        "pooch sakte hain. Aaj aap kaisa mehsoos kar rahe hain?"
+    )
 
 
 if __name__ == "__main__":

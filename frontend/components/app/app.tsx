@@ -41,7 +41,9 @@ export function App({ appConfig }: AppProps) {
   return (
     <AgentSessionProvider session={session}>
       <AppSetup />
-      <main className="grid h-svh grid-cols-1 place-content-center">
+      {/* paper-rules draws the ruled backdrop the register cards sit on;
+          pt-11 clears the fixed masthead in app/layout.tsx. */}
+      <main className="paper-rules flex min-h-svh items-center justify-center pt-11">
         <ViewController appConfig={appConfig} />
       </main>
       <StartAudioButton label="Start Audio" />
