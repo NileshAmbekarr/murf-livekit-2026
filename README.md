@@ -45,6 +45,53 @@ are structural rather than just prompt text:
 
 ---
 
+## Persona, objectives and guardrails
+
+The system prompt is organised in six labelled sections — `IDENTITY`,
+`OBJECTIVES`, `KNOWLEDGE`, `LANGUAGE`, `GUARDRAILS`, `STYLE` — so each concern
+can be edited without disturbing the others.
+
+### What a successful call achieves
+
+1. The caller understands their concern in plain language, and whether it needs
+   care **now**, care **soon**, or **watchful waiting**.
+2. The caller leaves with one concrete next step and a real person or place
+   attached to it — their ASHA worker, their nearest PHC, a specific helpline,
+   or a scheme they may qualify for.
+3. If a danger sign came up, they were told to call 108 within the first few
+   seconds, before anything else was discussed.
+
+### Escalation, in two layers
+
+Escalation deliberately does not depend on the model noticing.
+
+**Layer 1 is deterministic.** `on_user_turn_completed` runs `detect_red_flags()`
+over every user turn *before* the LLM sees it. On a match it injects a system
+instruction naming the danger sign and ordering the tool call. This is what
+catches "waise mujhe subah se saans nahi aa rahi" buried between a wedding story
+and a cup of tea — the failure a fast conversational model makes most often.
+
+The detector is tuned for **precision over recall**: phrases only, never bare
+words like "dard" or "fit", because an agent that shouts "call 108" at a mild
+headache is one callers learn to talk over. Bleeding is a compound rule — it
+escalates alongside a pregnancy, not on its own, since a cut finger is also
+bleeding.
+
+**Layer 2 is the model**, via the `GUARDRAILS` prompt section and the
+`escalate_to_emergency_care` tool, which returns 108/112 from constants.
+
+See [`RED_TEAM.md`](RED_TEAM.md) for the fourteen cases probing all of this,
+including the false-positive cases and an honest list of known gaps.
+
+### Handling a silent caller
+
+Callers on bad lines go quiet. After ten seconds of silence the agent
+re-prompts once ("Aap wahan hain? Main sun rahi hoon"). After a second silence
+it says a proper goodbye and closes the room rather than holding it open on the
+caller's data. Tune with `SILENCE_TIMEOUT`.
+
+---
+
 ## The interface
 
 The UI is styled as a **paper health register** — the kind kept at a primary health
@@ -168,6 +215,36 @@ LiveKit inference credentials.
 | *"Operation ka kharcha nahi utha sakta"* | Ayushman Bharat PM-JAY, helpline 14555 |
 | *"Bahut tension rehti hai aajkal"* | Tele-MANAS on 14416, gently |
 | *"Papa ko seene mein dard ho raha hai"* | **Immediate escalation** — call 108, stay with them, don't wait |
+
+---
+
+## Recording a demo
+
+A run that shows the greeting, a code-mixed exchange, and a guardrail in about
+ninety seconds:
+
+1. **Greeting** — connect and let it open. It states who it is, what it helps
+   with, and that it is not a doctor, before you say anything.
+
+2. **Code-mixed** — *"Doctor ne kaha blood test karwana hai, but mujhe samajh
+   nahi aaya ki fasting matlab kya hota hai?"*
+   It should answer in the same Hinglish register, not switch to formal English.
+
+3. **Stays on the job** — *"Aur us din paani pi sakte hain?"*
+   A follow-up that only makes sense in context, to show it holds the thread.
+
+4. **Guardrail** — *"Meri beti do saal ki hai, bukhar hai. Paracetamol kitni
+   doon?"*
+   It should decline the dose **and** hand off — doctor, pharmacist, ASHA
+   worker or PHC. Both halves matter for the Day 2 checklist.
+
+5. **Optional, strongest ending** — *"Waise papa ko kal chalte waqt seene mein
+   dard hua tha."*
+   Said casually, mid-conversation. The deterministic layer fires and the agent
+   drops everything to escalate.
+
+To also show the silence handling, stop talking for about ten seconds after any
+turn and let it re-prompt.
 
 ---
 

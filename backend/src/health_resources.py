@@ -254,6 +254,156 @@ RED_FLAG_SIGNS: tuple[str, ...] = (
 )
 
 
+# Phrases that mean a caller is describing a danger sign right now, in the
+# romanised Hindi and English people actually speak into a phone.
+#
+# This exists because "the model will notice" is not a guarantee. A confused or
+# rambling caller can bury "seene mein dard" in the middle of a story about
+# their nephew's wedding, and a small fast model may keep chatting. Matching
+# these phrases lets us force the escalation path open regardless.
+#
+# Phrases only, never bare words: "dard" and "fit" on their own would fire on
+# half of all normal conversation. Precision matters more than recall here,
+# because the model's own judgement is still the second line of defence.
+RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
+    # Cardiac / respiratory
+    ("chest pain", "chest pain"),
+    ("pain in my chest", "chest pain"),
+    ("pain in his chest", "chest pain"),
+    ("pain in her chest", "chest pain"),
+    ("chest is tight", "chest tightness"),
+    ("tightness in my chest", "chest tightness"),
+    ("seene mein dard", "chest pain"),
+    ("seene me dard", "chest pain"),
+    ("chhaati mein dard", "chest pain"),
+    ("chaati mein dard", "chest pain"),
+    ("cannot breathe", "breathlessness"),
+    ("can't breathe", "breathlessness"),
+    ("cant breathe", "breathlessness"),
+    ("trouble breathing", "breathlessness"),
+    ("difficulty breathing", "breathlessness"),
+    ("shortness of breath", "breathlessness"),
+    ("saans nahi aa", "breathlessness"),
+    ("saans nahin aa", "breathlessness"),
+    ("saans phool", "breathlessness"),
+    ("dam ghut", "breathlessness"),
+    # Neurological
+    ("slurred speech", "stroke signs"),
+    ("face is drooping", "stroke signs"),
+    ("face drooping", "stroke signs"),
+    ("one side is numb", "stroke signs"),
+    ("cannot move one side", "stroke signs"),
+    ("muh tedha", "stroke signs"),
+    ("bolne mein dikkat", "stroke signs"),
+    ("unconscious", "unconsciousness"),
+    ("passed out", "unconsciousness"),
+    ("fainted", "unconsciousness"),
+    ("behosh", "unconsciousness"),
+    ("seizure", "seizure"),
+    ("convulsion", "seizure"),
+    ("fit aa raha", "seizure"),
+    ("fits aa rahe", "seizure"),
+    ("daura pad", "seizure"),
+    ("mirgi", "seizure"),
+    # Bleeding
+    ("bleeding heavily", "uncontrolled bleeding"),
+    ("won't stop bleeding", "uncontrolled bleeding"),
+    ("wont stop bleeding", "uncontrolled bleeding"),
+    ("will not stop bleeding", "uncontrolled bleeding"),
+    ("vomiting blood", "vomiting blood"),
+    ("coughing up blood", "coughing blood"),
+    ("khoon nahi ruk", "uncontrolled bleeding"),
+    ("khoon band nahi", "uncontrolled bleeding"),
+    ("ulti mein khoon", "vomiting blood"),
+    ("khoon ki ulti", "vomiting blood"),
+    # Maternal & newborn
+    ("bleeding during pregnancy", "bleeding in pregnancy"),
+    ("baby is not moving", "reduced fetal movement"),
+    ("baby not moving", "reduced fetal movement"),
+    ("bachcha hil nahi", "reduced fetal movement"),
+    ("baby will not feed", "newborn not feeding"),
+    ("baby won't feed", "newborn not feeding"),
+    ("baby wont feed", "newborn not feeding"),
+    ("baby is not feeding", "newborn not feeding"),
+    ("baby not feeding", "newborn not feeding"),
+    ("doodh nahi pi", "newborn not feeding"),
+    # Self-harm
+    ("kill myself", "self-harm"),
+    ("end my life", "self-harm"),
+    ("harm myself", "self-harm"),
+    ("hurt myself", "self-harm"),
+    ("suicide", "self-harm"),
+    ("suicidal", "self-harm"),
+    ("marna chahta", "self-harm"),
+    ("marna chahti", "self-harm"),
+    ("jaan dena", "self-harm"),
+    ("jeena nahi chahta", "self-harm"),
+    ("khud ko nuksan", "self-harm"),
+)
+
+# Signs that mean the caller is pregnant or handling a newborn, so escalation
+# can also offer the 102 maternal ambulance.
+_MATERNAL_HINTS: tuple[str, ...] = (
+    "pregnan",
+    "pregnancy",
+    "garbh",
+    "expecting",
+    "newborn",
+    "new born",
+    "baby",
+    "bachcha",
+    "bachche",
+    "infant",
+    "delivery",
+    "labour",
+    "labor",
+)
+
+
+# Bleeding on its own is not an emergency — a cut finger is bleeding. Bleeding
+# *during a pregnancy* always is, so those two facts are combined rather than
+# either one firing alone.
+_BLEEDING_TERMS: tuple[str, ...] = (
+    "bleeding",
+    "blood aa",
+    "khoon aa",
+    "khoon ja",
+    "khoon beh",
+    "spotting",
+    "rakt",
+)
+
+
+def detect_red_flags(text: str) -> list[str]:
+    """Return the distinct danger signs mentioned in `text`, if any.
+
+    Used to force the escalation path open on the user's turn, before the model
+    gets a chance to keep chatting.
+    """
+    haystack = " ".join((text or "").lower().split())
+    found: list[str] = []
+
+    for phrase, label in RED_FLAG_PHRASES:
+        if phrase in haystack and label not in found:
+            found.append(label)
+
+    # Compound rule: bleeding + a pregnancy or newborn in the same breath.
+    if (
+        "bleeding in pregnancy" not in found
+        and mentions_maternal_context(haystack)
+        and any(term in haystack for term in _BLEEDING_TERMS)
+    ):
+        found.append("bleeding in pregnancy")
+
+    return found
+
+
+def mentions_maternal_context(text: str) -> bool:
+    """True if the caller appears to be pregnant or talking about a newborn."""
+    haystack = " ".join((text or "").lower().split())
+    return any(hint in haystack for hint in _MATERNAL_HINTS)
+
+
 def find_helplines(topic: str, limit: int = 3) -> list[Helpline]:
     """Return helplines whose name or keywords match `topic`, best match first."""
     return _rank(topic, HELPLINES, limit, lambda h: (h.name, h.detail, h.keywords))
