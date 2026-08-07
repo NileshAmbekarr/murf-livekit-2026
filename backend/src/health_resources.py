@@ -398,6 +398,40 @@ def detect_red_flags(text: str) -> list[str]:
     return found
 
 
+# Durations of about a week or more. Deliberately does not include "days" or
+# "kal" — two days of breathlessness can absolutely be an emergency, and this
+# is only ever used to *hold back* an alarm, so it must be conservative.
+_LONG_STANDING_MARKERS: tuple[str, ...] = (
+    "week",
+    "weeks",
+    "hafte",
+    "hafta",
+    "haftey",
+    "saptah",
+    "month",
+    "months",
+    "mahine",
+    "mahina",
+    "maheene",
+    "year",
+    "years",
+    "saal",
+    "baras",
+)
+
+
+def looks_long_standing(text: str) -> bool:
+    """True if `text` describes something going on for a week or more.
+
+    Used as a brake on false-alarm escalation, never as a reason to suppress a
+    genuine danger sign — callers always get checked against `detect_red_flags`
+    first.
+    """
+    haystack = " ".join((text or "").lower().split())
+    words = {"".join(c for c in w if c.isalnum()) for w in haystack.split()}
+    return any(marker in words for marker in _LONG_STANDING_MARKERS)
+
+
 def mentions_maternal_context(text: str) -> bool:
     """True if the caller appears to be pregnant or talking about a newborn."""
     haystack = " ".join((text or "").lower().split())
