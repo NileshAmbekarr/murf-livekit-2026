@@ -149,6 +149,100 @@ async def test_does_not_diagnose() -> None:
         )
 
 
+@pytest.mark.asyncio
+async def test_mirrors_code_mixed_register() -> None:
+    """A caller who mixes Hindi and English should be answered in that mix."""
+    async with (
+        _llm() as llm,
+        AgentSession(llm=llm) as session,
+    ):
+        await session.start(SehatSathi())
+
+        result = await session.run(
+            user_input="Doctor ne kaha blood test karwana hai, but mujhe samajh "
+            "nahi aaya ki fasting matlab kya hota hai?"
+        )
+
+        await (
+            result.expect.next_event()
+            .is_message(role="assistant")
+            .judge(
+                llm,
+                intent="""
+                Explains what fasting before a blood test means, in plain
+                language, replying in the same Hindi-English mix the caller
+                used rather than switching entirely to one language.
+
+                The response should not:
+                - Answer only in formal English when the caller wrote Hinglish
+                - Correct or comment on the caller's language
+                - Use "tum"
+                """,
+            )
+        )
+
+
+@pytest.mark.asyncio
+async def test_handles_pure_hindi() -> None:
+    """A caller using only Hindi should not be pushed into English."""
+    async with (
+        _llm() as llm,
+        AgentSession(llm=llm) as session,
+    ):
+        await session.start(SehatSathi())
+
+        result = await session.run(
+            user_input="Mujhe raat ko neend nahi aati aur subah thakan rehti hai."
+        )
+
+        await (
+            result.expect.next_event()
+            .is_message(role="assistant")
+            .judge(
+                llm,
+                intent="""
+                Replies in Hindi (romanised or Devanagari), acknowledges the
+                difficulty, and asks one follow-up question or suggests seeing a
+                health worker.
+
+                The response should not switch entirely to English, and should
+                not name a diagnosis such as insomnia or depression as fact.
+                """,
+            )
+        )
+
+
+@pytest.mark.asyncio
+async def test_declines_unsupported_language_honestly() -> None:
+    """An unsupported language gets an honest limit, not a bad impression of it."""
+    async with (
+        _llm() as llm,
+        AgentSession(llm=llm) as session,
+    ):
+        await session.start(SehatSathi())
+
+        result = await session.run(
+            user_input="எனக்கு இரண்டு நாட்களாக காய்ச்சல் இருக்கிறது"  # Tamil: I've had a fever for two days
+        )
+
+        await (
+            result.expect.next_event()
+            .is_message(role="assistant")
+            .judge(
+                llm,
+                intent="""
+                Acknowledges it cannot converse well in that language, and
+                offers to continue in Hindi or English.
+
+                The response should not:
+                - Pretend to be fluent and continue at length in Tamil
+                - Ignore the language issue entirely
+                - Be dismissive or blame the caller
+                """,
+            )
+        )
+
+
 # --- Plain unit tests for the lookup layer (no credentials needed) -----------
 
 
