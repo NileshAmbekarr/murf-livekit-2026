@@ -19,9 +19,9 @@ These are settled. Changing them means redoing published work.
 | | Choice | Note |
 |---|---|---|
 | Track | **Health Access** | Locked after Day 3 by challenge rules |
-| Voice | Murf Falcon, `Anisha`, `en-IN`, style `Conversation` | Pinned and verified working |
+| Voice | Murf Falcon, `Anisha`, `hi-IN`, style `Conversational` | See "the script, not the locale" below |
 | LLM | Google Gemini (`gemini-3.5-flash-lite`) | `GOOGLE_API_KEY` |
-| STT | Deepgram `nova-3`, `language=multi` | The `multi` setting is what enables code-switching |
+| STT | Deepgram `nova-3`, `language=hi` | `multi` misheard Hindi — see below |
 | Agent name | `sehat-sathi` | Must match in backend `AGENT_NAME` and frontend `app-config.ts` |
 | Design | Paper health register — sage/ink/teal/marigold | Not the stock LiveKit dark theme |
 
@@ -98,6 +98,73 @@ agreement** — that contradiction is what caused the bug.
 **3. A test that couldn't pass.** See the harness gotcha below.
 
 ---
+
+## The script, not the locale — why the agent writes Devanagari
+
+The agent sounded wrong in Hindi. The obvious culprit was `MURF_LOCALE`, which is
+sent to Murf as **`multiNativeLocale`** ("pronounce this text as this language")
+and was set to `en-IN` while every spoken string was **romanised** Hindi. So
+Anisha was reading "main Sehat Sathi hoon" with English phonetics.
+
+The obvious fix — flip the locale to `hi-IN` — is wrong on its own. Measured with
+`scripts/audition_voices.py` over 4 voices × 3 styles, same sentence:
+
+| | `en-IN` | `hi-IN` |
+|---|---|---|
+| romanised Hindi | 9.37s | **9.90s** |
+| Devanagari Hindi | 7.15s | 6.93s |
+| Devanagari + English words | 7.57s | 7.59s |
+| pure English | 6.49s | 6.21s |
+
+**The script moves it 26–30%; the locale moves it under 7%** — and romanised
+Hindi is *worse* at `hi-IN`, because Murf then tries to read Latin letters as
+Hindi. Duration is a proxy for laboured reading, not a quality score, but it is
+consistent across every voice and style.
+
+So: **all spoken Hindi is Devanagari**, enforced by the prompt's `## Script`
+rule. `GREETING`, `SILENCE_REPROMPT` and `SILENCE_GOODBYE` are Devanagari
+literals. English words keep Latin spelling inside Hindi sentences — that case
+measured fine.
+
+And because pure English costs nothing at `hi-IN`, **one locale serves both
+languages**. Per-turn locale switching was designed and then dropped: the
+measurement said it would buy under 7% for real added complexity.
+
+Re-run the audition any time you want to change voice:
+
+```bash
+cd backend && uv run python scripts/audition_voices.py --voices Anisha Palak
+```
+
+### Hindi STT
+
+`language=multi` is documented by Deepgram to misidentify Hindi as **Spanish**,
+and their staff recommend the dedicated Hindi model for Hindi-English callers.
+Default is now `hi`. `DEEPGRAM_LANGUAGE=multi` switches back for comparison.
+
+**Pinning a language means Deepgram stops reporting a detected one** — it echoes
+back what you asked for. Anything that needs true language detection has to use
+`multi`.
+
+## Layer 1 is script-agnostic, and must stay that way
+
+`RED_FLAG_PHRASES` matches **literally**, so every Hindi phrase is listed twice —
+romanised *and* Devanagari — plus anusvara variants (`साँस`/`सांस`, `में`/`मे`)
+because STT is inconsistent about them.
+
+This is not tidiness. `hi-Latn` (romanised Hindi) exists only on Deepgram's
+legacy `nova-general`; nova-3 offers only `hi`, and the returned script is
+undocumented. If Hindi arrives as Devanagari and the phrases are romanised only,
+`detect_red_flags()` matches nothing and **layer 1 dies silently** — no error, no
+failing test, just an agent that stops escalating for Hindi callers.
+
+`TestDeterministicLayer` therefore carries a Devanagari case per danger sign
+*and* Devanagari negative cases. Add both scripts for any phrase you add.
+
+The `user transcript` log line exists to catch this: it records the transcript,
+the language Deepgram reported, the **script** it arrived in, and whether the
+detector fired. On a Windows console Devanagari logs as `\uXXXX` escapes — read
+the `script` and `red_flags` fields instead, or set `PYTHONIOENCODING=utf-8`.
 
 ## The second thing to understand: the phase machine
 
@@ -330,12 +397,14 @@ Days 4–10 are unscheduled. Known gaps, roughly by value:
      via `proc.userdata` should amortise it. Not yet attempted.
 2. **Multi-turn guardrail pressure.** Every adversarial case is single-turn. A
    caller who asks for a dose four times, rephrasing each time, is untested.
-3. **Regional languages.** A Marathi or Bengali caller currently gets an honest
-   "I can't speak that" — safe, but a failure. Real coverage means a second
-   voice and layer-1 phrases in that language.
-4. **Devanagari red-flag phrases.** All Hindi phrases are romanised, matching
-   what `nova-3` returns today. If STT ever emits Devanagari, layer 1 goes
-   silent until phrases are added.
+3. **Regional languages — cheaper than previously thought.** This gap used to say
+   it needed a second voice. It does not: **Anisha already supports `as`, `bn`,
+   `kn`, `ml`, `mr`, `or`, `pa`, `ta` and `te`-IN**, and the Murf plugin exposes
+   `ta-IN` and `bn-IN`. What is actually needed is STT for the language and
+   layer-1 phrases in its script. The `LANGUAGE` prompt section and
+   `ESCALATION_SCRIPT` both hard-limit to Hindi/English today, and they must be
+   changed together — that contradiction is what caused the Tamil wrong-number
+   bug.
 5. **Telephony.** SIP inbound would make this reachable by the people it is for.
    `BVCTelephony` noise cancellation is already wired for SIP participants.
 6. **Conversation memory across a call** — currently every turn is stateless

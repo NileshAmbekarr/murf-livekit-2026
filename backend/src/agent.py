@@ -49,6 +49,7 @@ from health_resources import (
     EMERGENCY_AMBULANCE,
     NATIONAL_EMERGENCY,
     RED_FLAG_SIGNS,
+    contains_devanagari,
     detect_red_flags,
     find_helplines,
     find_schemes,
@@ -66,14 +67,30 @@ AGENT_NAME = "sehat-sathi"
 # Pinned to values verified against the Murf Voice Library and Google AI Studio,
 # but overridable from .env.local so a demo can be re-voiced without a code change.
 MURF_VOICE = os.getenv("MURF_VOICE_ID", "Anisha")
-MURF_LOCALE = os.getenv("MURF_LOCALE", "en-IN")
-MURF_STYLE = os.getenv("MURF_STYLE", "Conversation")
+# Sent to Murf as `multiNativeLocale` — "pronounce this text as this language".
+# It was `en-IN`, which is what made Hindi sound wrong: Anisha was reading
+# romanised Hindi with English phonetics.
+#
+# Measured with scripts/audition_voices.py across 4 voices x 3 styles, the same
+# sentence takes ~9.4s romanised versus ~7.0s in Devanagari, and the locale
+# itself moves the number by under 7%. So the script the agent writes in matters
+# far more than this setting — see the LANGUAGE prompt section. `hi-IN` is set
+# because Hindi is the primary language, and pure English measured no slower
+# here than at `en-IN`.
+MURF_LOCALE = os.getenv("MURF_LOCALE", "hi-IN")
+MURF_STYLE = os.getenv("MURF_STYLE", "Conversational")
 LLM_MODEL = os.getenv("GOOGLE_LLM_MODEL", "gemini-3.5-flash-lite")
 
-# Deepgram nova-3 in multilingual mode is what lets a caller slide between Hindi
-# and English mid-sentence ("mujhe do din se fever hai"), which is how people
-# actually speak. Set DEEPGRAM_LANGUAGE=en to fall back to English-only.
-STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "multi")
+# Deepgram's own guidance for Hindi-English callers is the dedicated Hindi model
+# rather than `multi`: `multi` is reported to misidentify Hindi as Spanish, which
+# matches what live testing showed — English transcribed fine, Hindi did not.
+# `hi` handles Hindi-English code-switching, which is how people actually speak
+# ("mujhe do din se fever hai").
+#
+# Set DEEPGRAM_LANGUAGE=multi to compare, and read the "user transcript" log line
+# to judge. Either choice is safe for escalation: `RED_FLAG_PHRASES` now carry
+# both Devanagari and romanised forms, so layer 1 fires whichever script arrives.
+STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "hi")
 
 # --- Frontend signalling -----------------------------------------------------
 # Topic the frontend listens on to learn that an escalation fired, so the screen
@@ -86,18 +103,27 @@ ESCALATION_TOPIC = "sehat.escalation"
 SILENCE_TIMEOUT = float(os.getenv("SILENCE_TIMEOUT", "10"))
 MAX_SILENCE_STRIKES = 2
 
-SILENCE_REPROMPT = "Aap wahan hain? Main sun rahi hoon, aaram se boliye."
+# Every spoken Hindi string is in Devanagari, not romanised. Murf reads romanised
+# Hindi with English phonetics — that is what made the agent sound wrong — and
+# measurably labours over it. Devanagari is what the voice expects.
+SILENCE_REPROMPT = "आप वहाँ हैं? मैं सुन रही हूँ, आराम से बोलिए।"
 SILENCE_GOODBYE = (
-    "Lagta hai aapki aawaz mujh tak nahin pahunch rahi. Main abhi baat "
-    "band kar rahi hoon. Zaroorat ho to dobara call kijiye. Apna dhyan rakhiye."
+    "लगता है आपकी आवाज़ मुझ तक नहीं पहुँच रही। मैं अभी बात बंद कर रही हूँ। "
+    "ज़रूरत हो तो दोबारा कॉल कीजिए। अपना ध्यान रखिए।"
 )
 
-# The opening line. Fixed rather than generated so the first thing a caller
-# hears is predictable, states the job, and states the limit up front.
+# The opening line. Fixed rather than generated so the first thing a caller hears
+# is predictable and states the limit up front.
+#
+# Deliberately short. The previous greeting ran four sentences before the caller
+# had said a word. Measured at the production voice settings it took 10.6s;
+# this says the same useful things in 7.9s. That matters because a caller who is
+# still waiting is a caller who might hang up — which is exactly what happened
+# during Day 3 latency testing. The not-a-doctor limit stays, because that is
+# the one part that must not be optional.
 GREETING = (
-    "Namaste, main Sehat Sathi hoon. Main lakshan samajhne, aur sarkari yojana "
-    "ya helpline dhoondhne mein aapki madad karti hoon. Main doctor nahin hoon, "
-    "isliye bimari ya dawai nahin batati. Boliye, kya pareshani hai?"
+    "नमस्ते, मैं सेहत साथी हूँ। लक्षण और सरकारी योजना में मदद कर सकती हूँ, "
+    "पर डॉक्टर नहीं हूँ। बोलिए, क्या परेशानी है?"
 )
 
 # The escalation script, written once and referenced from both the prompt and
@@ -109,7 +135,9 @@ cannot speak their language.
 1. Say plainly that this needs emergency care right now.
 2. Tell them to call {EMERGENCY_AMBULANCE} for an ambulance, or
    {NATIONAL_EMERGENCY} if that does not connect. Say the digits as separate
-   words: "one zero eight" and "one one two".
+   words, never as a whole number: "one zero eight" and "one one two" in
+   English, or "एक शून्य आठ" and "एक एक दो" in Hindi. Use whichever of the two
+   matches the sentence you are speaking, and say it twice.
 3. Tell them not to wait to see if it settles, and not to drive themselves.
 4. Ask if someone is with them, and tell them to keep that person close.
 5. Stay on the line. Keep every sentence short.
@@ -160,10 +188,28 @@ Your knowledge stops here, and you say so rather than guessing:
 You speak exactly two languages: Hindi and English, in any mix. That is a hard
 limit, not a preference.
 
-Within those two, mirror the caller exactly. Most people mix Hindi and English
-in one sentence — follow their mix, do not tidy it up, and do not switch them
-to a language they did not choose. If they speak only Hindi, reply in simple
-Hindi. If they speak only English, reply in Indian English.
+## Script — this one is mechanical, get it right every time
+Write Hindi in Devanagari (देवनागरी). Never write Hindi in Latin letters.
+Write "मुझे बुखार है", never "mujhe bukhar hai".
+English words keep their normal spelling, even inside a Hindi sentence:
+"आपका blood pressure check कराना ज़रूरी है" is exactly right.
+
+This is not a style preference. Your words are spoken aloud by a voice that
+reads Latin letters with English pronunciation, so romanised Hindi comes out
+sounding like an English speaker struggling through Hindi.
+
+## Follow the caller, every single turn
+Reply in the language of the caller's LAST message. Decide this fresh each turn
+— do not settle into one language because that is how the call started.
+
+- They wrote in Hindi -> you reply in Hindi, in Devanagari.
+- They wrote in English -> you reply in English.
+- They mixed the two -> you mix them the same way, in the same proportion.
+
+Mirror their words too. If they say "saans" do not answer about "respiration".
+If they use an English word for something, use that same English word back.
+
+Vary how you open. Do not begin every reply the same way.
 
 Match their register too: if they use simple everyday words, so do you. Never
 use a clinical term without immediately explaining it in ordinary words.
@@ -492,6 +538,46 @@ def prewarm(proc: JobProcess):
 server.setup_fnc = prewarm
 
 
+def _script_of(text: str) -> str:
+    """Label the script a transcript arrived in, for the log."""
+    if contains_devanagari(text):
+        return "devanagari"
+    return "latin" if text.strip() else "empty"
+
+
+def _install_transcript_logging(session: AgentSession) -> None:
+    """Log what speech-to-text actually hands us, on every finished turn.
+
+    Until now the turn hook logged only when a danger sign *was* found, which
+    means a Hindi caller whose speech came back in a script the detector does not
+    know would look identical to a Hindi caller who said nothing alarming. That
+    is the worst possible blind spot: `RED_FLAG_PHRASES` are romanised Latin, and
+    Deepgram does not document which script nova-3 returns Hindi in. If it
+    returns Devanagari, layer 1 matches nothing and escalation silently stops
+    working — with no log line to show for it.
+
+    So this records the raw transcript, the language Deepgram reports, the script
+    it arrived in, and whether the detector fired. One line per turn, and the
+    question is answered by reading it rather than by guessing.
+    """
+
+    @session.on("user_input_transcribed")
+    def _on_transcript(event) -> None:
+        if not event.is_final:
+            return
+
+        transcript = event.transcript or ""
+        logger.info(
+            "user transcript",
+            extra={
+                "transcript": transcript,
+                "stt_language": str(event.language) if event.language else None,
+                "script": _script_of(transcript),
+                "red_flags": detect_red_flags(transcript),
+            },
+        )
+
+
 def _install_silence_handling(session: AgentSession, ctx: JobContext) -> None:
     """Re-prompt a silent caller once, then close the call gracefully.
 
@@ -577,6 +663,7 @@ async def sehat_sathi(ctx: JobContext):
         user_away_timeout=SILENCE_TIMEOUT,
     )
 
+    _install_transcript_logging(session)
     _install_silence_handling(session, ctx)
     _mark("session_built")
 
