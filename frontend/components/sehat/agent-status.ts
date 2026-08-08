@@ -19,9 +19,15 @@ const LABELS: Record<string, StatusLabel> = {
   disconnected: { hindi: 'Band', english: 'Not connected', tone: 'idle' },
   initializing: { hindi: 'Taiyaar ho raha hai', english: 'Warming up', tone: 'idle' },
   connecting: { hindi: 'Jud raha hai', english: 'Connecting', tone: 'idle' },
+  // The caller's speech is already being captured into the pre-connect buffer
+  // here, even though the agent has not finished joining. Saying "not connected"
+  // would tell them to stop talking when they should carry on.
+  'pre-connect-buffering': { hindi: 'Sun raha hoon', english: 'Listening', tone: 'active' },
+  idle: { hindi: 'Taiyaar', english: 'Ready', tone: 'idle' },
   listening: { hindi: 'Sun raha hoon', english: 'Listening', tone: 'active' },
   thinking: { hindi: 'Soch raha hoon', english: 'Thinking', tone: 'idle' },
   speaking: { hindi: 'Bol raha hoon', english: 'Speaking', tone: 'active' },
+  failed: { hindi: 'Nahin jud paya', english: 'Could not connect', tone: 'alert' },
 };
 
 export function statusLabel(state: AgentState | undefined): StatusLabel {

@@ -1,7 +1,11 @@
 'use client';
 
+import { MicrophoneIcon } from '@phosphor-icons/react/dist/ssr';
+import { useConsultation } from '@/components/sehat/consultation-provider';
 import { EcgVisualizer } from '@/components/sehat/ecg-visualizer';
+import { MicDeniedNotice } from '@/components/sehat/mic-denied-notice';
 import { Button } from '@/components/ui/button';
+import { useMicReadiness } from '@/hooks/useMicPermission';
 
 /**
  * The intake card.
@@ -29,14 +33,20 @@ function RecordRow({ label, value }: RecordRowProps) {
 
 interface WelcomeViewProps {
   startButtonText: string;
-  onStartCall: () => void;
 }
 
 export const WelcomeView = ({
   startButtonText,
-  onStartCall,
   ref,
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
+  const { start, micFailure, clearMicFailure } = useConsultation();
+  const micReadiness = useMicReadiness();
+
+  // Surface a microphone that is *already* blocked, rather than waiting for the
+  // caller to press start and watch nothing happen. Where the Permissions API is
+  // unsupported this stays null and the failure path below still catches it.
+  const blocked = micFailure ?? (micReadiness === 'denied' ? 'denied' : null);
+
   return (
     <div ref={ref} className="flex w-full justify-center px-4 py-6">
       <section className="register-card w-full max-w-xl rounded-sm p-6 md:p-8">
@@ -68,11 +78,38 @@ export const WelcomeView = ({
 
         <Button
           size="lg"
-          onClick={onStartCall}
+          onClick={() => void start()}
           className="mt-7 h-12 w-full rounded-sm font-mono text-xs font-semibold tracking-[0.14em] uppercase"
         >
+          <span className="font-devanagari tracking-normal normal-case">बात शुरू करें</span>
+          <span aria-hidden="true" className="opacity-50">
+            ·
+          </span>
           {startButtonText}
         </Button>
+
+        {/* Say up front that the microphone will be asked for, so the browser
+            prompt is expected rather than a surprise. Silent where the
+            Permissions API is unsupported. */}
+        {!blocked && (
+          <p className="text-muted-foreground mt-3 flex items-center justify-center gap-1.5 text-[0.6875rem]">
+            <MicrophoneIcon weight="bold" className="size-3.5 shrink-0" />
+            {micReadiness === 'granted'
+              ? 'Microphone taiyaar hai · Microphone ready'
+              : 'Microphone ki permission maangi jayegi · Your browser will ask for the microphone'}
+          </p>
+        )}
+
+        {blocked && (
+          <MicDeniedNotice
+            kind={blocked}
+            onRetry={() => {
+              clearMicFailure();
+              void start();
+            }}
+            onContinueByText={() => void start({ microphone: false })}
+          />
+        )}
 
         {/* Emergency notice — sindoor red is used here and nowhere else. */}
         <div className="border-sindoor/40 bg-sindoor/5 mt-6 rounded-sm border-l-2 p-3">

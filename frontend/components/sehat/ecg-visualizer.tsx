@@ -87,11 +87,18 @@ function readColor(el: HTMLElement, variable: string, fallback: string): string 
   return value || fallback;
 }
 
+/** Who currently has the floor. `null` means neither is making sound. */
+export type Speaker = 'agent' | 'user' | null;
+
 export interface EcgVisualizerProps {
   /** Current agent state; drives rate and amplitude. */
   state?: AgentState;
   /** Agent audio track; drives amplitude while speaking. */
   audioTrack?: LocalAudioTrack | RemoteAudioTrack | TrackReferenceOrPlaceholder;
+  /** The caller's own microphone track, so they can see they are being heard. */
+  userAudioTrack?: LocalAudioTrack | RemoteAudioTrack | TrackReferenceOrPlaceholder;
+  /** Who is speaking. Selects the trace colour and which volume drives it. */
+  speaker?: Speaker;
   /** Render the ECG graph-paper grid behind the trace. */
   showGrid?: boolean;
   /** Stroke width of the trace in CSS pixels. */
@@ -102,6 +109,8 @@ export interface EcgVisualizerProps {
 export function EcgVisualizer({
   state = 'disconnected',
   audioTrack,
+  userAudioTrack,
+  speaker = null,
   showGrid = true,
   lineWidth = 2,
   className,
@@ -115,12 +124,23 @@ export function EcgVisualizer({
     smoothingTimeConstant: 0.6,
   });
 
+  const userVolume = useTrackVolume(userAudioTrack as TrackReference, {
+    fftSize: 256,
+    smoothingTimeConstant: 0.6,
+  });
+
   // Keep the latest values in refs so the animation loop never restarts —
-  // restarting it would jump the trace.
+  // restarting it would jump the trace. `speaker` in particular must stay out of
+  // the effect's dependency array for that reason, which is why the colour is
+  // chosen per frame below rather than read once at setup.
   const stateRef = useRef(state);
   const volumeRef = useRef(volume);
+  const userVolumeRef = useRef(userVolume);
+  const speakerRef = useRef(speaker);
   stateRef.current = state;
   volumeRef.current = volume;
+  userVolumeRef.current = userVolume;
+  speakerRef.current = speaker;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -135,10 +155,17 @@ export function EcgVisualizer({
     let height = 0;
     let dpr = 1;
 
+    // Both trace colours are read up front so that switching speaker mid-call is
+    // a per-frame choice rather than an effect restart. Marigold marks the caller
+    // because the design system reserves it for active markers; sindoor is never
+    // used here, so that it keeps meaning "emergency" and nothing else.
     const colors = {
       trace: readColor(container, '--teal', '#1d4e49'),
+      caller: readColor(container, '--marigold', '#e2951f'),
       grid: readColor(container, '--rule', '#c9cdb8'),
     };
+
+    const strokeFor = (who: Speaker) => (who === 'user' ? colors.caller : colors.trace);
 
     const resize = () => {
       const rect = container.getBoundingClientRect();
@@ -214,10 +241,11 @@ export function EcgVisualizer({
       const mid = height / 2;
       const scale = height / 2 - lineWidth;
       const step = width / (BUFFER - 1);
+      const stroke = strokeFor(speakerRef.current);
 
       ctx.save();
       ctx.globalAlpha = rhythm.opacity;
-      ctx.strokeStyle = colors.trace;
+      ctx.strokeStyle = stroke;
       ctx.lineWidth = lineWidth;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
@@ -232,7 +260,7 @@ export function EcgVisualizer({
 
       // The leading edge, like the sweep dot on a bedside monitor.
       const headY = mid - samples[BUFFER - 1] * scale;
-      ctx.fillStyle = colors.trace;
+      ctx.fillStyle = stroke;
       ctx.beginPath();
       ctx.arc(width - 1, headY, lineWidth * 1.6, 0, Math.PI * 2);
       ctx.fill();
@@ -260,11 +288,18 @@ export function EcgVisualizer({
 
       const rhythm = RHYTHMS[stateRef.current] ?? RHYTHMS.listening;
 
-      // While speaking, the caller should see the agent's actual voice energy.
-      const speaking = stateRef.current === 'speaking';
-      const amplitude = speaking
-        ? rhythm.amplitude * (0.55 + 1.5 * Math.min(volumeRef.current, 1))
-        : rhythm.amplitude;
+      // Whoever has the floor drives the amplitude from their real voice energy.
+      // The caller's own level matters as much as the agent's: without it there
+      // is nothing on screen to tell them the microphone is picking them up, and
+      // on a health line that doubt is enough to make someone give up.
+      const who = speakerRef.current;
+      const liveVolume =
+        who === 'user' ? userVolumeRef.current : who === 'agent' ? volumeRef.current : null;
+
+      const amplitude =
+        liveVolume === null
+          ? rhythm.amplitude
+          : rhythm.amplitude * (0.55 + 1.5 * Math.min(liveVolume, 1));
 
       const advance = PAPER_SPEED * dt + carry;
       const whole = Math.floor(advance);
@@ -306,7 +341,13 @@ export function EcgVisualizer({
       ref={containerRef}
       className={cn('relative h-full w-full overflow-hidden', className)}
       role="img"
-      aria-label={`Voice activity trace, agent is ${state}`}
+      aria-label={
+        speaker === 'user'
+          ? 'Voice activity trace, you are speaking'
+          : speaker === 'agent'
+            ? 'Voice activity trace, Sehat Sathi is speaking'
+            : `Voice activity trace, agent is ${state}`
+      }
     >
       <canvas ref={canvasRef} className="block" />
     </div>
