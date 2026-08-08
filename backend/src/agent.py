@@ -20,8 +20,10 @@ Safety here is layered rather than prompt-only:
 """
 
 import asyncio
+import json
 import logging
 import os
+import time
 
 from dotenv import load_dotenv
 from livekit import rtc
@@ -34,10 +36,12 @@ from livekit.agents import (
     RunContext,
     cli,
     function_tool,
+    get_job_context,
     llm,
     room_io,
     tokenize,
 )
+from livekit.agents.worker import ServerEnvOption
 from livekit.plugins import deepgram, google, murf, noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
@@ -70,6 +74,11 @@ LLM_MODEL = os.getenv("GOOGLE_LLM_MODEL", "gemini-3.5-flash-lite")
 # and English mid-sentence ("mujhe do din se fever hai"), which is how people
 # actually speak. Set DEEPGRAM_LANGUAGE=en to fall back to English-only.
 STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "multi")
+
+# --- Frontend signalling -----------------------------------------------------
+# Topic the frontend listens on to learn that an escalation fired, so the screen
+# can show the ambulance number the caller is being told out loud.
+ESCALATION_TOPIC = "sehat.escalation"
 
 # --- Silence handling --------------------------------------------------------
 # Callers on a bad line go quiet a lot. Re-prompt once, then close gracefully
@@ -300,6 +309,41 @@ class SehatSathi(Agent):
             ),
         )
 
+    async def _signal_escalation_to_frontend(self, is_pregnancy_related: bool) -> None:
+        """Tell the frontend an escalation fired, so the screen can show 108.
+
+        The caller is about to be told an ambulance number out loud. Putting it
+        on screen at the same moment means they can tap it instead of memorising
+        digits while frightened. The numbers come from the same constants
+        `ESCALATION_SCRIPT` reads, so the screen and the voice cannot disagree.
+
+        Two deliberate limits:
+
+        * The caller's own words are NOT sent. The banner does not need them, so
+          they do not go on the data channel.
+        * Every failure is swallowed. The emergency script must reach the
+          caller's ear even if the data channel is dead — a banner is a
+          convenience, and a convenience must never be able to break the safety
+          path. That guarantee is pinned by
+          `TestEscalationSignal::test_emergency_script_survives_publish_failure`.
+        """
+        try:
+            payload = json.dumps(
+                {
+                    "type": "escalation",
+                    "ambulance": EMERGENCY_AMBULANCE,
+                    "emergency": NATIONAL_EMERGENCY,
+                    "maternal": is_pregnancy_related,
+                }
+            ).encode()
+
+            room = get_job_context().room
+            await room.local_participant.publish_data(
+                payload, reliable=True, topic=ESCALATION_TOPIC
+            )
+        except Exception:
+            logger.exception("could not signal escalation to the frontend")
+
     @function_tool
     async def escalate_to_emergency_care(
         self,
@@ -354,6 +398,8 @@ class SehatSathi(Agent):
             "emergency escalation triggered",
             extra={"danger_sign": danger_sign, "pregnancy": is_pregnancy_related},
         )
+
+        await self._signal_escalation_to_frontend(is_pregnancy_related)
 
         maternal_line = (
             "\nAlso tell them that for a pregnancy or a newborn they can call "
@@ -422,7 +468,21 @@ class SehatSathi(Agent):
         )
 
 
-server = AgentServer()
+server = AgentServer(
+    # Keep one process warm in dev. The default is dev_default=0, which means
+    # every single call logged "no warmed process available for job" and paid for
+    # a process spawn *plus* prewarm() below — silero.VAD.load() — before the
+    # caller heard anything. Measured cost: ~14s from job request to audio ready,
+    # long enough that the first test caller hung up one second before the agent
+    # came alive. A ServerEnvOption rather than a bare int so production keeps
+    # its pool of 12 instead of being downgraded to one.
+    num_idle_processes=ServerEnvOption(dev_default=1, prod_default=12),
+    # LiveKit Cloud session recording uploads a session report on shutdown, which
+    # measured 14-19s and blew the 10s default — logging "job shutdown is taking
+    # too much time" and holding the worker slot, which in turn kept the next
+    # call's pool cold. Give the upload room to finish quietly.
+    shutdown_process_timeout=30.0,
+)
 
 
 def prewarm(proc: JobProcess):
@@ -478,6 +538,22 @@ def _install_silence_handling(session: AgentSession, ctx: JobContext) -> None:
 async def sehat_sathi(ctx: JobContext):
     ctx.log_context_fields = {"room": ctx.room.name}
 
+    # How long it takes to get from "caller pressed the button" to "caller hears
+    # a voice" is the number that matters most here — for an emergency it is the
+    # only number that matters — and it was previously unmeasured. Each stage is
+    # logged as a delta from job start so a regression shows up in the dev log
+    # without any extra tooling.
+    started = time.perf_counter()
+
+    def _mark(stage: str) -> None:
+        logger.info(
+            "connect timing",
+            extra={
+                "stage": stage,
+                "elapsed_ms": round((time.perf_counter() - started) * 1000),
+            },
+        )
+
     session = AgentSession(
         # Ears — nova-3 in multilingual mode handles Hindi/English code-switching.
         stt=deepgram.STT(model="nova-3", language=STT_LANGUAGE),
@@ -502,6 +578,7 @@ async def sehat_sathi(ctx: JobContext):
     )
 
     _install_silence_handling(session, ctx)
+    _mark("session_built")
 
     await session.start(
         agent=SehatSathi(),
@@ -517,10 +594,13 @@ async def sehat_sathi(ctx: JobContext):
             ),
         ),
     )
+    _mark("session_started")
 
     await ctx.connect()
+    _mark("room_connected")
 
     await session.say(GREETING)
+    _mark("greeting_sent")
 
 
 if __name__ == "__main__":

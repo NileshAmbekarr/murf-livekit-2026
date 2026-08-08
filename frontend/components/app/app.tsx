@@ -8,6 +8,7 @@ import type { AppConfig } from '@/app-config';
 import { AgentSessionProvider } from '@/components/agents-ui/agent-session-provider';
 import { StartAudioButton } from '@/components/agents-ui/start-audio-button';
 import { ViewController } from '@/components/app/view-controller';
+import { ConsultationProvider } from '@/components/sehat/consultation-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { useAgentErrors } from '@/hooks/useAgentErrors';
 import { useDebugMode } from '@/hooks/useDebug';
@@ -41,11 +42,16 @@ export function App({ appConfig }: AppProps) {
   return (
     <AgentSessionProvider session={session}>
       <AppSetup />
-      {/* paper-rules draws the ruled backdrop the register cards sit on;
-          pt-11 clears the fixed masthead in app/layout.tsx. */}
-      <main className="paper-rules flex min-h-svh items-center justify-center pt-11">
-        <ViewController appConfig={appConfig} />
-      </main>
+      {/* ConsultationProvider owns the ready/connecting/live/ended phase that the
+          views switch on, plus the elapsed clock, escalation latch and the
+          end-of-call snapshot the discharge slip is built from. */}
+      <ConsultationProvider>
+        {/* paper-rules draws the ruled backdrop the register cards sit on;
+            pt-11 clears the fixed masthead in app/layout.tsx. */}
+        <main className="paper-rules flex min-h-svh items-center justify-center pt-11">
+          <ViewController appConfig={appConfig} />
+        </main>
+      </ConsultationProvider>
       <StartAudioButton label="Start Audio" />
       <Toaster
         icons={{

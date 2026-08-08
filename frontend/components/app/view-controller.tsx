@@ -1,13 +1,17 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { useSessionContext } from '@livekit/components-react';
 import type { AppConfig } from '@/app-config';
+import { ConnectingView } from '@/components/sehat/connecting-view';
+import { useConsultation } from '@/components/sehat/consultation-provider';
+import { EndedView } from '@/components/sehat/ended-view';
 import { SessionView } from '@/components/sehat/session-view';
 import { WelcomeView } from '@/components/sehat/welcome-view';
 
 const MotionWelcomeView = motion.create(WelcomeView);
+const MotionConnectingView = motion.create(ConnectingView);
 const MotionSessionView = motion.create(SessionView);
+const MotionEndedView = motion.create(EndedView);
 
 const VIEW_MOTION_PROPS = {
   variants: {
@@ -27,20 +31,27 @@ interface ViewControllerProps {
   appConfig: AppConfig;
 }
 
+/**
+ * Switches between the four stages of a consultation.
+ *
+ * This used to branch on `session.isConnected` alone, which meant the caller got
+ * no feedback at all while connecting and was thrown back to a blank intake card
+ * the moment they hung up. The phase comes from `ConsultationProvider` now.
+ */
 export function ViewController({ appConfig }: ViewControllerProps) {
-  const { isConnected, start } = useSessionContext();
+  const { phase } = useConsultation();
 
   return (
     <AnimatePresence mode="wait">
-      {!isConnected && (
+      {phase === 'ready' && (
         <MotionWelcomeView
           key="welcome"
           {...VIEW_MOTION_PROPS}
           startButtonText={appConfig.startButtonText}
-          onStartCall={start}
         />
       )}
-      {isConnected && (
+      {phase === 'connecting' && <MotionConnectingView key="connecting" {...VIEW_MOTION_PROPS} />}
+      {phase === 'live' && (
         <MotionSessionView
           key="session"
           {...VIEW_MOTION_PROPS}
@@ -49,6 +60,7 @@ export function ViewController({ appConfig }: ViewControllerProps) {
           supportsScreenShare={appConfig.supportsScreenShare}
         />
       )}
+      {phase === 'ended' && <MotionEndedView key="ended" {...VIEW_MOTION_PROPS} />}
     </AnimatePresence>
   );
 }

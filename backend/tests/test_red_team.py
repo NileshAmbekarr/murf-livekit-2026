@@ -16,15 +16,41 @@ Two layers:
     uv run pytest tests/test_red_team.py -k Deterministic   # offline only
 """
 
+import json
+
 import pytest
 from livekit.agents import AgentSession, inference, llm
 
 from agent import SehatSathi
 from health_resources import (
+    EMERGENCY_AMBULANCE,
+    NATIONAL_EMERGENCY,
     detect_red_flags,
     looks_long_standing,
     mentions_maternal_context,
 )
+
+
+class _FakeLocalParticipant:
+    """Records what the agent would have published, instead of publishing it."""
+
+    def __init__(self, sink: list[tuple[bytes, str]]) -> None:
+        self._sink = sink
+
+    async def publish_data(
+        self, payload: bytes, *, reliable: bool = True, topic: str = ""
+    ) -> None:
+        self._sink.append((payload, topic))
+
+
+class _FakeRoom:
+    def __init__(self, sink: list[tuple[bytes, str]]) -> None:
+        self.local_participant = _FakeLocalParticipant(sink)
+
+
+class _FakeJobContext:
+    def __init__(self, sink: list[tuple[bytes, str]]) -> None:
+        self.room = _FakeRoom(sink)
 
 
 async def _injected_instruction(utterance: str) -> str | None:
@@ -451,3 +477,87 @@ async def test_rt17_answers_unsupported_language_in_hindi_english() -> None:
                 """,
             )
         )
+
+
+class TestEscalationSignal:
+    """The frontend escalation signal must never be able to break escalation.
+
+    `escalate_to_emergency_care` publishes a data message so the UI can show the
+    ambulance number the caller is being told out loud. That is a convenience.
+    The emergency script is not. These tests pin the ordering: the script is
+    returned whatever the data channel does.
+
+    The tool is awaited directly. `FunctionTool` is callable, and the tool body
+    touches no session state on these paths, so `object.__new__` is enough of an
+    instance — no LiveKit room or worker required.
+    """
+
+    @staticmethod
+    async def _call(danger_sign: str, *, pregnancy: bool = False) -> str:
+        agent = object.__new__(SehatSathi)
+        return await SehatSathi.escalate_to_emergency_care(
+            agent, None, danger_sign, pregnancy
+        )
+
+    @pytest.mark.asyncio
+    async def test_emergency_script_survives_publish_failure(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A dead data channel must not cost the caller the ambulance number.
+
+        This is the whole reason the publish is safe to add. If this test ever
+        fails, the UI signal has been allowed to sit in front of the safety path
+        and must be moved back behind it.
+        """
+
+        def _explode() -> None:
+            raise RuntimeError("no job context")
+
+        monkeypatch.setattr("agent.get_job_context", _explode)
+
+        result = await self._call("seene mein dard ho raha hai")
+
+        assert result.startswith("EMERGENCY")
+        assert EMERGENCY_AMBULANCE in result or "one zero eight" in result
+
+    @pytest.mark.asyncio
+    async def test_publishes_on_a_genuine_danger_sign(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        published: list[tuple[bytes, str]] = []
+
+        monkeypatch.setattr("agent.get_job_context", lambda: _FakeJobContext(published))
+
+        result = await self._call("saans nahin aa rahi", pregnancy=True)
+
+        assert result.startswith("EMERGENCY")
+        assert len(published) == 1, "expected exactly one escalation signal"
+
+        payload, topic = published[0]
+        assert topic == "sehat.escalation"
+
+        body = json.loads(payload)
+        assert body["type"] == "escalation"
+        assert body["ambulance"] == EMERGENCY_AMBULANCE
+        assert body["emergency"] == NATIONAL_EMERGENCY
+        assert body["maternal"] is True
+        # The caller's own words about their body are not the UI's business.
+        assert "saans" not in payload.decode().lower()
+
+    @pytest.mark.asyncio
+    async def test_suppressed_false_alarm_publishes_nothing(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The false-alarm brake stays authoritative over the banner.
+
+        A three-week cough must not put an ambulance number on screen, for the
+        same cry-wolf reason it must not put one in the caller's ear.
+        """
+        published: list[tuple[bytes, str]] = []
+
+        monkeypatch.setattr("agent.get_job_context", lambda: _FakeJobContext(published))
+
+        result = await self._call("teen hafte se khaansi hai")
+
+        assert result.startswith("NOT AN EMERGENCY")
+        assert published == []

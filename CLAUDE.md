@@ -7,8 +7,8 @@ Handoff notes for continuing development. Read this before changing anything in
 **#VoiceForBharat** (10 Days of AI Voice Agents, by Murf AI), on LiveKit Agents
 with **Murf Falcon** TTS.
 
-**Where things stand:** Days 1 and 2 are done and posted. Branch
-`claude/sehat-sathi-agent-ydr4cm`, open as PR #1 against `main`.
+**Where things stand:** Days 1–3 are done. Days 1–2 are merged into `main`
+(PR #3). Day 3 is on branch `claude/day3-frontend-states`.
 
 ---
 
@@ -99,6 +99,43 @@ agreement** — that contradiction is what caused the bug.
 
 ---
 
+## The second thing to understand: the phase machine
+
+The whole frontend used to switch on one boolean, `session.isConnected`. A
+boolean cannot express "connecting" or "the call has ended", so pressing start
+gave no feedback and hanging up dumped the caller on a blank intake card with the
+transcript destroyed.
+
+`components/sehat/consultation-provider.tsx` now owns a four-value phase —
+`ready → connecting → live → ended` — and `view-controller.tsx` switches on it.
+Three things live in the provider because they must **outlive the disconnect**:
+the elapsed clock, the escalation latch, and the end-of-call snapshot the
+discharge slip is built from.
+
+Two non-obvious rules in there, both learned by getting them wrong:
+
+- **`live` means `agent.canListen`, not `isConnected`.** With the pre-connect
+  buffer on, the room comes up before the agent joins. Telling someone to start
+  talking when nobody is listening yet is worse than making them wait.
+- **The transcript is captured *during* the call, never at the end.**
+  `useSessionMessages` empties its store on disconnect, and the snapshot effect
+  runs after that. Reading it there produced a slip reading "Turns 0" for a
+  conversation that plainly had turns. The ref is only ever written while
+  `phase === 'live'` and never overwritten with an empty list.
+
+### Escalation is now visible
+
+`escalate_to_emergency_care` publishes a data message on topic
+`sehat.escalation`, which `hooks/useEscalationSignal.ts` turns into the sindoor
+banner with `tel:` links. The numbers travel in the payload from the same
+`health_resources` constants the spoken script uses, so screen and voice cannot
+disagree, and no symptom text goes on the data channel.
+
+**The publish is wrapped in `try/except` and every failure is swallowed.** A
+banner is a convenience; the emergency script is not. `TestEscalationSignal::
+test_emergency_script_survives_publish_failure` pins that ordering — if it ever
+fails, the UI signal has been allowed in front of the safety path.
+
 ## Gotchas that cost time
 
 - **`session.run()` does not call `on_user_turn_completed`.** It goes
@@ -120,6 +157,27 @@ agreement** — that contradiction is what caused the bug.
   saying `openai/gpt-4.1-mini`.
 - **`prefers-reduced-motion` is honoured by the ECG canvas** — if you touch the
   render loop, keep the static-trace branch working.
+- **Never add a dependency to the ECG's animation effect.** Both trace colours
+  (`--teal` for the agent, `--marigold` for the caller) are read up front and
+  chosen *per frame* from a ref. Adding `speaker` or a colour to the dep array
+  restarts the loop and visibly jumps the trace.
+- **`localParticipant.isSpeaking` is a trap.** The participant is a stable object
+  that mutates in place, so reading the property renders once and then goes
+  stale. Use `useIsSpeaking(participant)`.
+- **`MediaDeviceFailure.getFailure()` returns `Other` for *any* error with a
+  `name`** — which every `Error` has. A bad LiveKit token comes back as `Other`.
+  `classifyMicError` therefore maps only `PermissionDenied`/`NotFound`/
+  `DeviceInUse` and returns `null` for everything else, so a token failure never
+  tells the caller to unblock a microphone that was fine.
+- **`pnpm lint` fails on this machine for every file, including untouched ones.**
+  `core.autocrlf=true` gives CRLF working files while prettier expects LF. It is
+  environmental, not a code fault. A `.gitattributes` with `* text=auto eol=lf`
+  would fix it properly, at the cost of a repo-wide line-ending diff.
+- **Cold start was the real Day 3 bug.** `AgentServer`'s `num_idle_processes`
+  defaults to **0 in dev**, so every call paid a process spawn plus
+  `silero.VAD.load()`. Measured 13.8s from job to audio-ready, and the first test
+  caller hung up one second before the agent came alive. Now pinned to a
+  `ServerEnvOption(dev_default=1, prod_default=12)`.
 
 ---
 
@@ -142,10 +200,19 @@ frontend/
   app/layout.tsx              Fonts, masthead, theme provider
   styles/globals.css          THE design system — palette, type, .register-card,
                               .paper-rules, .record-field, .field-label
+  hooks/
+    useMicPermission.ts         Mic failure classification + readiness pre-check
+    useEscalationSignal.ts      Listens for the sehat.escalation data message
   components/sehat/
+    consultation-provider.tsx   THE phase machine. Read this before the views.
     ecg-visualizer.tsx        Canvas PQRST trace. The signature element.
-    session-view.tsx          Live consultation view
-    welcome-view.tsx          Intake card
+    welcome-view.tsx          Intake card — phase `ready`
+    connecting-view.tsx       Waiting room + agent-unavailable — phase `connecting`
+    session-view.tsx          Live consultation view — phase `live`
+    ended-view.tsx            Discharge slip (parchi) — phase `ended`
+    emergency-banner.tsx      Sindoor 108/112 banner. The only sindoor use.
+    mic-denied-notice.tsx     Per-cause mic copy + text-only fallback
+    speaker-caption.tsx       "Aap bol rahe hain" / "Sathi bol rahi hain"
     record-transcript.tsx     Case-notes transcript
     agent-status.ts           Bilingual state labels, elapsed-time format
 
@@ -247,10 +314,20 @@ covers the safety-critical matching.
 
 ## Where to go next
 
-Days 3–10 are unscheduled. Known gaps, roughly by value:
+Days 4–10 are unscheduled. Known gaps, roughly by value:
 
-1. **Latency measurement.** How long escalation takes to reach the caller's ear
-   is the number that matters most for an emergency, and it is unmeasured.
+1. **Connect latency is now measured, and still too slow.** `connect timing`
+   logs in `sehat_sathi()` give the numbers. Latest run: `session_built` 4.4s,
+   `session_started` 14.5s, `room_connected` +3ms. Two remaining causes, both
+   diagnosed and neither yet fixed:
+   - **LiveKit Cloud session recording** (`enable_recording: true` on every job)
+     splices `RecorderIO` into the audio path twice and uploads a session report
+     on shutdown that measured 14–19s. It is **not settable from code** —
+     checked `AgentServer.__init__`, `rtc_session()` and `room_io.RoomOptions`.
+     Turn it off in the LiveKit Cloud dashboard while developing.
+   - **`MultilingualModel()` and the plugin constructors run per job** inside
+     `AgentSession(...)`, costing ~4.4s. Moving the turn detector into `prewarm`
+     via `proc.userdata` should amortise it. Not yet attempted.
 2. **Multi-turn guardrail pressure.** Every adversarial case is single-turn. A
    caller who asks for a dose four times, rephrasing each time, is untested.
 3. **Regional languages.** A Marathi or Bengali caller currently gets an honest

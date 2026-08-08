@@ -199,6 +199,33 @@
       0 0 0 3px var(--rule) inset;
   }
 
+  /* The discharge slip: a register card that has been torn off along the top,
+     so the end of a call feels like being handed something. The zig-zag is drawn
+     with two gradients rather than an image so it recolours with the theme. */
+  .slip-card {
+    background-color: var(--card);
+    border: 1px solid var(--rule-strong);
+    border-top: none;
+    box-shadow:
+      0 0 0 1px var(--card) inset,
+      0 0 0 3px var(--rule) inset;
+    position: relative;
+  }
+  .slip-card::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--card) 50%),
+      linear-gradient(-45deg, transparent 50%, var(--card) 50%);
+    background-size: 12px 12px;
+    background-repeat: repeat-x;
+    filter: drop-shadow(0 -1px 0 var(--rule-strong));
+  }
+
   /* A form field with a dotted leader, as on a paper intake sheet. */
   .record-field {
     display: flex;
