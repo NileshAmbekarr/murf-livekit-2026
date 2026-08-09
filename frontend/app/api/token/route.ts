@@ -18,6 +18,33 @@ const AGENT_NAME = process.env.AGENT_NAME;
 // don't cache the results
 export const revalidate = 0;
 
+/** Must match `CALLER_ID_PREFIX` in lib/caller-id.ts and backend/src/agent.py. */
+const CALLER_ID_PREFIX = 'sehat-caller-';
+const CALLER_ID_PATTERN = new RegExp(`^${CALLER_ID_PREFIX}[A-Za-z0-9-]{8,64}$`);
+
+/**
+ * The caller id from the request, if it is one we would have issued.
+ *
+ * This value becomes a LiveKit participant identity and the key to a caller's
+ * stored health facts, and it arrives from the client, so it is validated
+ * rather than trusted: exact prefix, bounded length, and no characters beyond
+ * those a UUID uses. Anything else is discarded and the caller gets a throwaway
+ * identity instead.
+ *
+ * This does not make the id unforgeable — anyone who knows someone else's id
+ * could send it. Real protection needs an authenticated caller, which is a
+ * telephony or sign-in problem rather than a token-route one. It is why the
+ * agent still confirms who it is speaking to out loud before it acts on what it
+ * remembers.
+ *
+ * The SDK's casing for this field has varied, so both spellings are accepted.
+ */
+function callerIdFrom(body: Record<string, unknown>): string | undefined {
+  const candidate = body?.participantIdentity ?? body?.participant_identity;
+  if (typeof candidate !== 'string') return undefined;
+  return CALLER_ID_PATTERN.test(candidate) ? candidate : undefined;
+}
+
 export async function POST(req: Request) {
   try {
     if (LIVEKIT_URL === undefined) {
@@ -46,7 +73,12 @@ export async function POST(req: Request) {
 
     // Generate participant token
     const participantName = 'user';
-    const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
+    // A caller who has been here before sends the id their browser kept, and the
+    // agent uses it to look up what it may remember. Without it — private
+    // browsing, a first visit, storage blocked — they get a throwaway identity
+    // and the agent treats them as new, which is the correct default.
+    const participantIdentity =
+      callerIdFrom(body) ?? `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
     const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;
 
     const participantToken = await createParticipantToken(

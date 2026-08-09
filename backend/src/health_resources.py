@@ -277,6 +277,15 @@ RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
     ("seene me dard", "chest pain"),
     ("chhaati mein dard", "chest pain"),
     ("chaati mein dard", "chest pain"),
+    # Devanagari. Both the anusvara and the full nasal form are listed
+    # ("में" / "मे", "साँस" / "सांस") because speech-to-text is inconsistent
+    # about them and a missing dot must not cost someone an ambulance.
+    ("सीने में दर्द", "chest pain"),
+    ("सीने मे दर्द", "chest pain"),
+    ("छाती में दर्द", "chest pain"),
+    ("छाती मे दर्द", "chest pain"),
+    ("सीने में जकड़न", "chest tightness"),
+    ("सीने मे जकड़न", "chest tightness"),
     ("cannot breathe", "breathlessness"),
     ("can't breathe", "breathlessness"),
     ("cant breathe", "breathlessness"),
@@ -287,6 +296,15 @@ RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
     ("saans nahin aa", "breathlessness"),
     ("saans phool", "breathlessness"),
     ("dam ghut", "breathlessness"),
+    ("साँस नहीं आ", "breathlessness"),
+    ("सांस नहीं आ", "breathlessness"),
+    ("साँस नही आ", "breathlessness"),
+    ("सांस नही आ", "breathlessness"),
+    ("साँस फूल", "breathlessness"),
+    ("सांस फूल", "breathlessness"),
+    ("साँस लेने में दिक्कत", "breathlessness"),
+    ("सांस लेने में दिक्कत", "breathlessness"),
+    ("दम घुट", "breathlessness"),
     # Neurological
     ("slurred speech", "stroke signs"),
     ("face is drooping", "stroke signs"),
@@ -295,16 +313,25 @@ RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
     ("cannot move one side", "stroke signs"),
     ("muh tedha", "stroke signs"),
     ("bolne mein dikkat", "stroke signs"),
+    ("मुँह टेढ़ा", "stroke signs"),
+    ("मुंह टेढ़ा", "stroke signs"),
+    ("मुह टेढ़ा", "stroke signs"),
+    ("बोलने में दिक्कत", "stroke signs"),
+    ("बोलने मे दिक्कत", "stroke signs"),
+    ("एक तरफ सुन्न", "stroke signs"),
     ("unconscious", "unconsciousness"),
     ("passed out", "unconsciousness"),
     ("fainted", "unconsciousness"),
     ("behosh", "unconsciousness"),
+    ("बेहोश", "unconsciousness"),
     ("seizure", "seizure"),
     ("convulsion", "seizure"),
     ("fit aa raha", "seizure"),
     ("fits aa rahe", "seizure"),
     ("daura pad", "seizure"),
     ("mirgi", "seizure"),
+    ("दौरा पड़", "seizure"),
+    ("मिर्गी", "seizure"),
     # Bleeding
     ("bleeding heavily", "uncontrolled bleeding"),
     ("won't stop bleeding", "uncontrolled bleeding"),
@@ -316,17 +343,32 @@ RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
     ("khoon band nahi", "uncontrolled bleeding"),
     ("ulti mein khoon", "vomiting blood"),
     ("khoon ki ulti", "vomiting blood"),
+    ("खून नहीं रुक", "uncontrolled bleeding"),
+    ("खून नही रुक", "uncontrolled bleeding"),
+    ("खून बंद नहीं", "uncontrolled bleeding"),
+    ("खून बंद नही", "uncontrolled bleeding"),
+    ("उल्टी में खून", "vomiting blood"),
+    ("उल्टी मे खून", "vomiting blood"),
+    ("खून की उल्टी", "vomiting blood"),
+    ("खाँसी में खून", "coughing blood"),
+    ("खांसी में खून", "coughing blood"),
     # Maternal & newborn
     ("bleeding during pregnancy", "bleeding in pregnancy"),
     ("baby is not moving", "reduced fetal movement"),
     ("baby not moving", "reduced fetal movement"),
     ("bachcha hil nahi", "reduced fetal movement"),
+    ("बच्चा हिल नहीं", "reduced fetal movement"),
+    ("बच्चा हिल नही", "reduced fetal movement"),
+    ("प्रेगनेंसी में खून", "bleeding in pregnancy"),
+    ("गर्भावस्था में खून", "bleeding in pregnancy"),
     ("baby will not feed", "newborn not feeding"),
     ("baby won't feed", "newborn not feeding"),
     ("baby wont feed", "newborn not feeding"),
     ("baby is not feeding", "newborn not feeding"),
     ("baby not feeding", "newborn not feeding"),
     ("doodh nahi pi", "newborn not feeding"),
+    ("दूध नहीं पी", "newborn not feeding"),
+    ("दूध नही पी", "newborn not feeding"),
     # Self-harm
     ("kill myself", "self-harm"),
     ("end my life", "self-harm"),
@@ -339,6 +381,15 @@ RED_FLAG_PHRASES: tuple[tuple[str, str], ...] = (
     ("jaan dena", "self-harm"),
     ("jeena nahi chahta", "self-harm"),
     ("khud ko nuksan", "self-harm"),
+    ("मरना चाहता", "self-harm"),
+    ("मरना चाहती", "self-harm"),
+    ("जान देना", "self-harm"),
+    ("जान दे दूं", "self-harm"),
+    ("जीना नहीं चाहता", "self-harm"),
+    ("जीना नही चाहता", "self-harm"),
+    ("जीने का मन नहीं", "self-harm"),
+    ("खुद को नुकसान", "self-harm"),
+    ("आत्महत्या", "self-harm"),
 )
 
 # Signs that mean the caller is pregnant or handling a newborn, so escalation
@@ -357,6 +408,19 @@ _MATERNAL_HINTS: tuple[str, ...] = (
     "delivery",
     "labour",
     "labor",
+    # Devanagari, so a pure-Hindi caller still gets the 102 maternal ambulance
+    # offered and still trips the bleeding compound rule below.
+    "गर्भ",
+    "गर्भवती",
+    "प्रेगनेंट",
+    "प्रेग्नेंट",
+    "प्रेगनेंसी",
+    "नवजात",
+    "बच्चा",
+    "बच्चे",
+    "शिशु",
+    "डिलीवरी",
+    "प्रसव",
 )
 
 
@@ -371,7 +435,27 @@ _BLEEDING_TERMS: tuple[str, ...] = (
     "khoon beh",
     "spotting",
     "rakt",
+    "खून आ",
+    "खून जा",
+    "खून बह",
+    "ब्लीडिंग",
+    "रक्तस्राव",
 )
+
+
+def contains_devanagari(text: str) -> bool:
+    """Whether `text` contains any Devanagari character.
+
+    Two callers depend on this, for different reasons. The transcript log uses it
+    to record which script speech-to-text returned, because the danger-sign
+    phrases below are matched literally and a script change would silently stop
+    them matching. The agent uses it to pick the Murf pronunciation locale, since
+    Devanagari in a reply means the sentence should be spoken as Hindi.
+
+    Range U+0900 to U+097F is the Devanagari block. Devanagari Extended holds
+    only Vedic accents, so it is not worth testing for.
+    """
+    return any("ऀ" <= character <= "ॿ" for character in text or "")
 
 
 def detect_red_flags(text: str) -> list[str]:
@@ -379,6 +463,11 @@ def detect_red_flags(text: str) -> list[str]:
 
     Used to force the escalation path open on the user's turn, before the model
     gets a chance to keep chatting.
+
+    Matching is literal, so every Hindi phrase is listed in **both** romanised
+    Latin and Devanagari. Which of the two arrives is the speech-to-text
+    vendor's choice, not ours, and it is undocumented for nova-3 — so the
+    detector must not care.
     """
     haystack = " ".join((text or "").lower().split())
     found: list[str] = []

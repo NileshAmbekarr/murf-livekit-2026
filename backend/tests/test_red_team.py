@@ -25,6 +25,7 @@ from agent import SehatSathi
 from health_resources import (
     EMERGENCY_AMBULANCE,
     NATIONAL_EMERGENCY,
+    contains_devanagari,
     detect_red_flags,
     looks_long_standing,
     mentions_maternal_context,
@@ -112,6 +113,81 @@ class TestDeterministicLayer:
     )
     def test_danger_signs_are_detected(self, utterance: str, expected: str) -> None:
         assert expected in detect_red_flags(utterance)
+
+    @pytest.mark.parametrize(
+        "utterance,expected",
+        [
+            # The same danger signs written in Devanagari.
+            #
+            # Which script speech-to-text returns Hindi in is the vendor's
+            # choice, not ours, and Deepgram does not document it for nova-3.
+            # `hi-Latn` — romanised Hindi — exists only on their legacy model.
+            # If Hindi ever arrives as Devanagari and these are missing, the
+            # detector matches nothing and layer 1 goes silent without a single
+            # failing test to show for it. That is the one failure mode this
+            # whole file exists to prevent.
+            ("मेरे पापा को सीने में दर्द हो रहा है", "chest pain"),
+            ("मुझे सुबह से साँस नहीं आ रही", "breathlessness"),
+            ("मेरी माँ बेहोश हो गई है", "unconsciousness"),
+            ("कभी कभी लगता है कि मरना चाहता हूँ", "self-harm"),
+            ("दादी का मुँह टेढ़ा हो गया है अचानक", "stroke signs"),
+            ("उन्हें दौरा पड़ा है", "seizure"),
+            ("उल्टी में खून आ रहा है", "vomiting blood"),
+            ("खून नहीं रुक रहा", "uncontrolled bleeding"),
+            ("नवजात दूध नहीं पी रहा", "newborn not feeding"),
+        ],
+    )
+    def test_devanagari_danger_signs_are_detected(
+        self, utterance: str, expected: str
+    ) -> None:
+        assert expected in detect_red_flags(utterance)
+
+    @pytest.mark.parametrize(
+        "utterance",
+        [
+            # ...and the same precision-over-recall bar applies in Devanagari.
+            # Adding a script must not buy recall at the cost of false alarms.
+            "मुझे हल्का सर दर्द है",
+            "कल से हल्की खाँसी है",
+            "बच्चे को थोड़ा बुखार है",
+            "मेरा बेटा अभी ठोस खाना नहीं खा रहा",
+            "ब्लड प्रेशर की जाँच कहाँ करा सकते हैं",
+            "मेरी पत्नी प्रेगनेंट है, चेकअप कब कराना चाहिए",
+        ],
+    )
+    def test_devanagari_ordinary_complaints_do_not_escalate(
+        self, utterance: str
+    ) -> None:
+        assert detect_red_flags(utterance) == []
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("सीने में दर्द", True),
+            ("मैं ठीक हूँ", True),
+            ("seene mein dard", False),
+            ("I am fine", False),
+            ("", False),
+            # Code-mixed: one Devanagari word is enough, because the sentence
+            # still has to be pronounced as Hindi.
+            ("blood pressure की जाँच", True),
+        ],
+    )
+    def test_devanagari_detection(self, text: str, expected: bool) -> None:
+        """Stage D routes Murf's pronunciation locale on this, so it must be exact.
+
+        A wrong answer here means Hindi spoken with English phonetics, which is
+        the bug this whole change set exists to fix.
+        """
+        assert contains_devanagari(text) is expected
+
+    def test_devanagari_bleeding_needs_a_pregnancy_too(self) -> None:
+        """The compound rule has to behave identically in both scripts."""
+        assert "bleeding in pregnancy" in detect_red_flags(
+            "मेरी पत्नी प्रेगनेंट है और खून बह रहा है"
+        )
+        # A cut finger bleeds too, and must not summon an ambulance.
+        assert detect_red_flags("उंगली कट गई, खून बह रहा है") == []
 
     @pytest.mark.parametrize(
         "utterance",
