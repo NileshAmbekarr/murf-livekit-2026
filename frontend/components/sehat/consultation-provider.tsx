@@ -200,6 +200,22 @@ export function ConsultationProvider({ children }: { children: React.ReactNode }
         // the caller rather than thrown. Anything else — a bad token, a dead
         // network — is not a microphone problem and must not be dressed up as one.
         if (!mic.report(error)) throw error;
+
+        // The room connects before the microphone is published, so a blocked mic
+        // leaves a live session the caller cannot speak on — with the agent on
+        // the line talking to nobody, and every later start() a no-op because
+        // the session is technically already connected. Closing it is what makes
+        // "try again" and "continue by text" work at all.
+        //
+        // Only when a microphone was actually wanted. The text-only path still
+        // surfaces a device error on some browsers even though it asked for no
+        // microphone, and ending there would hang up a call that is working
+        // exactly as intended.
+        if (!withoutMic) {
+          await session.end().catch(() => {
+            // Already gone. Nothing to clean up.
+          });
+        }
       }
     },
     [session, mic]

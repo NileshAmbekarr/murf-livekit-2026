@@ -24,6 +24,7 @@ import json
 import logging
 import os
 import time
+from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit import rtc
@@ -55,6 +56,12 @@ from health_resources import (
     find_schemes,
     looks_long_standing,
     mentions_maternal_context,
+)
+from memory import (
+    CallerRecord,
+    ConsentRequiredError,
+    FactNotAllowedError,
+    MemoryStore,
 )
 
 logger = logging.getLogger("sehat-sathi")
@@ -91,6 +98,19 @@ LLM_MODEL = os.getenv("GOOGLE_LLM_MODEL", "gemini-3.5-flash-lite")
 # to judge. Either choice is safe for escalation: `RED_FLAG_PHRASES` now carry
 # both Devanagari and romanised forms, so layer 1 fires whichever script arrives.
 STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "hi")
+
+# --- Caller memory -----------------------------------------------------------
+# A local SQLite file rather than a hosted database, for two reasons. The lookup
+# happens mid-conversation, and a file read costs microseconds where a network
+# round-trip costs a turn the caller is sitting through. And this is health
+# information about identifiable people: a file we control is one we can truly
+# delete when someone asks to be forgotten.
+MEMORY_DB_PATH = os.getenv("MEMORY_DB_PATH", "data/callers.db")
+memory_store = MemoryStore(MEMORY_DB_PATH)
+
+# The frontend mints a stable id and sends it as the LiveKit participant
+# identity. Must match `CALLER_ID_PREFIX` in frontend/lib/caller-id.ts.
+CALLER_ID_PREFIX = "sehat-caller-"
 
 # --- Frontend signalling -----------------------------------------------------
 # Topic the frontend listens on to learn that an escalation fired, so the screen
@@ -258,7 +278,9 @@ this. Be polite about it and hold the line.
 - That someone qualifies for a scheme, or that a claim will be approved.
 - That a scheme amount, eligibility rule or price is current — say it varies by
   state and must be confirmed locally.
-- That you remember a previous call. Every call starts fresh.
+- That you remember something you have not actually been told by the
+  recall_caller tool. If the tool says the caller is new, they are new to you,
+  however familiar they sound.
 
 ## Escalation script
 Use this whenever a danger sign appears. Call the
@@ -297,6 +319,47 @@ For anything that is persistent, worsening, or involves a pregnancy, a newborn
 or an elderly person, send them to their ASHA worker or nearest PHC even when
 it is not an emergency.
 
+# MEMORY
+
+You can remember callers between calls, so nobody has to repeat their age and
+their conditions every time. Use the tools; never guess.
+
+## Looking someone up
+`recall_caller` is called for you at the start of every call, and its result is
+already in this conversation. If it says the caller is known, greet them by name
+in your first sentence and refer to one thing you remember, warmly and briefly —
+"नमस्ते रमेश जी, पिछली बार आपने शुगर की बात की थी, अब कैसा है?" Do not read their
+record out like a form.
+
+If it says they are new, greet them normally and do not imply you know them.
+
+## Asking before you save
+Before storing anything, say plainly that you would like to remember it for next
+time, and wait for an answer. Then call `ask_to_remember` with what they said.
+If they say no, call it with agreed=false, tell them you will not keep anything,
+and carry on helping them exactly as warmly as before. Saving is a convenience;
+being trusted is the whole service.
+
+Never ask for permission in the middle of an emergency. Help first.
+
+## What you may store, and nothing else
+Only these, through `remember_about_caller`:
+- age_band: child, teen, adult, senior
+- ongoing_condition: a long-term condition they told you they have
+- last_triage_outcome: how this call ended
+- language_preference: hindi, english or mixed
+- their first name, to greet them by
+
+You must never store what someone described feeling today, how long a symptom
+has lasted, what you suspected, an address, a phone number, an Aadhaar number,
+or any other identifying detail. The tool will reject those. Do not try to fit
+them into a field that is allowed either.
+
+## Forgetting
+If a caller asks to be forgotten, in any wording, call `forget_me` immediately.
+Do not ask them to justify it, and do not try to talk them out of it. Confirm
+that it is done.
+
 # STYLE
 Your words are spoken aloud, so write for the ear and never for a screen.
 - Two or three sentences per turn. Under twenty words each.
@@ -314,10 +377,15 @@ Your words are spoken aloud, so write for the ear and never for a screen.
 
 
 class SehatSathi(Agent):
-    """The Sehat Sathi persona, with its escalation and lookup tools."""
+    """The Sehat Sathi persona, with its escalation, lookup and memory tools."""
 
-    def __init__(self) -> None:
+    def __init__(self, caller_id: str = "") -> None:
         super().__init__(instructions=SYSTEM_PROMPT)
+        # Who this call belongs to, from the LiveKit participant identity. The
+        # model is never told the id and never passes it to a tool: it is bound
+        # here, per session, so no amount of prompting can make the agent read or
+        # write somebody else's record.
+        self._caller_id = caller_id
 
     async def on_user_turn_completed(
         self, turn_ctx: llm.ChatContext, new_message: llm.ChatMessage
@@ -473,6 +541,139 @@ class SehatSathi(Agent):
         )
 
     @function_tool
+    async def recall_caller(self, context: RunContext) -> str:
+        """Look up what is already known about the caller on the line.
+
+        Called for you at the start of every call, so you rarely need to call it
+        again. Use it if you lose track of whether you have met this caller
+        before. It takes no arguments — the caller is whoever is on this call.
+        """
+        if not self._caller_id:
+            return "No caller id on this call, so nothing can be looked up. Treat them as new."
+
+        record = memory_store.get(self._caller_id)
+        if record is None:
+            return "No record for this caller. Treat them as new."
+
+        memory_store.touch(self._caller_id)
+        return record.summary_for_agent()
+
+    @function_tool
+    async def ask_to_remember(self, context: RunContext, agreed: bool) -> str:
+        """Record the caller's answer after you asked to remember them.
+
+        Call this only after you have actually asked out loud and heard a reply.
+        Nothing can be saved until you do — `remember_about_caller` refuses
+        without it.
+
+        Args:
+            agreed: True if the caller said yes. False if they declined, which
+                also erases anything already held about them.
+        """
+        if not self._caller_id:
+            return "No caller id on this call, so nothing can be stored either way."
+
+        memory_store.record_consent(self._caller_id, agreed=bool(agreed))
+        logger.info("caller consent recorded", extra={"agreed": bool(agreed)})
+
+        if agreed:
+            return (
+                "Consent recorded. You may now save allowed facts with "
+                "remember_about_caller. Thank them briefly and carry on."
+            )
+        return (
+            "The caller declined, and anything held about them has been deleted. "
+            "Tell them nothing will be kept, and help them exactly as before. "
+            "Do not ask again during this call."
+        )
+
+    @function_tool
+    async def remember_about_caller(
+        self,
+        context: RunContext,
+        name: str = "",
+        age_band: str = "",
+        ongoing_condition: str = "",
+        last_triage_outcome: str = "",
+        language_preference: str = "",
+    ) -> str:
+        """Save a few facts so the next call can pick up where this one left off.
+
+        Only call this after `ask_to_remember` returned that consent was given.
+        Pass only the fields you actually learned; leave the rest empty.
+
+        Never put a description of today's symptoms, how long something has
+        lasted, what you suspected, or any address or number into these fields.
+        Those are refused, and trying to hide one inside an allowed field is
+        worse than not saving at all.
+
+        Args:
+            name: The caller's first name, for greeting them next time.
+            age_band: One of child, teen, adult, senior.
+            ongoing_condition: A long-term condition they said they have, e.g.
+                diabetes, high blood pressure, asthma.
+            last_triage_outcome: How this call ended — emergency referral,
+                advised clinic visit, advised asha worker, information only, or
+                scheme guidance.
+            language_preference: hindi, english or mixed.
+        """
+        if not self._caller_id:
+            return "No caller id on this call, so nothing can be saved. Carry on helping them."
+
+        candidates = {
+            "age_band": age_band,
+            "ongoing_condition": ongoing_condition,
+            "last_triage_outcome": last_triage_outcome,
+            "language_preference": language_preference,
+        }
+        facts = {key: value for key, value in candidates.items() if value}
+
+        if not facts and not name:
+            return "Nothing was passed to save."
+
+        try:
+            record = memory_store.remember(self._caller_id, name=name, facts=facts)
+        except ConsentRequiredError:
+            return (
+                "NOT SAVED. You have not asked the caller yet. Ask whether you may "
+                "remember this for next time, then call ask_to_remember, then try again."
+            )
+        except FactNotAllowedError as refusal:
+            # Surfaced rather than swallowed so the model corrects itself, and
+            # logged so an attempt to store something forbidden is visible.
+            logger.warning("rejected a disallowed fact", extra={"reason": str(refusal)})
+            return (
+                f"NOT SAVED. {refusal} Save only what fits those values, and never "
+                "a description of symptoms."
+            )
+
+        logger.info("caller memory updated", extra={"fields": sorted(facts)})
+        return (
+            f"Saved. Known now: {record.summary_for_agent()} "
+            "Tell the caller briefly that you will remember, and move on."
+        )
+
+    @function_tool
+    async def forget_me(self, context: RunContext) -> str:
+        """Erase everything stored about this caller, immediately and for good.
+
+        Use this the moment a caller asks to be forgotten, however they word it.
+        Do not ask why and do not try to change their mind.
+        """
+        if not self._caller_id:
+            return "There was nothing stored for this call. Tell them there is nothing to erase."
+
+        existed = memory_store.forget(self._caller_id)
+        logger.info("caller memory erased", extra={"had_record": existed})
+
+        return (
+            "Erased. Tell them everything you had about them is deleted, that you "
+            "will not bring it up again, and ask how you can help today."
+            if existed
+            else "There was nothing stored. Tell them there was nothing to erase."
+        )
+
+    @function_tool
     async def find_health_service(self, context: RunContext, topic: str) -> str:
         """Look up Indian health helplines and government schemes for a topic.
 
@@ -620,6 +821,63 @@ def _install_silence_handling(session: AgentSession, ctx: JobContext) -> None:
         task.add_done_callback(pending.discard)
 
 
+def _caller_id_of(participant: rtc.RemoteParticipant) -> str:
+    """The memory key for this caller, or "" if there isn't a durable one.
+
+    Only identities the frontend deliberately minted count. The stock token route
+    hands out `voice_assistant_user_<random>` afresh on every call, so treating
+    any identity as a key would fill the database with thousands of single-use
+    rows that can never be matched again — and would mean "returning caller"
+    never worked while looking like it should.
+    """
+    identity = participant.identity or ""
+    if not identity.startswith(CALLER_ID_PREFIX):
+        logger.info("caller has no durable id", extra={"identity": identity})
+        return ""
+    return identity
+
+
+async def _identify_caller(ctx: JobContext) -> str:
+    """The caller's durable id, or "" if there isn't one to be had.
+
+    Never raises. Identifying the caller is a nicety — being greeted by name —
+    and it runs before the session starts, so an exception here would take the
+    whole call down with it. `wait_for_participant()` raises outright if the room
+    drops while it is waiting, which on the connections this agent is built for
+    is a thing that genuinely happens: the caller who loses signal during connect
+    would have crashed the job instead of simply being treated as new.
+
+    The caller has almost always joined before the job is dispatched, so the
+    already-present participants are checked first and the wait is only a
+    fallback.
+    """
+    for participant in ctx.room.remote_participants.values():
+        found = _caller_id_of(participant)
+        if found:
+            return found
+
+    try:
+        participant = await asyncio.wait_for(ctx.wait_for_participant(), timeout=5)
+    except (TimeoutError, asyncio.TimeoutError, RuntimeError) as exc:
+        logger.info("could not identify caller", extra={"reason": str(exc)})
+        return ""
+
+    return _caller_id_of(participant)
+
+
+def _greeting_for(record: CallerRecord | None) -> str:
+    """The opening line, personalised when we have met this caller before.
+
+    Only the name goes in the fixed text. Anything else worth mentioning is in
+    the chat context, so the model can raise it naturally in its next sentence
+    instead of the greeting reciting a file back at someone.
+    """
+    if record is None or not record.name:
+        return GREETING
+
+    return f"नमस्ते {record.name} जी, फिर से आपसे बात करके अच्छा लगा। बताइए, आज तबीयत कैसी है?"
+
+
 @server.rtc_session(agent_name=AGENT_NAME)
 async def sehat_sathi(ctx: JobContext):
     ctx.log_context_fields = {"room": ctx.room.name}
@@ -667,8 +925,32 @@ async def sehat_sathi(ctx: JobContext):
     _install_silence_handling(session, ctx)
     _mark("session_built")
 
+    # Connect before starting the session so the caller's identity is known in
+    # time to look them up. The connect itself measured at 3ms, so doing it here
+    # costs nothing, and it means the record is fetched *while* the session is
+    # still being built rather than adding a pause before the greeting.
+    await ctx.connect()
+    _mark("room_connected")
+
+    caller_id = await _identify_caller(ctx)
+    record = memory_store.get(caller_id) if caller_id else None
+    # `name` is a reserved LogRecord attribute — passing it in `extra` raises
+    # KeyError and kills the job, so the field is `caller_name`.
+    logger.info(
+        "caller recall",
+        extra={
+            "caller_id": caller_id or "(none)",
+            "known": record is not None,
+            "caller_name": record.name if record else "",
+            "db": str(Path(MEMORY_DB_PATH).resolve()),
+        },
+    )
+    _mark("caller_recalled")
+
+    agent = SehatSathi(caller_id=caller_id)
+
     await session.start(
-        agent=SehatSathi(),
+        agent=agent,
         room=ctx.room,
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
@@ -683,10 +965,16 @@ async def sehat_sathi(ctx: JobContext):
     )
     _mark("session_started")
 
-    await ctx.connect()
-    _mark("room_connected")
+    # Hand the model what recall found, the same way layer 1 injects a danger
+    # sign: as a system message it cannot miss, rather than hoping it calls the
+    # tool before it opens its mouth.
+    if record is not None:
+        chat_ctx = agent.chat_ctx.copy()
+        chat_ctx.add_message(role="system", content=record.summary_for_agent())
+        await agent.update_chat_ctx(chat_ctx)
+        memory_store.touch(caller_id)
 
-    await session.say(GREETING)
+    await session.say(_greeting_for(record))
     _mark("greeting_sent")
 
 

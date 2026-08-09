@@ -34,3 +34,6 @@ KMS
 
 # Audition clips are large and regenerable.
 audition/
+
+# Caller memory (SQLite) — never commit real caller data
+data/
