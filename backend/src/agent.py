@@ -146,6 +146,13 @@ GREETING = (
     "पर डॉक्टर नहीं हूँ। बोलिए, क्या परेशानी है?"
 )
 
+# Spoken when a provider — the model or speech-to-text — fails mid-call, so a
+# network problem sounds like a hiccup instead of the agent having hung up.
+PROVIDER_FAILURE_LINE = "माफ़ कीजिए, मुझे सुनने में थोड़ी दिक्कत हुई। एक बार फिर बोलिए।"
+
+# Background tasks kept referenced so they are not garbage-collected mid-flight.
+_BACKGROUND_TASKS: set[asyncio.Task] = set()
+
 # The escalation script, written once and referenced from both the prompt and
 # the emergency tool so the two can never drift apart.
 ESCALATION_SCRIPT = f"""
@@ -733,7 +740,27 @@ server = AgentServer(
 
 
 def prewarm(proc: JobProcess):
+    """Build everything that can be built before a caller is waiting on it.
+
+    Measured cost of constructing each of these fresh, per call:
+
+        google.LLM()        2180 ms
+        silero.VAD.load()    361 ms
+        deepgram.STT()         0 ms
+        murf.TTS()             0 ms
+
+    So the Gemini client is worth hoisting and the other two are not. Both of
+    these are stateless handles reused across the calls a process serves, which
+    is the whole point of keeping a process warm.
+
+    The turn detector cannot be hoisted, and it is worth writing down why so the
+    next person does not try: `MultilingualModel()` resolves the job's inference
+    executor in its constructor, so it raises "no job context found" outside a
+    job entrypoint. It stays per-job — but it is only a handle to the inference
+    process, which is already warm by then, so it is cheap.
+    """
     proc.userdata["vad"] = silero.VAD.load()
+    proc.userdata["llm"] = google.LLM(model=LLM_MODEL)
 
 
 server.setup_fnc = prewarm
@@ -777,6 +804,52 @@ def _install_transcript_logging(session: AgentSession) -> None:
                 "red_flags": detect_red_flags(transcript),
             },
         )
+
+
+def _install_failure_handling(session: AgentSession) -> None:
+    """Say something out loud when a provider fails, instead of going quiet.
+
+    Observed live: Gemini timed out four times in a row and the caller simply got
+    silence, until the silence handler eventually asked whether they were still
+    there. From the caller's side that is indistinguishable from the agent having
+    hung up — and on a health line, someone who thinks they have been abandoned
+    mid-question may not call back.
+
+    So a failure gets an apology and an instruction to try again. Deliberately
+    short, and deliberately not an explanation: "the language model timed out"
+    means nothing to the person on the line.
+    """
+    speaking_apology = False
+
+    async def _apologise() -> None:
+        nonlocal speaking_apology
+        try:
+            await session.say(PROVIDER_FAILURE_LINE)
+        finally:
+            speaking_apology = False
+
+    @session.on("error")
+    def _on_error(event) -> None:
+        nonlocal speaking_apology
+
+        # One apology at a time. A provider that is down usually fails several
+        # times over, and stacking four apologies on top of each other would be
+        # worse than the silence it replaces.
+        if speaking_apology:
+            return
+
+        error = getattr(event, "error", None)
+        if error is not None and not getattr(error, "recoverable", True):
+            # Unrecoverable errors end the session; the goodbye path covers those.
+            return
+
+        logger.warning(
+            "provider failure, apologising to the caller", extra={"error": str(error)}
+        )
+        speaking_apology = True
+        task = asyncio.create_task(_apologise())
+        _BACKGROUND_TASKS.add(task)
+        task.add_done_callback(_BACKGROUND_TASKS.discard)
 
 
 def _install_silence_handling(session: AgentSession, ctx: JobContext) -> None:
@@ -901,8 +974,9 @@ async def sehat_sathi(ctx: JobContext):
     session = AgentSession(
         # Ears — nova-3 in multilingual mode handles Hindi/English code-switching.
         stt=deepgram.STT(model="nova-3", language=STT_LANGUAGE),
-        # Brain
-        llm=google.LLM(model=LLM_MODEL),
+        # Brain — built in prewarm(), because constructing it measured 2.2s and
+        # the caller is already waiting by the time we get here.
+        llm=ctx.proc.userdata["llm"],
         # Voice — Murf Falcon, the fastest TTS API.
         tts=murf.TTS(
             voice=MURF_VOICE,
@@ -922,6 +996,7 @@ async def sehat_sathi(ctx: JobContext):
     )
 
     _install_transcript_logging(session)
+    _install_failure_handling(session)
     _install_silence_handling(session, ctx)
     _mark("session_built")
 

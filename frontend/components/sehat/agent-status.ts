@@ -19,10 +19,21 @@ const LABELS: Record<string, StatusLabel> = {
   disconnected: { hindi: 'Band', english: 'Not connected', tone: 'idle' },
   initializing: { hindi: 'Taiyaar ho raha hai', english: 'Warming up', tone: 'idle' },
   connecting: { hindi: 'Jud raha hai', english: 'Connecting', tone: 'idle' },
-  // The caller's speech is already being captured into the pre-connect buffer
-  // here, even though the agent has not finished joining. Saying "not connected"
-  // would tell them to stop talking when they should carry on.
-  'pre-connect-buffering': { hindi: 'Sun raha hoon', english: 'Listening', tone: 'active' },
+  // The caller's speech is being captured into the pre-connect buffer, but the
+  // agent has not joined yet and cannot answer.
+  //
+  // This used to read "Sun raha hoon / Listening", which was a lie of omission:
+  // the caller spoke, got nothing back for fifteen seconds while the session
+  // finished starting, and reasonably concluded it was broken. The buffered
+  // audio was fine — it was transcribed the moment the agent came up, with a
+  // measured `transcript_delay` of 15.1s. What was missing was any hint that a
+  // reply was still coming. Say both things: keep talking, and it is still
+  // joining.
+  'pre-connect-buffering': {
+    hindi: 'Bolte rahiye, Sathi jud rahi hain',
+    english: 'Recording — Sathi is still joining',
+    tone: 'idle',
+  },
   idle: { hindi: 'Taiyaar', english: 'Ready', tone: 'idle' },
   listening: { hindi: 'Sun raha hoon', english: 'Listening', tone: 'active' },
   thinking: { hindi: 'Soch raha hoon', english: 'Thinking', tone: 'idle' },
