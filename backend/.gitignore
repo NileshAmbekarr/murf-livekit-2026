@@ -36,4 +36,9 @@ KMS
 audition/
 
 # Caller memory (SQLite) — never commit real caller data
-data/
+# Excluding the directory itself would stop git descending into it, and the
+# negation below would never be considered. Exclude the contents instead.
+data/*
+
+# Reference data ships with the app; caller records never do.
+!data/facilities.json

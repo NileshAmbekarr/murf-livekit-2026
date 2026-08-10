@@ -1,0 +1,5787 @@
+{
+  "source": "OpenStreetMap via Overpass API",
+  "licence": "© OpenStreetMap contributors, ODbL",
+  "as_of": "2026-08-10T06:45:06Z",
+  "generated_at": "2026-08-10T06:46:33Z",
+  "radius_m": 20000,
+  "district_centres": {
+    "wardha": {
+      "lat": 20.8256231,
+      "lon": 78.6131455
+    },
+    "nagpur": {
+      "lat": 21.1498134,
+      "lon": 79.0820556
+    },
+    "varanasi": {
+      "lat": 25.3356491,
+      "lon": 83.0076292
+    },
+    "patna": {
+      "lat": 25.6093239,
+      "lon": 85.1235252
+    }
+  },
+  "facilities": [
+    {
+      "name": "Ace Womens' Hospital",
+      "kind": "hospital",
+      "lat": 21.148644,
+      "lon": 79.116845,
+      "district": "Nagpur",
+      "address": "Umiya Tower, Near Chandrashekhar Ashad Square, Central Avenue Road, Nagpur",
+      "phone": "+91 712 2775417"
+    },
+    {
+      "name": "Adil Homeo Heart Care Centre",
+      "kind": "hospital",
+      "lat": 21.142435,
+      "lon": 79.084578,
+      "district": "Nagpur",
+      "address": "Sitabuldi",
+      "phone": "+91 712 2532008"
+    },
+    {
+      "name": "Aditya Hospital Critical Care and Emergency Center",
+      "kind": "hospital",
+      "lat": 21.133691,
+      "lon": 79.074551,
+      "district": "Nagpur",
+      "address": "Central Bazar Road, Nagpur",
+      "phone": "+91 712 2449222"
+    },
+    {
+      "name": "Advance Dental Clinic",
+      "kind": "hospital",
+      "lat": 21.111581,
+      "lon": 79.07064,
+      "district": "Nagpur",
+      "address": "Residency Road, Sadar, Sadr, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Ajay Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.121496,
+      "lon": 79.105101,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Akshay Medicals",
+      "kind": "pharmacy",
+      "lat": 21.109361,
+      "lon": 79.10343,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anjani Eye Hospital",
+      "kind": "hospital",
+      "lat": 21.134988,
+      "lon": 79.077138,
+      "district": "Nagpur",
+      "address": "Central Bazar Rd Nagpur",
+      "phone": "+91 712 2425869"
+    },
+    {
+      "name": "Apollo Pharmacy",
+      "kind": "pharmacy",
+      "lat": 21.114033,
+      "lon": 79.10406,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Apulki Vairagade Hospital",
+      "kind": "hospital",
+      "lat": 21.1117,
+      "lon": 79.104088,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arjun Hospital",
+      "kind": "hospital",
+      "lat": 21.147211,
+      "lon": 79.139025,
+      "district": "Nagpur",
+      "address": "Deshpande Layout 963, Padole Nagar,",
+      "phone": ""
+    },
+    {
+      "name": "Arneja Heart and Multispeciality Hospital",
+      "kind": "hospital",
+      "lat": 21.135076,
+      "lon": 79.074581,
+      "district": "Nagpur",
+      "address": "nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Asha General Hospital",
+      "kind": "hospital",
+      "lat": 21.111552,
+      "lon": 79.10408,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Asha Homeopathic Hospital",
+      "kind": "hospital",
+      "lat": 21.10789,
+      "lon": 79.103488,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Asha Hospital",
+      "kind": "hospital",
+      "lat": 21.21891,
+      "lon": 79.17716,
+      "district": "Nagpur",
+      "address": "National Highway 7, Kamptee, Kamptee",
+      "phone": ""
+    },
+    {
+      "name": "Ashok Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.110802,
+      "lon": 79.103874,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Avantika Hospital",
+      "kind": "hospital",
+      "lat": 21.134047,
+      "lon": 79.074178,
+      "district": "Nagpur",
+      "address": "Avantika Hospital, Ashirwad Complex, Central Bazar road, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Baheti (Dr) Mukund",
+      "kind": "hospital",
+      "lat": 21.140624,
+      "lon": 79.08535,
+      "district": "Nagpur",
+      "address": "Main Road, Balraj Marg, Near Lokmat Square, Near *",
+      "phone": ""
+    },
+    {
+      "name": "Balwaik Multi Speciality Hospital",
+      "kind": "hospital",
+      "lat": 21.132624,
+      "lon": 79.099276,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Banait eye and gastroenterology clinic",
+      "kind": "clinic",
+      "lat": 21.115441,
+      "lon": 79.070777,
+      "district": "Nagpur",
+      "address": "Wardha Road, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Baraskar Multispeciality Hospital and Dialysis",
+      "kind": "hospital",
+      "lat": 21.132906,
+      "lon": 79.070845,
+      "district": "Nagpur",
+      "address": "Central Bazar Road, Ramdaspeth",
+      "phone": ""
+    },
+    {
+      "name": "Belsare Children's Hospital",
+      "kind": "hospital",
+      "lat": 21.11551,
+      "lon": 79.104116,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bhilgaon's Multispeciality Clinic",
+      "kind": "hospital",
+      "lat": 21.196058,
+      "lon": 79.143993,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bhiwapurkar Eye Hospital",
+      "kind": "hospital",
+      "lat": 21.144465,
+      "lon": 79.083334,
+      "district": "Nagpur",
+      "address": "Sitabuildi",
+      "phone": ""
+    },
+    {
+      "name": "Buniyad Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.115123,
+      "lon": 79.104412,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Cancer Care Clinic & Hospital",
+      "kind": "hospital",
+      "lat": 21.135184,
+      "lon": 79.078781,
+      "district": "Nagpur",
+      "address": "Cancer Care Clinic & Hospital 5th Floor Vasanst Sheela Tower, Lokmat Square, Dhantoli, Nagpur",
+      "phone": "0712 243 0465"
+    },
+    {
+      "name": "Care Hospital, Nagpur",
+      "kind": "hospital",
+      "lat": 21.138544,
+      "lon": 79.079175,
+      "district": "Nagpur",
+      "address": "3 Farmland, Panchsheel Square Ramdaspeth, Wardha Road",
+      "phone": ""
+    },
+    {
+      "name": "Central Govt Heath Scheme(CGHS) Clinic",
+      "kind": "hospital",
+      "lat": 21.170362,
+      "lon": 79.064192,
+      "district": "Nagpur",
+      "address": "Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Chandak Critical Care Hospital & ICCU",
+      "kind": "hospital",
+      "lat": 21.149533,
+      "lon": 79.112864,
+      "district": "Nagpur",
+      "address": "Darodkar Square Central Avenue, Hansapuri,, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Chandak Nursing Home",
+      "kind": "clinic",
+      "lat": 21.144418,
+      "lon": 79.082658,
+      "district": "Nagpur",
+      "address": "Sitabuldi",
+      "phone": "+91 712 252 2448 x2544836"
+    },
+    {
+      "name": "Chest Care Clinic",
+      "kind": "hospital",
+      "lat": 21.113918,
+      "lon": 79.066174,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chikhle Multi Speciality and Cancer Hospital",
+      "kind": "hospital",
+      "lat": 21.115026,
+      "lon": 79.103929,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Child Care Clinic",
+      "kind": "clinic",
+      "lat": 21.107933,
+      "lon": 79.103505,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Choudhary Hospital",
+      "kind": "hospital",
+      "lat": 21.213911,
+      "lon": 79.202031,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chouhan Nursing Home",
+      "kind": "clinic",
+      "lat": 21.108042,
+      "lon": 79.103529,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Cph Centre Point Hospital and Medical Research Institute Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 21.131175,
+      "lon": 79.096802,
+      "district": "Nagpur",
+      "address": "Shriram Dharamshalal, Ajni Road, Untkhana, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Crescent Hospital & Heart Centre",
+      "kind": "hospital",
+      "lat": 21.131249,
+      "lon": 79.079953,
+      "district": "Nagpur",
+      "address": "1st Lane, Near Lokmat Square, Behind Old Mount Canvent, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Crescent Nursing Home and Iccu",
+      "kind": "hospital",
+      "lat": 21.134181,
+      "lon": 79.078904,
+      "district": "Nagpur",
+      "address": "Near Mount Carbel School, Lokmat Square, Lokmat Square, Nagpur",
+      "phone": "+91 712 2421822"
+    },
+    {
+      "name": "Cure It Hospital Pvt.Ltd",
+      "kind": "hospital",
+      "lat": 21.112629,
+      "lon": 79.129682,
+      "district": "Nagpur",
+      "address": "Taj Bagh, Nagpur",
+      "phone": "+91 712 646 5102"
+    },
+    {
+      "name": "Daga Hospital",
+      "kind": "hospital",
+      "lat": 21.153088,
+      "lon": 79.103572,
+      "district": "Nagpur",
+      "address": "Gandhibagh, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Deerghayu Ayurved Panchakarma Chikitsalaya",
+      "kind": "hospital",
+      "lat": 21.111927,
+      "lon": 79.103749,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Deshmane Hospital",
+      "kind": "hospital",
+      "lat": 21.136345,
+      "lon": 79.079018,
+      "district": "Nagpur",
+      "address": "2nd Floor, Vasant Sheela Complex, Lokmat Square, Dhantoli, Nagpur",
+      "phone": "+91 712 242 8722 ‎"
+    },
+    {
+      "name": "Dharmadhikari Hospital",
+      "kind": "hospital",
+      "lat": 21.114548,
+      "lon": 79.072111,
+      "district": "Nagpur",
+      "address": "Plot No 77, Wardha Road, Hindustan Colony, Wardha Road, Nagpur",
+      "phone": "+91 712 2222951"
+    },
+    {
+      "name": "Dhruv Pathology & Molecular",
+      "kind": "hospital",
+      "lat": 21.124363,
+      "lon": 79.064395,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr B K Murali, Hope Hospitals",
+      "kind": "hospital",
+      "lat": 21.141176,
+      "lon": 79.085284,
+      "district": "Nagpur",
+      "address": "Hope Hospitals,, 51, Dhantoli, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Dr Baraskar Jaiprakash",
+      "kind": "hospital",
+      "lat": 21.132011,
+      "lon": 79.068042,
+      "district": "Nagpur",
+      "address": "Baraskar Hospital, 276 Crystal Plaza, Central Bazar road, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Dr S P Naidu",
+      "kind": "hospital",
+      "lat": 21.157273,
+      "lon": 79.083511,
+      "district": "Nagpur",
+      "address": "Mohan Nagar, Near Patny Automobiles, Kamptee Road, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Dr Sushil Rathi (Anika Clinic)",
+      "kind": "hospital",
+      "lat": 21.134863,
+      "lon": 79.07645,
+      "district": "Nagpur",
+      "address": "Ramdaspeth, Opposite Centra Point Hotel, Ramdaspeth, Nagpur",
+      "phone": "+91 9823363768"
+    },
+    {
+      "name": "Dr. Anand Pangarkar's Eye Hospital",
+      "kind": "hospital",
+      "lat": 21.136838,
+      "lon": 79.069372,
+      "district": "Nagpur",
+      "address": "East Shankar Nagar, Shankar Nagar, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Dalvi Memorial Hospital and Research Centre",
+      "kind": "hospital",
+      "lat": 21.147351,
+      "lon": 79.121491,
+      "district": "Nagpur",
+      "address": "Bagadganj, Nagpur",
+      "phone": "+91 712 2766414"
+    },
+    {
+      "name": "Dr. Dande Hospital",
+      "kind": "hospital",
+      "lat": 21.146463,
+      "lon": 79.056034,
+      "district": "Nagpur",
+      "address": "Ram Nagar Square, Ram Nagar, Nagpur",
+      "phone": "+91 712 2536590"
+    },
+    {
+      "name": "Dr. Manoj Waghmare's Clinic (Dermatologist and Cosmetologist)",
+      "kind": "clinic",
+      "lat": 21.107324,
+      "lon": 79.103312,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Mrunal Ale",
+      "kind": "dentist",
+      "lat": 21.116351,
+      "lon": 79.110985,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Sachin Gulhane's Child Care Clinic",
+      "kind": "clinic",
+      "lat": 21.1118,
+      "lon": 79.103783,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Sarita Jayaswal Prasuti and Stree Rog Clinic",
+      "kind": "clinic",
+      "lat": 21.111326,
+      "lon": 79.103681,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Somani Accident Hospital",
+      "kind": "hospital",
+      "lat": 21.147558,
+      "lon": 79.137742,
+      "district": "Nagpur",
+      "address": "Vaishno Devi Square, Hiwari Nagar Wardhaman Nagar, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Vaishali Thakre's Shraddha Clinic",
+      "kind": "clinic",
+      "lat": 21.115131,
+      "lon": 79.103974,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "ESIS Hospital",
+      "kind": "hospital",
+      "lat": 21.127189,
+      "lon": 79.106121,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "East End Hospital",
+      "kind": "hospital",
+      "lat": 21.147648,
+      "lon": 79.138353,
+      "district": "Nagpur",
+      "address": "Central Avenue Padole Nagar, Nagpur",
+      "phone": "0712 273 2332"
+    },
+    {
+      "name": "East End Hospital",
+      "kind": "hospital",
+      "lat": 21.147743,
+      "lon": 79.144408,
+      "district": "Nagpur",
+      "address": "Padole Nagar, Nagpur",
+      "phone": "+91 712 2736294"
+    },
+    {
+      "name": "Evista Eye Care Centre- Dr.sanjay Jaiswal-m.b.b.s., M.s., in [ophthalmology]",
+      "kind": "hospital",
+      "lat": 21.135031,
+      "lon": 79.080249,
+      "district": "Nagpur",
+      "address": "Plot.no-14/1 ,Opposite to Dhantoli Park, Dhantoli, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "G. T. Padole Hospital",
+      "kind": "hospital",
+      "lat": 21.11303,
+      "lon": 79.048592,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "GI , Endoscopy and Liver clinic.SMP Hospital Dr Samir Patil",
+      "kind": "hospital",
+      "lat": 21.134567,
+      "lon": 79.075693,
+      "district": "Nagpur",
+      "address": "2nd floor, Yugdharma Complex, Central Bazaar Road, Ramdaspeth, Nagpur",
+      "phone": "+91 712 2420653"
+    },
+    {
+      "name": "Galaxy Vidarbha Diagnostics Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 21.135569,
+      "lon": 79.078126,
+      "district": "Nagpur",
+      "address": "12, Milestone Building, Near Lokmat Square Ramdaspeth,, Nagpur",
+      "phone": "+91 712 245 2570"
+    },
+    {
+      "name": "Ganju Haematology Clinic and Hospital",
+      "kind": "hospital",
+      "lat": 21.134037,
+      "lon": 79.075585,
+      "district": "Nagpur",
+      "address": "Central Bazar Road, Near Minerva, Nagpur",
+      "phone": "+91 9422110765"
+    },
+    {
+      "name": "Getwell Hospital and Research Institute",
+      "kind": "hospital",
+      "lat": 21.136072,
+      "lon": 79.079603,
+      "district": "Nagpur",
+      "address": "20/1, Wardha Road, Dr. Khare Marg, Near H.P. Petr*, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Govt. Medical College",
+      "kind": "hospital",
+      "lat": 21.129515,
+      "lon": 79.097469,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Goyal Medical and General Stores",
+      "kind": "pharmacy",
+      "lat": 21.215655,
+      "lon": 79.194719,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Gulmohar Medicals",
+      "kind": "pharmacy",
+      "lat": 21.107425,
+      "lon": 79.103338,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Gurukrupa Ayurvedic Chikitsalaya",
+      "kind": "clinic",
+      "lat": 21.117887,
+      "lon": 79.105304,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "H H Nagani Hospital",
+      "kind": "hospital",
+      "lat": 21.20862,
+      "lon": 79.183338,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Happy Pharmacy",
+      "kind": "hospital",
+      "lat": 21.133975,
+      "lon": 79.06149,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Health Unit Ajni",
+      "kind": "hospital",
+      "lat": 21.125901,
+      "lon": 79.09023,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Indira Gandhi Medical College",
+      "kind": "hospital",
+      "lat": 21.14911,
+      "lon": 79.11595,
+      "district": "Nagpur",
+      "address": "Ca Road, C A Road, Central Avenue, Central Avenue",
+      "phone": "+91 712 272 6126"
+    },
+    {
+      "name": "Indira Gandhi Medical College & Hospital",
+      "kind": "hospital",
+      "lat": 21.154187,
+      "lon": 79.093649,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Indus Health Care & Checkup Centre",
+      "kind": "hospital",
+      "lat": 21.141615,
+      "lon": 79.055812,
+      "district": "Nagpur",
+      "address": "Plot No. 84, Rama Niwas, Hill Road Ramnagar, Nagpur",
+      "phone": "099677 80336"
+    },
+    {
+      "name": "Inpatient Department",
+      "kind": "hospital",
+      "lat": 21.126903,
+      "lon": 79.114161,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jain Medicals",
+      "kind": "pharmacy",
+      "lat": 21.115282,
+      "lon": 79.112729,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jasleen Eye Hospital - Nagpur",
+      "kind": "hospital",
+      "lat": 21.138069,
+      "lon": 79.079679,
+      "district": "Nagpur",
+      "address": "Wardha Road, Dhantoli, Nagpur",
+      "phone": "+91 712 242 1851"
+    },
+    {
+      "name": "Jayant Medical and General Stores",
+      "kind": "pharmacy",
+      "lat": 21.195453,
+      "lon": 79.14398,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jeevan Jyoti Medicals",
+      "kind": "pharmacy",
+      "lat": 21.117466,
+      "lon": 79.111268,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "KRIMS Hospital",
+      "kind": "hospital",
+      "lat": 21.13318,
+      "lon": 79.071773,
+      "district": "Nagpur",
+      "address": "Central Bazar Road, Ramdaspeth, Nagpur",
+      "phone": "+91 712 2451188"
+    },
+    {
+      "name": "Kamble Hospital",
+      "kind": "hospital",
+      "lat": 21.11761,
+      "lon": 79.106177,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ketki Urological Hospital",
+      "kind": "hospital",
+      "lat": 21.136975,
+      "lon": 79.079917,
+      "district": "Nagpur",
+      "address": "Dhantoli, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Kherde Hospital",
+      "kind": "hospital",
+      "lat": 21.117889,
+      "lon": 79.113409,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kurvey Hospital",
+      "kind": "hospital",
+      "lat": 21.13001,
+      "lon": 79.11332,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Lifeline Hospital",
+      "kind": "hospital",
+      "lat": 21.210198,
+      "lon": 79.18723,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mahatma Eye Bank and Hospital",
+      "kind": "hospital",
+      "lat": 21.111351,
+      "lon": 79.068989,
+      "district": "Nagpur",
+      "address": "Ring Road, Sawarkar Nagar, Khamla, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Mangala Ketkar's",
+      "kind": "hospital",
+      "lat": 21.145158,
+      "lon": 79.082091,
+      "district": "Nagpur",
+      "address": "Sitabuildi, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Manish Ayurvedic and General Stores",
+      "kind": "pharmacy",
+      "lat": 21.113695,
+      "lon": 79.104003,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Maooli Clinic (Stree Rog ani Prasuti)",
+      "kind": "clinic",
+      "lat": 21.107368,
+      "lon": 79.103324,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Matoshri Nursing Home",
+      "kind": "hospital",
+      "lat": 21.129156,
+      "lon": 79.113873,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Matru Sewa Sangh (Maternity)",
+      "kind": "hospital",
+      "lat": 21.14386,
+      "lon": 79.107624,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mauli Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.102756,
+      "lon": 79.113126,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "MedPlus",
+      "kind": "pharmacy",
+      "lat": 21.11605,
+      "lon": 79.104437,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "MedPlus",
+      "kind": "pharmacy",
+      "lat": 21.14584,
+      "lon": 79.11249,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "MedPlus Pharmacy",
+      "kind": "pharmacy",
+      "lat": 21.117575,
+      "lon": 79.111041,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Meditrina Institute Of Medical Sciences",
+      "kind": "hospital",
+      "lat": 21.132877,
+      "lon": 79.070779,
+      "district": "Nagpur",
+      "address": "278,Central Bazar Road,Ramdaspeth, Nagpur",
+      "phone": "+91 712 253 0882"
+    },
+    {
+      "name": "Mukherjee Multispeciality Hospital",
+      "kind": "hospital",
+      "lat": 21.124435,
+      "lon": 79.117587,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mulik Hospital",
+      "kind": "hospital",
+      "lat": 21.135927,
+      "lon": 79.081313,
+      "district": "Nagpur",
+      "address": "Balraj Marg, Dhantoli, Opposite Dhantoli Park, Dhantoli",
+      "phone": ""
+    },
+    {
+      "name": "Mure Memorial Hospital",
+      "kind": "hospital",
+      "lat": 21.145001,
+      "lon": 79.077934,
+      "district": "Nagpur",
+      "address": "Maharaja Road, Civil Lines, Sitabuldi,, Nagpur",
+      "phone": "+91 712 252 2370"
+    },
+    {
+      "name": "Nagpur Chest Center",
+      "kind": "hospital",
+      "lat": 21.133665,
+      "lon": 79.078417,
+      "district": "Nagpur",
+      "address": "Amarjyoti Complex, Near Lokmat Square, Dhantoli",
+      "phone": "+91 9561098334"
+    },
+    {
+      "name": "Nagpur Super Speciality Hospital",
+      "kind": "hospital",
+      "lat": 21.124178,
+      "lon": 79.102634,
+      "district": "Nagpur",
+      "address": "Behind Medical College, Hanuman Nagar, Hanuman Nagar, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Narcaood Hospital",
+      "kind": "hospital",
+      "lat": 21.132195,
+      "lon": 79.059412,
+      "district": "Nagpur",
+      "address": "Narcod Physiotherapy Center Plot No 3, Shankar Nagar",
+      "phone": ""
+    },
+    {
+      "name": "Navjeevan Nursing Home",
+      "kind": "hospital",
+      "lat": 21.135998,
+      "lon": 79.079876,
+      "district": "Nagpur",
+      "address": "Dhantoli, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Netranjali Centre For Advanced Eye Care",
+      "kind": "hospital",
+      "lat": 21.133722,
+      "lon": 79.073388,
+      "district": "Nagpur",
+      "address": "Central Bazar Road, Ramdaspeth, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Niramaya Hospital",
+      "kind": "hospital",
+      "lat": 21.134031,
+      "lon": 79.100868,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Oasis Nursing Home",
+      "kind": "hospital",
+      "lat": 21.180824,
+      "lon": 79.069956,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Orange City Hospital and Research Institute",
+      "kind": "hospital",
+      "lat": 21.112767,
+      "lon": 79.065401,
+      "district": "Nagpur",
+      "address": "Orange City Hospital, Khamla Road, Nagpur",
+      "phone": "0712 663 4918"
+    },
+    {
+      "name": "Outpatient Department",
+      "kind": "hospital",
+      "lat": 21.127343,
+      "lon": 79.113604,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Padole Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.114995,
+      "lon": 79.104424,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Paldiwal Hospital And Polyclinic",
+      "kind": "hospital",
+      "lat": 21.14615,
+      "lon": 79.0638,
+      "district": "Nagpur",
+      "address": "Opposite R T O Office, Amravati Road, Amravati Road Gorepeth, Nagpur",
+      "phone": "+91 712 2526284"
+    },
+    {
+      "name": "Pande Memorial Hospital",
+      "kind": "hospital",
+      "lat": 21.134382,
+      "lon": 79.082299,
+      "district": "Nagpur",
+      "address": "Pande Memorial Hospital, P R Sathe Marg, Dhantoli",
+      "phone": "+91 712 243 4254"
+    },
+    {
+      "name": "Pettewar Clinic",
+      "kind": "clinic",
+      "lat": 21.102617,
+      "lon": 79.113162,
+      "district": "Nagpur",
+      "address": "",
+      "phone": "09970813734"
+    },
+    {
+      "name": "Pranjal Nursing Home",
+      "kind": "clinic",
+      "lat": 21.214079,
+      "lon": 79.19432,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prasuti ani Stree Rog Clinic",
+      "kind": "hospital",
+      "lat": 21.112349,
+      "lon": 79.104137,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prestige Hospitals Pvt Ltd",
+      "kind": "hospital",
+      "lat": 21.168997,
+      "lon": 79.079049,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Priyansh Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.196037,
+      "lon": 79.144,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Puniyani Hospital for Child and Women Care",
+      "kind": "hospital",
+      "lat": 21.149624,
+      "lon": 79.108451,
+      "district": "Nagpur",
+      "address": "Mangalwari, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Railway Hospital",
+      "kind": "hospital",
+      "lat": 21.120261,
+      "lon": 79.0841,
+      "district": "Nagpur",
+      "address": "Rambagh, Ajni, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Rajat Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.123587,
+      "lon": 79.111778,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rane Bandhu Aushadhalaya",
+      "kind": "pharmacy",
+      "lat": 21.126031,
+      "lon": 79.06375,
+      "district": "Nagpur",
+      "address": "South Ambazari Road, Nagpur",
+      "phone": "07122220890"
+    },
+    {
+      "name": "Rashtrasant Tukdoji Maharaj Cancer Hospital",
+      "kind": "hospital",
+      "lat": 21.123908,
+      "lon": 79.104346,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rathi Clinic",
+      "kind": "clinic",
+      "lat": 21.115102,
+      "lon": 79.104458,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Retina Eye Care Hospital",
+      "kind": "hospital",
+      "lat": 21.133115,
+      "lon": 79.083259,
+      "district": "Nagpur",
+      "address": "Humpyard Rd, Dhantoli,, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Roy Nursing Home",
+      "kind": "hospital",
+      "lat": 21.100257,
+      "lon": 79.066927,
+      "district": "Nagpur",
+      "address": "1, National Highway 7, Jaiprakash Nagar",
+      "phone": "+91 712 2290888"
+    },
+    {
+      "name": "Sahu Hospital",
+      "kind": "hospital",
+      "lat": 21.152071,
+      "lon": 79.103767,
+      "district": "Nagpur",
+      "address": "Gandhibagh, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Sahu Hospital",
+      "kind": "hospital",
+      "lat": 21.122068,
+      "lon": 79.105156,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sai Clinic",
+      "kind": "clinic",
+      "lat": 21.111834,
+      "lon": 79.11002,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sai Dental Clinic",
+      "kind": "clinic",
+      "lat": 21.107635,
+      "lon": 79.103431,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Samarpan Hospital and Research Institute",
+      "kind": "hospital",
+      "lat": 21.169797,
+      "lon": 79.116224,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sangam Orthopedic and General Hospital",
+      "kind": "hospital",
+      "lat": 21.115007,
+      "lon": 79.104523,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sanjay Medical and General Stores",
+      "kind": "pharmacy",
+      "lat": 21.214241,
+      "lon": 79.194333,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sanjeevani Hospital, Nagpur",
+      "kind": "hospital",
+      "lat": 21.091721,
+      "lon": 79.077001,
+      "district": "Nagpur",
+      "address": "5/6, Beltarodi Road, Manish Nagar",
+      "phone": "+91 9503700030"
+    },
+    {
+      "name": "Sanjeevani Orthopaedic And Paediatric Ho",
+      "kind": "hospital",
+      "lat": 21.122407,
+      "lon": 79.064823,
+      "district": "Nagpur",
+      "address": "Central Avenue Laxmi Nagar, V-2, Near Aath Rasta, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Sanjivani Hospital",
+      "kind": "hospital",
+      "lat": 21.133151,
+      "lon": 79.099885,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sant Gajanan Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.108245,
+      "lon": 79.103335,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sarita Homeopathic Hospital",
+      "kind": "hospital",
+      "lat": 21.108114,
+      "lon": 79.103544,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sawarkar Hospital",
+      "kind": "hospital",
+      "lat": 21.145544,
+      "lon": 79.132986,
+      "district": "Nagpur",
+      "address": "Garoba Maidan, Shashtri Nagar, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Sengupta Hospital and Research Institute",
+      "kind": "hospital",
+      "lat": 21.147808,
+      "lon": 79.055859,
+      "district": "Nagpur",
+      "address": "Ravinagar, Nagpur",
+      "phone": "+91 712 2532697"
+    },
+    {
+      "name": "Seva Clinic",
+      "kind": "clinic",
+      "lat": 21.105796,
+      "lon": 79.102526,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shakti Clinic",
+      "kind": "clinic",
+      "lat": 21.194948,
+      "lon": 79.145052,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shakuntala Medicals",
+      "kind": "pharmacy",
+      "lat": 21.11238,
+      "lon": 79.10413,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shambharkar Hospital",
+      "kind": "hospital",
+      "lat": 21.109423,
+      "lon": 79.10374,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Child Clinic",
+      "kind": "hospital",
+      "lat": 21.136364,
+      "lon": 79.079998,
+      "district": "Nagpur",
+      "address": "Dhantoli, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Shree Gurukrupa Dental Hospital",
+      "kind": "dentist",
+      "lat": 21.115569,
+      "lon": 79.104458,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Sai Clinic",
+      "kind": "clinic",
+      "lat": 21.198015,
+      "lon": 79.134751,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Sai Clinic",
+      "kind": "clinic",
+      "lat": 21.195921,
+      "lon": 79.143962,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Sai Homeopathic Hospital",
+      "kind": "hospital",
+      "lat": 21.108763,
+      "lon": 79.103684,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Satguru Medical and General Stores",
+      "kind": "pharmacy",
+      "lat": 21.195942,
+      "lon": 79.143944,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shri Krishna Hrudayalaya and Critical Care Centre",
+      "kind": "hospital",
+      "lat": 21.131042,
+      "lon": 79.082105,
+      "district": "Nagpur",
+      "address": "Tikekar Road, Congress Nagar Square, Opp. New Eng, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Shri Radhakrishna Hospital and Research Institute",
+      "kind": "hospital",
+      "lat": 21.14871,
+      "lon": 79.141304,
+      "district": "Nagpur",
+      "address": "Wardhaman Nagar East,, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Shri Ram Jeevan Chaudhari Memorial Hospital & Research Center",
+      "kind": "hospital",
+      "lat": 21.141777,
+      "lon": 79.103746,
+      "district": "Nagpur",
+      "address": "New Shukrawari Road Ramwadi, Mangalwari, Mahal, Nagpur",
+      "phone": "0712 695 5045"
+    },
+    {
+      "name": "Shyam Medicals",
+      "kind": "hospital",
+      "lat": 21.148267,
+      "lon": 79.134892,
+      "district": "Nagpur",
+      "address": "Wardhman Nagar Square, Wardhaman Nagar, Wardhaman Nagar Central Avenue, Wardhaman Nagar, Nagpur",
+      "phone": "+91 712 2768084"
+    },
+    {
+      "name": "Singare Eye Hospital",
+      "kind": "hospital",
+      "lat": 21.115658,
+      "lon": 79.104424,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sonune Child Care Centre",
+      "kind": "clinic",
+      "lat": 21.110417,
+      "lon": 79.103517,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Spandan Heart Institute & Research Centre",
+      "kind": "hospital",
+      "lat": 21.132718,
+      "lon": 79.078388,
+      "district": "Nagpur",
+      "address": "Plot No. 31, Off Chitale Marg, Behind Hitwad Press, Dhantoli, Nagpur",
+      "phone": "0712 244 3333"
+    },
+    {
+      "name": "Subramaniam Hospital",
+      "kind": "hospital",
+      "lat": 21.134397,
+      "lon": 79.07695,
+      "district": "Nagpur",
+      "address": "Midas Heights Central Bazar Road, Ramdaspeth",
+      "phone": "+91 712 243 5835"
+    },
+    {
+      "name": "Suraj Eye Institute Om Drishti Trust",
+      "kind": "hospital",
+      "lat": 21.169101,
+      "lon": 79.083588,
+      "district": "Nagpur",
+      "address": "Plot No 559, Suraj Eye Institute, New Colony, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Surelife Hospital",
+      "kind": "hospital",
+      "lat": 21.14125,
+      "lon": 79.085731,
+      "district": "Nagpur",
+      "address": "5th Floor, Dhanashree Towers, Near Hotel Hardeo,",
+      "phone": ""
+    },
+    {
+      "name": "Surya Diagnostic Centre",
+      "kind": "clinic",
+      "lat": 21.112528,
+      "lon": 79.103835,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sushrut Hospital, Nagpur",
+      "kind": "hospital",
+      "lat": 21.134257,
+      "lon": 79.07486,
+      "district": "Nagpur",
+      "address": "Central Bazar Rd, Near Hotel Center Point, Ramdaspeth, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Tanmay Clinic",
+      "kind": "clinic",
+      "lat": 21.19781,
+      "lon": 79.134761,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Tushar Dental Clinic",
+      "kind": "dentist",
+      "lat": 21.117871,
+      "lon": 79.113387,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Urban Primary Health Centre",
+      "kind": "clinic",
+      "lat": 21.112856,
+      "lon": 79.117249,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "VINAYAK NETRALAYA",
+      "kind": "hospital",
+      "lat": 21.150888,
+      "lon": 79.102652,
+      "district": "Nagpur",
+      "address": "93/94, Gandhibagh, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Vaishali Medical Store",
+      "kind": "pharmacy",
+      "lat": 21.197989,
+      "lon": 79.134575,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vasan Eye Care",
+      "kind": "hospital",
+      "lat": 21.132525,
+      "lon": 79.083023,
+      "district": "Nagpur",
+      "address": "Humpyard Road,, Congress Nagar, T- Point, Dhantol*",
+      "phone": ""
+    },
+    {
+      "name": "Vijayant Medical Stores",
+      "kind": "pharmacy",
+      "lat": 21.132785,
+      "lon": 79.107352,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vikram Medicals",
+      "kind": "pharmacy",
+      "lat": 21.111276,
+      "lon": 79.103676,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vivekananda Health Care and Yoga Centre",
+      "kind": "hospital",
+      "lat": 21.113761,
+      "lon": 79.104012,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "WE PLUS OPTICALS",
+      "kind": "hospital",
+      "lat": 21.138521,
+      "lon": 79.083327,
+      "district": "Nagpur",
+      "address": "Masrani Bhavan, Abhyankar Road,Dhantoli",
+      "phone": "+91 99 60 264949"
+    },
+    {
+      "name": "Wankhade's Dental Clinic",
+      "kind": "dentist",
+      "lat": 21.112565,
+      "lon": 79.103827,
+      "district": "Nagpur",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Wockhardt Super Speciality Hospital",
+      "kind": "hospital",
+      "lat": 21.13641,
+      "lon": 79.065042,
+      "district": "Nagpur",
+      "address": "1643, North Ambazari Rd, Shankar Nagar, Nagpur",
+      "phone": ""
+    },
+    {
+      "name": "Wockhardt Super Speciality Hospital",
+      "kind": "hospital",
+      "lat": 21.136895,
+      "lon": 79.066923,
+      "district": "Nagpur",
+      "address": "1648, North Ambazari Road, Shankar Nagar, Nagpur",
+      "phone": "+91 712 662 4444"
+    },
+    {
+      "name": "suretech hospital",
+      "kind": "hospital",
+      "lat": 21.141805,
+      "lon": 79.08426,
+      "district": "Nagpur",
+      "address": "Sitabuldi, Nagpur",
+      "phone": "+91 712 6612999"
+    },
+    {
+      "name": "A.B. Eye Institute",
+      "kind": "hospital",
+      "lat": 25.603868,
+      "lon": 85.166768,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "APHC Ghoswar",
+      "kind": "centre",
+      "lat": 25.737977,
+      "lon": 85.245726,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6412905070"
+    },
+    {
+      "name": "APHC Manas",
+      "kind": "centre",
+      "lat": 25.692668,
+      "lon": 85.068611,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "APHC Neora",
+      "kind": "centre",
+      "lat": 25.57804,
+      "lon": 84.986595,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "APHC Sabalpur",
+      "kind": "centre",
+      "lat": 25.668981,
+      "lon": 85.172582,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "APHC Sherpur",
+      "kind": "centre",
+      "lat": 25.654896,
+      "lon": 84.980487,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Aargyam Multi Speciality Clinical Care",
+      "kind": "clinic",
+      "lat": 25.594163,
+      "lon": 85.141936,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Aarogya Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.612432,
+      "lon": 85.155395,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Aarogya Orthopaedic and Trauma Clinic",
+      "kind": "clinic",
+      "lat": 25.61188,
+      "lon": 85.153446,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Abhinandan Hospital",
+      "kind": "hospital",
+      "lat": 25.597401,
+      "lon": 85.157937,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Adarsh Life Care Hospital Pvt. Ltd",
+      "kind": "hospital",
+      "lat": 25.586188,
+      "lon": 85.158292,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Advanced Eye Care",
+      "kind": "hospital",
+      "lat": 25.612405,
+      "lon": 85.119521,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Akriti Nursing Home",
+      "kind": "clinic",
+      "lat": 25.5966,
+      "lon": 85.156384,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Akshat Seva Sadan",
+      "kind": "hospital",
+      "lat": 25.595548,
+      "lon": 85.121837,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6122243261"
+    },
+    {
+      "name": "Ambey Nursing Home",
+      "kind": "clinic",
+      "lat": 25.603588,
+      "lon": 85.16686,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anami Orthopaedics",
+      "kind": "hospital",
+      "lat": 25.598863,
+      "lon": 85.128451,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anshuman Nursing Home and Maternity Centre",
+      "kind": "clinic",
+      "lat": 25.577769,
+      "lon": 85.084935,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anup Memorial Orthopaedic Centre",
+      "kind": "hospital",
+      "lat": 25.601143,
+      "lon": 85.157042,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anupama Hospital Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 25.618358,
+      "lon": 85.163065,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Apollo Trauma Centre",
+      "kind": "clinic",
+      "lat": 25.600293,
+      "lon": 85.156119,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Appolo Burn Hospital",
+      "kind": "hospital",
+      "lat": 25.599708,
+      "lon": 85.191212,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arogya Hospital",
+      "kind": "hospital",
+      "lat": 25.691819,
+      "lon": 85.214094,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arvind Hospital",
+      "kind": "hospital",
+      "lat": 25.618543,
+      "lon": 85.16321,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 9771496911"
+    },
+    {
+      "name": "Ashoka Hospital( Aunit Of Ashoka Multispeciality Hospital Pvt Limited)",
+      "kind": "hospital",
+      "lat": 25.60837,
+      "lon": 85.160285,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ashutosh Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.588128,
+      "lon": 85.054513,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Atlantis Hospital",
+      "kind": "hospital",
+      "lat": 25.610262,
+      "lon": 85.057633,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Avadh Eye Hospital- Dr Arjun Kumar Singh",
+      "kind": "hospital",
+      "lat": 25.60223,
+      "lon": 85.150048,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Balaji Dental and Orthodontic Clinic",
+      "kind": "dentist",
+      "lat": 25.617264,
+      "lon": 85.12575,
+      "district": "Patna",
+      "address": "Sri krishna nagar Road No 4, patna",
+      "phone": "+917762019092"
+    },
+    {
+      "name": "Bhavani Clinic",
+      "kind": "clinic",
+      "lat": 25.615283,
+      "lon": 85.160224,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bilas Netralaya",
+      "kind": "clinic",
+      "lat": 25.607885,
+      "lon": 85.151769,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bk Hospital",
+      "kind": "hospital",
+      "lat": 25.691821,
+      "lon": 85.206814,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Brindavan Nursing Home",
+      "kind": "clinic",
+      "lat": 25.612409,
+      "lon": 85.144296,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Buddha Eye Care and Laser Centre",
+      "kind": "clinic",
+      "lat": 25.599847,
+      "lon": 85.155141,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Buddha Nursing Home",
+      "kind": "clinic",
+      "lat": 25.61769,
+      "lon": 85.160921,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Budha Hospital",
+      "kind": "hospital",
+      "lat": 25.590577,
+      "lon": 85.161896,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "CGHS Dispensary, Budha Marg",
+      "kind": "centre",
+      "lat": 25.607565,
+      "lon": 85.133566,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "CGHS, Chajjubagh",
+      "kind": "clinic",
+      "lat": 25.613597,
+      "lon": 85.137504,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "CHANDRA ORTHOPAEDIC CLINIC",
+      "kind": "clinic",
+      "lat": 25.605013,
+      "lon": 85.170452,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chakore Nursing Home",
+      "kind": "clinic",
+      "lat": 25.605566,
+      "lon": 85.162724,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chanakya Hospital",
+      "kind": "hospital",
+      "lat": 25.60002,
+      "lon": 85.159961,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chand Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.628023,
+      "lon": 85.105107,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chandra Nursing Home",
+      "kind": "clinic",
+      "lat": 25.692597,
+      "lon": 85.213679,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chandra Shambhu Narayan Eye Hospital Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 25.60326,
+      "lon": 85.146245,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Child Care Center",
+      "kind": "hospital",
+      "lat": 25.593892,
+      "lon": 85.15859,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Child Hospital",
+      "kind": "hospital",
+      "lat": 25.613934,
+      "lon": 85.12997,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "City Medical Hall",
+      "kind": "pharmacy",
+      "lat": 25.600519,
+      "lon": 85.210277,
+      "district": "Patna",
+      "address": "Nawab Bahadur Road",
+      "phone": "+919334040377"
+    },
+    {
+      "name": "City Medicines",
+      "kind": "pharmacy",
+      "lat": 25.600365,
+      "lon": 85.213796,
+      "district": "Patna",
+      "address": "Bowli Road",
+      "phone": "+919308473051"
+    },
+    {
+      "name": "D N Singh Memorial Trust",
+      "kind": "hospital",
+      "lat": 25.613093,
+      "lon": 85.11338,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Devendra Medico",
+      "kind": "pharmacy",
+      "lat": 25.620534,
+      "lon": 85.122688,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91-80518-03984"
+    },
+    {
+      "name": "Dighwara",
+      "kind": "centre",
+      "lat": 25.748954,
+      "lon": 85.008083,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6456-242391"
+    },
+    {
+      "name": "Divya Drishti Eye Centre",
+      "kind": "clinic",
+      "lat": 25.604991,
+      "lon": 85.088913,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Divya Jyoti Nursing Home",
+      "kind": "clinic",
+      "lat": 25.606728,
+      "lon": 85.078456,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Doctor Rupam Sinha Clinic",
+      "kind": "doctor",
+      "lat": 25.61598,
+      "lon": 85.10951,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr Satyajeet Singh, Aiims Patna, Neuropsychiatrist",
+      "kind": "doctor",
+      "lat": 25.621772,
+      "lon": 85.097105,
+      "district": "Patna",
+      "address": "Keshri Nagar, Patna",
+      "phone": "+91-9430015154"
+    },
+    {
+      "name": "Dr. Sarojini Sinha Memorial Shiv-Shakti Hospital",
+      "kind": "hospital",
+      "lat": 25.61961,
+      "lon": 85.124388,
+      "district": "Patna",
+      "address": "East Boring Canal Road, Patna",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Usha Didwania Nursing Home",
+      "kind": "clinic",
+      "lat": 25.609817,
+      "lon": 85.160512,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Vimal Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.620163,
+      "lon": 85.043337,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Drishti Eye Care And Research Centre",
+      "kind": "clinic",
+      "lat": 25.599895,
+      "lon": 85.16058,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dubey Urology Clinic and Stone Centre",
+      "kind": "clinic",
+      "lat": 25.602087,
+      "lon": 85.155992,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "E N T Hospital and Research Centre",
+      "kind": "hospital",
+      "lat": 25.600175,
+      "lon": 85.161965,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ford Hospital",
+      "kind": "hospital",
+      "lat": 25.584241,
+      "lon": 85.163022,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Gardanibagh Hospital",
+      "kind": "centre",
+      "lat": 25.595354,
+      "lon": 85.116463,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Getwell Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.604422,
+      "lon": 85.084456,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 9334114835"
+    },
+    {
+      "name": "Gopal Medical Hall",
+      "kind": "pharmacy",
+      "lat": 25.598411,
+      "lon": 85.202375,
+      "district": "Patna",
+      "address": "Tulsi Mandi",
+      "phone": "+918521343295"
+    },
+    {
+      "name": "Gopal Medical Store",
+      "kind": "pharmacy",
+      "lat": 25.600264,
+      "lon": 85.21015,
+      "district": "Patna",
+      "address": "Nawab Bahadur Road",
+      "phone": ""
+    },
+    {
+      "name": "Goverment hospital,Khagual",
+      "kind": "hospital",
+      "lat": 25.578195,
+      "lon": 85.048253,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Goverment hospital,Nayagaon",
+      "kind": "centre",
+      "lat": 25.762223,
+      "lon": 85.088735,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Guljarbagh Dispensary",
+      "kind": "centre",
+      "lat": 25.609858,
+      "lon": 85.206341,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Guru Govind Singh Hospital",
+      "kind": "hospital",
+      "lat": 25.599677,
+      "lon": 85.214247,
+      "district": "Patna",
+      "address": "Ashok Raj Path",
+      "phone": ""
+    },
+    {
+      "name": "Harsh Anand Hospital",
+      "kind": "hospital",
+      "lat": 25.691637,
+      "lon": 85.203091,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Harsh Clinic",
+      "kind": "clinic",
+      "lat": 25.622039,
+      "lon": 85.118673,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 2522748"
+    },
+    {
+      "name": "Heart Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.599999,
+      "lon": 85.159602,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Hope Child Care and Research Centre",
+      "kind": "hospital",
+      "lat": 25.597151,
+      "lon": 85.159757,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "I Care Eye Hospital and Research Centre",
+      "kind": "hospital",
+      "lat": 25.598205,
+      "lon": 85.179887,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Imdad Medicare Research Institute",
+      "kind": "hospital",
+      "lat": 25.609011,
+      "lon": 85.183137,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Isha health care",
+      "kind": "hospital",
+      "lat": 25.604719,
+      "lon": 85.196914,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ishwar Dayal Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.585069,
+      "lon": 85.161721,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "J.H.Nursing Home",
+      "kind": "clinic",
+      "lat": 25.601639,
+      "lon": 85.154899,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jagdamba Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.6085,
+      "lon": 85.116431,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jagdish Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.598987,
+      "lon": 85.157278,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jai Prabha Hospital",
+      "kind": "centre",
+      "lat": 25.600061,
+      "lon": 85.152357,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jeevak Heart Hospital and Research Institute Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.601398,
+      "lon": 85.158634,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jeevak Shalya Nilayam",
+      "kind": "hospital",
+      "lat": 25.620244,
+      "lon": 85.121657,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6122557720"
+    },
+    {
+      "name": "Jeevandeep Hospital, Saran",
+      "kind": "hospital",
+      "lat": 25.693858,
+      "lon": 85.180671,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jyoti Punj Hospital",
+      "kind": "hospital",
+      "lat": 25.614355,
+      "lon": 85.116208,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 2540752"
+    },
+    {
+      "name": "K. B. Surgical Clinic",
+      "kind": "clinic",
+      "lat": 25.611272,
+      "lon": 85.114655,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "K.B. Hospital and Research Institute - Patna",
+      "kind": "hospital",
+      "lat": 25.575518,
+      "lon": 85.064891,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kailash Hospital, Vaishali",
+      "kind": "hospital",
+      "lat": 25.691855,
+      "lon": 85.203925,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kankarbagh Dispensary",
+      "kind": "centre",
+      "lat": 25.602275,
+      "lon": 85.154815,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Keshav Hospital Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.621969,
+      "lon": 85.04257,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Khusi Clinic",
+      "kind": "clinic",
+      "lat": 25.760259,
+      "lon": 85.092745,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kiran Nursing Home, Patna",
+      "kind": "hospital",
+      "lat": 25.593588,
+      "lon": 85.151739,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Krishna Health Care",
+      "kind": "hospital",
+      "lat": 25.604986,
+      "lon": 85.09042,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kumar Eye Centre",
+      "kind": "clinic",
+      "lat": 25.611989,
+      "lon": 85.159573,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kumar Nursing Home, Patna",
+      "kind": "hospital",
+      "lat": 25.617528,
+      "lon": 85.161146,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "L.B.Aparajita Hospital",
+      "kind": "hospital",
+      "lat": 25.618211,
+      "lon": 85.120914,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Laxman Care Centre",
+      "kind": "clinic",
+      "lat": 25.608238,
+      "lon": 85.155746,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Life Care Maternity Home",
+      "kind": "hospital",
+      "lat": 25.573979,
+      "lon": 85.069177,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "M.G.M Hospital And Research Centre Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.607715,
+      "lon": 85.15473,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Maa Dulari Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.581248,
+      "lon": 85.141966,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Magadh Hospital",
+      "kind": "hospital",
+      "lat": 25.609752,
+      "lon": 85.157906,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Magadh Nursing Home",
+      "kind": "clinic",
+      "lat": 25.601963,
+      "lon": 85.189877,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Magalam Hospital",
+      "kind": "hospital",
+      "lat": 25.597067,
+      "lon": 85.14573,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mahavir Arogya Sansthan",
+      "kind": "hospital",
+      "lat": 25.60239,
+      "lon": 85.143434,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mahavir Vaatsalya Aspatal",
+      "kind": "hospital",
+      "lat": 25.630388,
+      "lon": 85.117479,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Maheshwar Nursing Home",
+      "kind": "clinic",
+      "lat": 25.694555,
+      "lon": 85.216504,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Manas Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.598678,
+      "lon": 85.156028,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Manav Orthopaedic Clinic And Maternity Home",
+      "kind": "clinic",
+      "lat": 25.593287,
+      "lon": 85.172968,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Manokamna Health Care",
+      "kind": "hospital",
+      "lat": 25.598934,
+      "lon": 85.227351,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 9308129667"
+    },
+    {
+      "name": "Maulana Sajjad Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.578182,
+      "lon": 85.072109,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Max Care Hospital And Research Institute Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 25.609581,
+      "lon": 85.091432,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Medical Store",
+      "kind": "pharmacy",
+      "lat": 25.737138,
+      "lon": 85.201801,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Medicine Centre",
+      "kind": "pharmacy",
+      "lat": 25.618714,
+      "lon": 85.163916,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Medicine Palace",
+      "kind": "pharmacy",
+      "lat": 25.618864,
+      "lon": 85.121904,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Metro Trauma Hospital",
+      "kind": "hospital",
+      "lat": 25.585072,
+      "lon": 85.161475,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mithila Hospital",
+      "kind": "hospital",
+      "lat": 25.585992,
+      "lon": 85.173869,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Narain Nursing Home",
+      "kind": "clinic",
+      "lat": 25.625857,
+      "lon": 85.11335,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Nav Sharda Aspatal Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.593376,
+      "lon": 85.1562,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Netradham Eye Hospital",
+      "kind": "hospital",
+      "lat": 25.611292,
+      "lon": 85.115858,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Born Care Centre (P) Ltd",
+      "kind": "hospital",
+      "lat": 25.608789,
+      "lon": 85.159452,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Gardinar Road Hospital",
+      "kind": "hospital",
+      "lat": 25.610295,
+      "lon": 85.130907,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Kumar Nursing Home",
+      "kind": "clinic",
+      "lat": 25.590732,
+      "lon": 85.145329,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Om Eye Clinic and Phaco Centre - Patna",
+      "kind": "hospital",
+      "lat": 25.594575,
+      "lon": 85.148206,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Om Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.57815,
+      "lon": 85.14196,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "P.K.Nursing Home Awam Maternity Centre",
+      "kind": "clinic",
+      "lat": 25.585964,
+      "lon": 85.129389,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC Phulwari Sharif",
+      "kind": "centre",
+      "lat": 25.5798,
+      "lon": 85.077039,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC, Danapur",
+      "kind": "centre",
+      "lat": 25.581066,
+      "lon": 85.040299,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC, Kurkuri",
+      "kind": "centre",
+      "lat": 25.553328,
+      "lon": 85.074904,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC,Gopalpur",
+      "kind": "centre",
+      "lat": 25.539838,
+      "lon": 85.176923,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pandey Nursing Home & Research Centre Patna",
+      "kind": "clinic",
+      "lat": 25.600381,
+      "lon": 85.154507,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Paras HMRI Hospital",
+      "kind": "hospital",
+      "lat": 25.60558,
+      "lon": 85.082559,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pashupati Nath Memorial Research Hospital",
+      "kind": "hospital",
+      "lat": 25.690468,
+      "lon": 85.200365,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Patliputra Divine Hospital Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.599094,
+      "lon": 85.163844,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Patna Bone And Spine Hospital Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.602038,
+      "lon": 85.158823,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6122361180"
+    },
+    {
+      "name": "Patna Sadar,PHC,Sabalpur",
+      "kind": "centre",
+      "lat": 25.557305,
+      "lon": 85.27202,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Perfect Vision Eye Clinic",
+      "kind": "clinic",
+      "lat": 25.616834,
+      "lon": 85.120873,
+      "district": "Patna",
+      "address": "Canal Road",
+      "phone": "+91 9135426327"
+    },
+    {
+      "name": "Polo Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.602661,
+      "lon": 85.20961,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Popular Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.618389,
+      "lon": 85.163966,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prakash Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.600428,
+      "lon": 85.14707,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6122342922"
+    },
+    {
+      "name": "Pramila Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.598344,
+      "lon": 85.198457,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Primary Health Center Ismailpur",
+      "kind": "centre",
+      "lat": 25.759605,
+      "lon": 85.193723,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6346234550"
+    },
+    {
+      "name": "Punam Surgical and Maternity Clinic",
+      "kind": "clinic",
+      "lat": 25.606721,
+      "lon": 85.089141,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "R N Superspecility Hospital And Research Centre",
+      "kind": "hospital",
+      "lat": 25.604188,
+      "lon": 85.076526,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "R.P. Golwara Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.598169,
+      "lon": 85.227336,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rajbansi Nagar Hospital",
+      "kind": "centre",
+      "lat": 25.606634,
+      "lon": 85.101435,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 6275-252432"
+    },
+    {
+      "name": "Rajendra Memorial Research Institute of Medical Sciences",
+      "kind": "hospital",
+      "lat": 25.59975,
+      "lon": 85.197518,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rajeshwar Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.601275,
+      "lon": 85.168603,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ram Ratan Hospital",
+      "kind": "hospital",
+      "lat": 25.60893,
+      "lon": 85.173899,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ramwati Nursing Home",
+      "kind": "clinic",
+      "lat": 25.605671,
+      "lon": 85.094643,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Renu Eye Center",
+      "kind": "hospital",
+      "lat": 25.61777,
+      "lon": 85.112899,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ruban Emergency Hospital",
+      "kind": "hospital",
+      "lat": 25.611925,
+      "lon": 85.140975,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "S.S.Hospital and Research Centre Pvt.Ltd.",
+      "kind": "hospital",
+      "lat": 25.590728,
+      "lon": 85.156653,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "SDH Danapur",
+      "kind": "hospital",
+      "lat": 25.634645,
+      "lon": 85.045769,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sadar Hospital Hajipur Blood Bank",
+      "kind": "blood_donation",
+      "lat": 25.690572,
+      "lon": 85.209143,
+      "district": "Patna",
+      "address": "Hajipur",
+      "phone": ""
+    },
+    {
+      "name": "Sagar Medicine Center",
+      "kind": "pharmacy",
+      "lat": 25.618813,
+      "lon": 85.121869,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sahaj Surgery",
+      "kind": "hospital",
+      "lat": 25.601871,
+      "lon": 85.164752,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sahyog Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.629098,
+      "lon": 85.108265,
+      "district": "Patna",
+      "address": "",
+      "phone": "+91 9204323716"
+    },
+    {
+      "name": "Sampatchak",
+      "kind": "centre",
+      "lat": 25.540505,
+      "lon": 85.177779,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sarvamangla Clinic",
+      "kind": "clinic",
+      "lat": 25.593717,
+      "lon": 85.175322,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Satyam Hospital, Gaya",
+      "kind": "hospital",
+      "lat": 25.605808,
+      "lon": 85.088915,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shahi Hospital (A Unit Of Abhishek Memorial Trust)",
+      "kind": "hospital",
+      "lat": 25.609641,
+      "lon": 85.157541,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shanti Maternity Centre",
+      "kind": "hospital",
+      "lat": 25.606233,
+      "lon": 85.161104,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shanti Navjeevan Hospital Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 25.587457,
+      "lon": 85.167698,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sheila Urology & Laproscopy Centre",
+      "kind": "hospital",
+      "lat": 25.615607,
+      "lon": 85.126797,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shekhar Hospital",
+      "kind": "hospital",
+      "lat": 25.60466,
+      "lon": 85.091465,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shekhar Shalya Chikitsalaya",
+      "kind": "hospital",
+      "lat": 25.587222,
+      "lon": 85.160516,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shiva Medical Hall",
+      "kind": "pharmacy",
+      "lat": 25.601155,
+      "lon": 85.210449,
+      "district": "Patna",
+      "address": "Nawab Bahadur Road",
+      "phone": "+919801377209"
+    },
+    {
+      "name": "Shivam Hospital And Research Institute Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.595127,
+      "lon": 85.161464,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shivangi Nursing Home",
+      "kind": "clinic",
+      "lat": 25.688493,
+      "lon": 85.212322,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shri Harijeevan Health Care",
+      "kind": "hospital",
+      "lat": 25.601608,
+      "lon": 85.214704,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shri Sai Hospital (A Unit Of Akhilesh Kumar Singh Hospital (P)Ltd)",
+      "kind": "hospital",
+      "lat": 25.599128,
+      "lon": 85.15725,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shrinivas Hospital - Patna",
+      "kind": "hospital",
+      "lat": 25.600863,
+      "lon": 85.149616,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shubham Maternity Centre",
+      "kind": "hospital",
+      "lat": 25.590605,
+      "lon": 85.159551,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shyam Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.612371,
+      "lon": 85.144101,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shyamal Hospital",
+      "kind": "hospital",
+      "lat": 25.613032,
+      "lon": 85.07548,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Siddharth Multispeciality Hospital",
+      "kind": "hospital",
+      "lat": 25.607283,
+      "lon": 85.160536,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Siddiqui Nursing Home and M.R.C. Pvt. Ltd.",
+      "kind": "clinic",
+      "lat": 25.617818,
+      "lon": 85.15035,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sparsh Haritage Hospital",
+      "kind": "hospital",
+      "lat": 25.593253,
+      "lon": 85.136426,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sri Jagannath Sewa Sadan",
+      "kind": "hospital",
+      "lat": 25.595282,
+      "lon": 85.156516,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sri Ram Hospital",
+      "kind": "hospital",
+      "lat": 25.60002,
+      "lon": 85.154397,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sri Sai Lions Netralaya",
+      "kind": "hospital",
+      "lat": 25.593073,
+      "lon": 85.152857,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sri Vinayak Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.585988,
+      "lon": 85.17436,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Srijan Centre For Assisted Human Reproduction",
+      "kind": "hospital",
+      "lat": 25.595074,
+      "lon": 85.161305,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Suman Nursing Home, Patna",
+      "kind": "clinic",
+      "lat": 25.599685,
+      "lon": 85.166789,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sundari Devi Hospital",
+      "kind": "hospital",
+      "lat": 25.59252,
+      "lon": 85.156794,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Susruta Surgical Clinic",
+      "kind": "clinic",
+      "lat": 25.610232,
+      "lon": 85.206266,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Swasti Womens Hospital And Research Centre",
+      "kind": "hospital",
+      "lat": 25.594269,
+      "lon": 85.159383,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "The Apollo Clinic, Patna",
+      "kind": "clinic",
+      "lat": 25.601232,
+      "lon": 85.171072,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Tridev Health Care and Research Educational Welfare and Charitable Trust",
+      "kind": "hospital",
+      "lat": 25.54813,
+      "lon": 85.11907,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Tripolia Social Service Hospital",
+      "kind": "hospital",
+      "lat": 25.614177,
+      "lon": 85.190036,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "UPHC East Lohanipur",
+      "kind": "centre",
+      "lat": 25.604897,
+      "lon": 85.155651,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "UPHC Jhakhari Mahadev",
+      "kind": "centre",
+      "lat": 25.635409,
+      "lon": 85.05535,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "UPHC Rukanpura Mushari",
+      "kind": "centre",
+      "lat": 25.605964,
+      "lon": 85.065613,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Udayan Hospital",
+      "kind": "hospital",
+      "lat": 25.621052,
+      "lon": 85.122948,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Uma Foundation",
+      "kind": "hospital",
+      "lat": 25.596152,
+      "lon": 85.158,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vaishnavi Hospital, Patna",
+      "kind": "hospital",
+      "lat": 25.594205,
+      "lon": 85.18813,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Veena Nursing Home, Vaishali",
+      "kind": "clinic",
+      "lat": 25.696528,
+      "lon": 85.214377,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vijai Hospital",
+      "kind": "hospital",
+      "lat": 25.595983,
+      "lon": 85.157773,
+      "district": "Patna",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "ASG Eye Hospital",
+      "kind": "hospital",
+      "lat": 25.305723,
+      "lon": 82.984596,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Adarsh Nursing Home",
+      "kind": "clinic",
+      "lat": 25.283326,
+      "lon": 82.97305,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Agir pour Benares",
+      "kind": "clinic",
+      "lat": 25.296554,
+      "lon": 83.005805,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ajay Hospital Accident Care and Surgical Hospital",
+      "kind": "hospital",
+      "lat": 25.342448,
+      "lon": 82.977485,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Akanksha Nursing Home, Varanasi",
+      "kind": "clinic",
+      "lat": 25.311878,
+      "lon": 82.987764,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Alaknanda Hospital Pvt Ltd.",
+      "kind": "hospital",
+      "lat": 25.28791,
+      "lon": 83.001109,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Alliance Hospital",
+      "kind": "hospital",
+      "lat": 25.319051,
+      "lon": 82.996583,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Alok Health Care Hospital Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.287971,
+      "lon": 83.004762,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Amrit Milan Hospital",
+      "kind": "hospital",
+      "lat": 25.384079,
+      "lon": 82.971084,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anand Hospital",
+      "kind": "hospital",
+      "lat": 25.285464,
+      "lon": 83.119182,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anmol Poly Clinic",
+      "kind": "clinic",
+      "lat": 25.360038,
+      "lon": 83.065333,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Anurag Maternity and Laparoscopic Center",
+      "kind": "clinic",
+      "lat": 25.302424,
+      "lon": 82.969079,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Apex Hospital",
+      "kind": "hospital",
+      "lat": 25.283131,
+      "lon": 82.968435,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arogya Chikitsalaya",
+      "kind": "hospital",
+      "lat": 25.30217,
+      "lon": 82.931326,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arogyam Piyush Clinic",
+      "kind": "clinic",
+      "lat": 25.366136,
+      "lon": 83.006195,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Arunoday Hospital",
+      "kind": "hospital",
+      "lat": 25.304367,
+      "lon": 82.981574,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Aryan Hospital",
+      "kind": "hospital",
+      "lat": 25.379086,
+      "lon": 82.975818,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ashirvad Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.305266,
+      "lon": 82.986438,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ashirvad Nursing Home, Chandauli",
+      "kind": "clinic",
+      "lat": 25.276044,
+      "lon": 83.135728,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ashutosh Maternity And Nursing Home",
+      "kind": "clinic",
+      "lat": 25.285957,
+      "lon": 83.113666,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ayushman Hospital and Trauma Centre",
+      "kind": "hospital",
+      "lat": 25.332967,
+      "lon": 83.014474,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ayushman Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.303952,
+      "lon": 82.986773,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Baby Care Clinic",
+      "kind": "clinic",
+      "lat": 25.302358,
+      "lon": 82.975355,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bharti Hospital",
+      "kind": "hospital",
+      "lat": 25.360347,
+      "lon": 82.948533,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bk Heart Hospital Pvt Ltd",
+      "kind": "hospital",
+      "lat": 25.282624,
+      "lon": 82.970622,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bps Heart Clinic",
+      "kind": "clinic",
+      "lat": 25.282401,
+      "lon": 82.990697,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "CHC CHIRAIGAUON",
+      "kind": "centre",
+      "lat": 25.380678,
+      "lon": 83.056478,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "CHC, Puwarikala",
+      "kind": "centre",
+      "lat": 25.444347,
+      "lon": 82.920342,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Care Hospital - Varanasi",
+      "kind": "hospital",
+      "lat": 25.28318,
+      "lon": 82.969969,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chadr Prabha Hospital",
+      "kind": "hospital",
+      "lat": 25.352927,
+      "lon": 82.978697,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chandra Nursing Home, Varanasi",
+      "kind": "clinic",
+      "lat": 25.32759,
+      "lon": 83.002738,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chirayu Medi Surgical Hospital",
+      "kind": "hospital",
+      "lat": 25.308312,
+      "lon": 82.984916,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chitransh Tution Beauro Parahoopur Mughalsarai",
+      "kind": "centre",
+      "lat": 25.289015,
+      "lon": 83.117147,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Community Health Centre,Cholapur",
+      "kind": "centre",
+      "lat": 25.473806,
+      "lon": 83.001283,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Contonment Hospital",
+      "kind": "hospital",
+      "lat": 25.33188,
+      "lon": 82.979197,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Delight Hospital",
+      "kind": "hospital",
+      "lat": 25.256901,
+      "lon": 82.959375,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dev Matenity Home",
+      "kind": "hospital",
+      "lat": 25.342342,
+      "lon": 82.976807,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr Ram Bilas Fracture and Surgical Centre",
+      "kind": "hospital",
+      "lat": 25.311,
+      "lon": 82.986811,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. R S Singh Hospital",
+      "kind": "hospital",
+      "lat": 25.361898,
+      "lon": 82.952344,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. S.Nath Memorial Eye Clinic Phaco and Laser Centre",
+      "kind": "clinic",
+      "lat": 25.32303,
+      "lon": 83.001052,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Sarojini Singh Hospital",
+      "kind": "hospital",
+      "lat": 25.277477,
+      "lon": 82.966164,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Friend's Hospital",
+      "kind": "hospital",
+      "lat": 25.349664,
+      "lon": 83.005006,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Galaxy Hospital",
+      "kind": "hospital",
+      "lat": 25.305093,
+      "lon": 82.975006,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Getwell Hospital",
+      "kind": "hospital",
+      "lat": 25.276039,
+      "lon": 82.968288,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Government Hospital,GOBARAHA",
+      "kind": "centre",
+      "lat": 25.361352,
+      "lon": 83.16093,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Guru Nanak Hospital",
+      "kind": "hospital",
+      "lat": 25.307153,
+      "lon": 82.993165,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Haribandhu Fracture Clinic Pvt Ltd.",
+      "kind": "clinic",
+      "lat": 25.350219,
+      "lon": 83.022685,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Harshlok Eye Care Centre",
+      "kind": "hospital",
+      "lat": 25.35438,
+      "lon": 82.962413,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Health Care Hospital",
+      "kind": "hospital",
+      "lat": 25.306562,
+      "lon": 82.975055,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Heiwel Hospital and Rehabilitaition Center",
+      "kind": "hospital",
+      "lat": 25.352766,
+      "lon": 82.96783,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Heritage Hospital",
+      "kind": "hospital",
+      "lat": 25.285515,
+      "lon": 82.994691,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Heritage Hospitals Ltd",
+      "kind": "hospital",
+      "lat": 25.278888,
+      "lon": 83.002872,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Himanshu Hospital and Clinic Pvt Ltd",
+      "kind": "clinic",
+      "lat": 25.349368,
+      "lon": 82.991621,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Hindu Sewa Sadan Hospital",
+      "kind": "hospital",
+      "lat": 25.311851,
+      "lon": 83.00858,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Hospital Harsha",
+      "kind": "hospital",
+      "lat": 25.30071,
+      "lon": 83.002375,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Institute Of Medical Science and S.S.Hospital",
+      "kind": "hospital",
+      "lat": 25.27445,
+      "lon": 82.999515,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "J.J Clinic and Nursing Home",
+      "kind": "clinic",
+      "lat": 25.276772,
+      "lon": 83.133562,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "J.P. Hospital and Surgical Centre",
+      "kind": "clinic",
+      "lat": 25.28908,
+      "lon": 82.970888,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jagat Hospital",
+      "kind": "hospital",
+      "lat": 25.384156,
+      "lon": 82.904687,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jamea Hospital",
+      "kind": "hospital",
+      "lat": 25.324662,
+      "lon": 83.014986,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jamuna Sewa Sadan and Research Centre",
+      "kind": "hospital",
+      "lat": 25.358625,
+      "lon": 82.952923,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Janseva Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.302694,
+      "lon": 82.952709,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Janta Sewa Hospital",
+      "kind": "hospital",
+      "lat": 25.304253,
+      "lon": 83.002965,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jeevan Anmol Hospital",
+      "kind": "hospital",
+      "lat": 25.279187,
+      "lon": 82.998867,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jeevan Rekha Hospital",
+      "kind": "hospital",
+      "lat": 25.353666,
+      "lon": 83.002721,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jiwan Jyoti Children Hospital",
+      "kind": "hospital",
+      "lat": 25.268025,
+      "lon": 82.847251,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jyotirmay Hospital",
+      "kind": "hospital",
+      "lat": 25.310406,
+      "lon": 82.98419,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kamala Nursing Home, Varanasi",
+      "kind": "clinic",
+      "lat": 25.259676,
+      "lon": 83.033851,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kashi Hospital",
+      "kind": "hospital",
+      "lat": 25.280497,
+      "lon": 82.967797,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kashi Medicare",
+      "kind": "hospital",
+      "lat": 25.350789,
+      "lon": 83.003704,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kids Care Hospital",
+      "kind": "hospital",
+      "lat": 25.288621,
+      "lon": 82.994089,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kumar Ent and Head and Neck Clinic",
+      "kind": "clinic",
+      "lat": 25.278105,
+      "lon": 83.003219,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kunta Devi Hospital",
+      "kind": "hospital",
+      "lat": 25.36503,
+      "lon": 82.959336,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "LG Hospital",
+      "kind": "hospital",
+      "lat": 25.352795,
+      "lon": 82.981904,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Life Line Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.283263,
+      "lon": 82.980833,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mahashweta Hospital Pvt. Ltd.",
+      "kind": "hospital",
+      "lat": 25.340051,
+      "lon": 82.992093,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mangalam Clinic and Trauma Centre",
+      "kind": "clinic",
+      "lat": 25.311008,
+      "lon": 83.002433,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mata Anandmayee Hosiptal",
+      "kind": "hospital",
+      "lat": 25.292903,
+      "lon": 83.005507,
+      "district": "Varanasi",
+      "address": "Varanasi",
+      "phone": ""
+    },
+    {
+      "name": "Mata Anandmayi",
+      "kind": "centre",
+      "lat": 25.293032,
+      "lon": 83.005561,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Maulana Azad Bunkar Hospital",
+      "kind": "hospital",
+      "lat": 25.331716,
+      "lon": 83.007717,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Medicity Hospital & Critical Care",
+      "kind": "hospital",
+      "lat": 25.300271,
+      "lon": 82.994653,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Medwin Hospitals And Research Centre",
+      "kind": "hospital",
+      "lat": 25.320566,
+      "lon": 83.012732,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Meghna Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.298198,
+      "lon": 82.947768,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mrityunjay Hospital",
+      "kind": "hospital",
+      "lat": 25.321326,
+      "lon": 83.012926,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mukti Mission Sewa Hospital",
+      "kind": "hospital",
+      "lat": 25.350093,
+      "lon": 83.03175,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Murti Fracture Clinic",
+      "kind": "clinic",
+      "lat": 25.288034,
+      "lon": 83.10942,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Nandini Medicare",
+      "kind": "hospital",
+      "lat": 25.315348,
+      "lon": 82.985565,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Navjeevan Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.29602,
+      "lon": 82.999104,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Neelam Hospital",
+      "kind": "hospital",
+      "lat": 25.379333,
+      "lon": 82.993542,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Netra Jyoti Centre",
+      "kind": "hospital",
+      "lat": 25.358157,
+      "lon": 83.014515,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Netra Jyoti Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.289688,
+      "lon": 83.004242,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Khushbu Hospital",
+      "kind": "hospital",
+      "lat": 25.364632,
+      "lon": 82.974667,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Life Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.312973,
+      "lon": 82.990094,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New PHC PAYAGPUR",
+      "kind": "centre",
+      "lat": 25.25285,
+      "lon": 82.869609,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New PHC Rajatalab",
+      "kind": "centre",
+      "lat": 25.272412,
+      "lon": 82.842721,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "New Sahara Hospital",
+      "kind": "hospital",
+      "lat": 25.331702,
+      "lon": 83.023668,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Nishant Maternity And Children Hospital",
+      "kind": "hospital",
+      "lat": 25.350418,
+      "lon": 82.99676,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Om Surgical Center and Maternity Home",
+      "kind": "hospital",
+      "lat": 25.356321,
+      "lon": 83.009652,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Oppo Hospital Maduadih",
+      "kind": "hospital",
+      "lat": 25.294769,
+      "lon": 82.971381,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "P.M.C. Hospital",
+      "kind": "hospital",
+      "lat": 25.287653,
+      "lon": 83.00181,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC ASFAKNAGAR",
+      "kind": "centre",
+      "lat": 25.306251,
+      "lon": 83.004356,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC Gangapur",
+      "kind": "centre",
+      "lat": 25.460396,
+      "lon": 82.8816,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pankhudi Hospital",
+      "kind": "hospital",
+      "lat": 25.329352,
+      "lon": 83.017899,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Police Line Hospital",
+      "kind": "hospital",
+      "lat": 25.3506,
+      "lon": 82.988655,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Popular Hospital",
+      "kind": "hospital",
+      "lat": 25.292644,
+      "lon": 82.970537,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Popular Hospital",
+      "kind": "hospital",
+      "lat": 25.305349,
+      "lon": 82.986451,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prabhat Hospital Bhelupur",
+      "kind": "hospital",
+      "lat": 25.30395,
+      "lon": 82.990059,
+      "district": "Varanasi",
+      "address": "Rathyatra Mahmoorganj Road",
+      "phone": ""
+    },
+    {
+      "name": "Pragya Maternity & Child Care Hospital",
+      "kind": "hospital",
+      "lat": 25.279244,
+      "lon": 83.000889,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pragya Multi Speciality Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.375701,
+      "lon": 82.916193,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prakhar Hospital",
+      "kind": "hospital",
+      "lat": 25.360696,
+      "lon": 82.941177,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prasad Hospital",
+      "kind": "hospital",
+      "lat": 25.3503,
+      "lon": 82.993087,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prasoon Hospital",
+      "kind": "hospital",
+      "lat": 25.363961,
+      "lon": 83.036057,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pratik Hospital",
+      "kind": "hospital",
+      "lat": 25.283804,
+      "lon": 82.969987,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prayag Healthcare Center",
+      "kind": "hospital",
+      "lat": 25.29603,
+      "lon": 82.943459,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prince Clinic and Nursing Home",
+      "kind": "clinic",
+      "lat": 25.32749,
+      "lon": 82.991441,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Prince Hospital",
+      "kind": "hospital",
+      "lat": 25.354029,
+      "lon": 83.004075,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Priya Multispeciality Hospital Pvt.Ltd.",
+      "kind": "hospital",
+      "lat": 25.318801,
+      "lon": 82.992058,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Punjabi Hospital",
+      "kind": "hospital",
+      "lat": 25.346099,
+      "lon": 83.037262,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "R. C. Hospital",
+      "kind": "hospital",
+      "lat": 25.301044,
+      "lon": 83.083634,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "R.K Netralaya",
+      "kind": "hospital",
+      "lat": 25.303611,
+      "lon": 82.975686,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "R.S. Hospital and Research Centre",
+      "kind": "hospital",
+      "lat": 25.360778,
+      "lon": 82.950685,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rajendra Nursing Home and Dental Clinic, Varanasi",
+      "kind": "clinic",
+      "lat": 25.354083,
+      "lon": 82.982531,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rajkiya Mahila Chikitsalaya Mughalsarai",
+      "kind": "hospital",
+      "lat": 25.282462,
+      "lon": 83.122316,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Raju Hospital",
+      "kind": "hospital",
+      "lat": 25.379998,
+      "lon": 82.993993,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ram Nath Memorial Nursing Home",
+      "kind": "clinic",
+      "lat": 25.369798,
+      "lon": 82.972659,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rama Medical Care Centre",
+      "kind": "hospital",
+      "lat": 25.309729,
+      "lon": 82.990997,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ramakrishna Mission Home Of Service",
+      "kind": "hospital",
+      "lat": 25.30683,
+      "lon": 82.99782,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ramkrishna Hospital & Child Care Centre",
+      "kind": "hospital",
+      "lat": 25.262294,
+      "lon": 82.9656,
+      "district": "Varanasi",
+      "address": "",
+      "phone": "9451895456"
+    },
+    {
+      "name": "Real Reliance Hospital",
+      "kind": "hospital",
+      "lat": 25.366912,
+      "lon": 83.025911,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ritu Hospital",
+      "kind": "hospital",
+      "lat": 25.314058,
+      "lon": 82.956667,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rohit Laproscopic Surgical Center",
+      "kind": "hospital",
+      "lat": 25.309135,
+      "lon": 82.983821,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "S P Surgical Centre",
+      "kind": "hospital",
+      "lat": 25.342606,
+      "lon": 82.976634,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "S-Base Hospital varanasi",
+      "kind": "hospital",
+      "lat": 25.278798,
+      "lon": 83.004395,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sadguru Hospital",
+      "kind": "hospital",
+      "lat": 25.345852,
+      "lon": 82.996273,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sah Hospital",
+      "kind": "hospital",
+      "lat": 25.323908,
+      "lon": 83.004445,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sah Speciality Clinic",
+      "kind": "clinic",
+      "lat": 25.290555,
+      "lon": 83.000467,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Samarpan Hospital, Varanasi",
+      "kind": "clinic",
+      "lat": 25.350719,
+      "lon": 82.976228,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Samvedna Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.296581,
+      "lon": 83.001329,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sangam Hospital",
+      "kind": "hospital",
+      "lat": 25.356267,
+      "lon": 82.953296,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sanjeevani Nursing Home, Varanasi",
+      "kind": "clinic",
+      "lat": 25.353687,
+      "lon": 82.979337,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sankatmochan Netralaya and Dental Care",
+      "kind": "hospital",
+      "lat": 25.283588,
+      "lon": 82.998391,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sanmukh Hospital",
+      "kind": "hospital",
+      "lat": 25.430277,
+      "lon": 82.86181,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Santushti Hospital Pvt Ltd.",
+      "kind": "hospital",
+      "lat": 25.282618,
+      "lon": 82.975713,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sarnath Hospital",
+      "kind": "hospital",
+      "lat": 25.360531,
+      "lon": 83.026569,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sarthak Surgical Center",
+      "kind": "hospital",
+      "lat": 25.357931,
+      "lon": 83.01125,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shail Nursing Home",
+      "kind": "clinic",
+      "lat": 25.353734,
+      "lon": 82.964906,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shakuntala Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.306018,
+      "lon": 82.9371,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shekhar Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.357457,
+      "lon": 82.964708,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shiv Surgical Hospital And Medical College",
+      "kind": "clinic",
+      "lat": 25.358874,
+      "lon": 83.013683,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shivam Hospital",
+      "kind": "hospital",
+      "lat": 25.300895,
+      "lon": 82.95346,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shivam Maternity and Nursing Home",
+      "kind": "clinic",
+      "lat": 25.353027,
+      "lon": 82.981961,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shivganga Hospital",
+      "kind": "hospital",
+      "lat": 25.253716,
+      "lon": 82.996461,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shivnath Hospital",
+      "kind": "hospital",
+      "lat": 25.366754,
+      "lon": 83.042432,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Ram Laxminarayan Marwari Hindu Hospital - Varanasi",
+      "kind": "hospital",
+      "lat": 25.309375,
+      "lon": 83.007033,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shri Gangaram Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.247891,
+      "lon": 82.994016,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shubham Banaras Hospital",
+      "kind": "hospital",
+      "lat": 25.311911,
+      "lon": 82.98654,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shubham Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.34408,
+      "lon": 82.98821,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shubham Hospitals",
+      "kind": "hospital",
+      "lat": 25.311792,
+      "lon": 82.985679,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shubhyash Hospital & Speciality Clinic",
+      "kind": "hospital",
+      "lat": 25.350795,
+      "lon": 82.975255,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shyama Hospital",
+      "kind": "hospital",
+      "lat": 25.35528,
+      "lon": 82.965573,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Singh Medical And Surgical Centre",
+      "kind": "hospital",
+      "lat": 25.326465,
+      "lon": 82.992712,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Smayan Hospital",
+      "kind": "hospital",
+      "lat": 25.311236,
+      "lon": 82.986316,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sneha Hospital",
+      "kind": "hospital",
+      "lat": 25.25555,
+      "lon": 82.958659,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sri Sai Surgical and Maternity Hospital",
+      "kind": "hospital",
+      "lat": 25.282172,
+      "lon": 82.991997,
+      "district": "Varanasi",
+      "address": "",
+      "phone": "094529 91121"
+    },
+    {
+      "name": "Srijan Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.356953,
+      "lon": 83.006369,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "St Mary Hospital",
+      "kind": "hospital",
+      "lat": 25.315928,
+      "lon": 82.910651,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sudbhawana Hospital",
+      "kind": "hospital",
+      "lat": 25.278818,
+      "lon": 82.999628,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sudha Surgical Hospital",
+      "kind": "hospital",
+      "lat": 25.351252,
+      "lon": 82.977925,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sudha Surgical Multi Speciality Hospital",
+      "kind": "hospital",
+      "lat": 25.350862,
+      "lon": 82.976052,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Suresh Singh Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.352856,
+      "lon": 83.001858,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Surya Super Speciality Hospital",
+      "kind": "hospital",
+      "lat": 25.305197,
+      "lon": 82.980518,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Swami Harshankaranand Ji Hospital and Research Center",
+      "kind": "hospital",
+      "lat": 25.283647,
+      "lon": 82.971491,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Swami Vivekanand Jan Kalyan Hospital",
+      "kind": "hospital",
+      "lat": 25.257947,
+      "lon": 82.961565,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Swastik Surgical",
+      "kind": "hospital",
+      "lat": 25.359205,
+      "lon": 82.959184,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Tandon Multispeciality Hospital and Ishita Modern Eye Care Centre",
+      "kind": "clinic",
+      "lat": 25.319194,
+      "lon": 83.00673,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "The Apolo Clinic",
+      "kind": "clinic",
+      "lat": 25.304187,
+      "lon": 82.978412,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "The Fractures Clinic and Trauma Hospital",
+      "kind": "clinic",
+      "lat": 25.303236,
+      "lon": 82.976447,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Trimurti Hospital",
+      "kind": "hospital",
+      "lat": 25.352068,
+      "lon": 82.971449,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "UPHC BENIYA",
+      "kind": "centre",
+      "lat": 25.317516,
+      "lon": 83.004378,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Umang Nursing Home",
+      "kind": "clinic",
+      "lat": 25.351849,
+      "lon": 82.982249,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Uphar Nursing Home Pvt. Ltd.",
+      "kind": "clinic",
+      "lat": 25.304654,
+      "lon": 82.980395,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Usha Memorial Hospital",
+      "kind": "hospital",
+      "lat": 25.339714,
+      "lon": 82.925675,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vaidik Hospital and Trauma Centre",
+      "kind": "hospital",
+      "lat": 25.297483,
+      "lon": 82.94373,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vanshika Children Hospital",
+      "kind": "hospital",
+      "lat": 25.351744,
+      "lon": 82.981191,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Varadan Hospital",
+      "kind": "hospital",
+      "lat": 25.350916,
+      "lon": 82.976834,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Varanasi Hospital And Medical Research Centre",
+      "kind": "hospital",
+      "lat": 25.293281,
+      "lon": 82.996523,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vardaan Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.282983,
+      "lon": 82.974908,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vardan Hospital and Laparoscopic Centre",
+      "kind": "hospital",
+      "lat": 25.35072,
+      "lon": 82.977243,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Varuna Hospital",
+      "kind": "hospital",
+      "lat": 25.302342,
+      "lon": 82.964571,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vatsalya Children Hospital",
+      "kind": "hospital",
+      "lat": 25.352105,
+      "lon": 82.981678,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vatsalya Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.348577,
+      "lon": 82.975786,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vishal Surgical Center",
+      "kind": "clinic",
+      "lat": 25.316303,
+      "lon": 82.908822,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vivek Hospital, Varanasi",
+      "kind": "hospital",
+      "lat": 25.300603,
+      "lon": 82.956082,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "phc,Pandeypur",
+      "kind": "centre",
+      "lat": 25.354424,
+      "lon": 82.993483,
+      "district": "Varanasi",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Aashtha Hospital",
+      "kind": "hospital",
+      "lat": 20.735586,
+      "lon": 78.594771,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Achary Vinoba Bhave Rural Hospital Sawangi (M)",
+      "kind": "hospital",
+      "lat": 20.71541,
+      "lon": 78.572697,
+      "district": "Wardha",
+      "address": "wardha",
+      "phone": ""
+    },
+    {
+      "name": "Anvika Hospital",
+      "kind": "hospital",
+      "lat": 20.748698,
+      "lon": 78.603273,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Ayusparsha Clinic",
+      "kind": "clinic",
+      "lat": 20.768507,
+      "lon": 78.604748,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bhalme Nursing Home",
+      "kind": "hospital",
+      "lat": 20.742153,
+      "lon": 78.600802,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bhise Nursing Home",
+      "kind": "hospital",
+      "lat": 20.745068,
+      "lon": 78.597842,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Bippalliwars's Homepathic Clinic",
+      "kind": "clinic",
+      "lat": 20.740436,
+      "lon": 78.591978,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Central railway",
+      "kind": "hospital",
+      "lat": 20.731203,
+      "lon": 78.592268,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Chandrabhaga Hospital",
+      "kind": "hospital",
+      "lat": 20.74344,
+      "lon": 78.618465,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Cortex Hospital",
+      "kind": "hospital",
+      "lat": 20.749063,
+      "lon": 78.605091,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Daftari Dental Clinic",
+      "kind": "dentist",
+      "lat": 20.836558,
+      "lon": 78.708931,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Datta Meghe Hospital",
+      "kind": "hospital",
+      "lat": 20.715493,
+      "lon": 78.572699,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dhande sonography and X-Ray center",
+      "kind": "doctor",
+      "lat": 20.749189,
+      "lon": 78.602294,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "District General Hospital, Wardha",
+      "kind": "hospital",
+      "lat": 20.73776,
+      "lon": 78.603164,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr Sarang Ghode",
+      "kind": "clinic",
+      "lat": 20.744503,
+      "lon": 78.596985,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Agrawal Hospital",
+      "kind": "hospital",
+      "lat": 20.748523,
+      "lon": 78.603315,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Bhaimare's Sanjeevan Eye Hospital",
+      "kind": "hospital",
+      "lat": 20.741681,
+      "lon": 78.599509,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Chaudhari's Pandurang Clinic",
+      "kind": "clinic",
+      "lat": 20.755323,
+      "lon": 78.60117,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Ekhar Hospital",
+      "kind": "hospital",
+      "lat": 20.741378,
+      "lon": 78.605686,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Gandhi Hospital",
+      "kind": "hospital",
+      "lat": 20.747346,
+      "lon": 78.598595,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Kher's Sainath Nursing Home",
+      "kind": "clinic",
+      "lat": 20.741603,
+      "lon": 78.594395,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Lokhande",
+      "kind": "doctors",
+      "lat": 20.735433,
+      "lon": 78.591036,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Milind Sajjanwar",
+      "kind": "doctors",
+      "lat": 20.752378,
+      "lon": 78.600638,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Mogre Hospital",
+      "kind": "hospital",
+      "lat": 20.737453,
+      "lon": 78.600887,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Nagpure Hospital",
+      "kind": "hospital",
+      "lat": 20.749899,
+      "lon": 78.613892,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Patharkar's homeopathy clinic",
+      "kind": "clinic",
+      "lat": 20.7526,
+      "lon": 78.601734,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Suhaas Jajoo Hospital",
+      "kind": "hospital",
+      "lat": 20.741258,
+      "lon": 78.601997,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Dr. Vijay Bhalavi Hospital",
+      "kind": "hospital",
+      "lat": 20.740481,
+      "lon": 78.647498,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Gupta Hospital and Cardiology Centre",
+      "kind": "hospital",
+      "lat": 20.743737,
+      "lon": 78.602252,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Hospital",
+      "kind": "hospital",
+      "lat": 20.763305,
+      "lon": 78.589044,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jadhav Hospital",
+      "kind": "hospital",
+      "lat": 20.75978,
+      "lon": 78.597275,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jain Hospital",
+      "kind": "hospital",
+      "lat": 20.741773,
+      "lon": 78.593739,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Jain Hospital, Wardha",
+      "kind": "hospital",
+      "lat": 20.741793,
+      "lon": 78.593722,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kashyap Hospital",
+      "kind": "hospital",
+      "lat": 20.735609,
+      "lon": 78.595413,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kilbil Hospital",
+      "kind": "hospital",
+      "lat": 20.761303,
+      "lon": 78.599897,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Kitey Clinic",
+      "kind": "clinic",
+      "lat": 20.740489,
+      "lon": 78.602263,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Krishna Hospital, Wardha",
+      "kind": "hospital",
+      "lat": 20.743613,
+      "lon": 78.597083,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Laxmi Maternity & Pediatric Hospital",
+      "kind": "hospital",
+      "lat": 20.752635,
+      "lon": 78.600585,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Life Care Hospital",
+      "kind": "hospital",
+      "lat": 20.69565,
+      "lon": 78.611163,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Madhavbaug Clinic",
+      "kind": "clinic",
+      "lat": 20.754413,
+      "lon": 78.602085,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Mahatma Gandhi Institute of Medical Sciences",
+      "kind": "hospital",
+      "lat": 20.739137,
+      "lon": 78.661269,
+      "district": "Wardha",
+      "address": "Sevagram",
+      "phone": ""
+    },
+    {
+      "name": "Mai Hospital",
+      "kind": "hospital",
+      "lat": 20.753564,
+      "lon": 78.60211,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Netra Eye Hospital",
+      "kind": "hospital",
+      "lat": 20.740855,
+      "lon": 78.59993,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC Anji",
+      "kind": "centre",
+      "lat": 20.845615,
+      "lon": 78.538656,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC Dahegaon",
+      "kind": "centre",
+      "lat": 20.803105,
+      "lon": 78.801891,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "PHC Kharangana (MO)",
+      "kind": "centre",
+      "lat": 20.916598,
+      "lon": 78.475591,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Panacea Hospital",
+      "kind": "hospital",
+      "lat": 20.740355,
+      "lon": 78.597946,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pawade Nursing Home",
+      "kind": "hospital",
+      "lat": 20.745225,
+      "lon": 78.597971,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pranada Clinic",
+      "kind": "clinic",
+      "lat": 20.74681,
+      "lon": 78.597971,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Pulfail UPHC A",
+      "kind": "hospital",
+      "lat": 20.731829,
+      "lon": 78.609664,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Radha Clinic",
+      "kind": "clinic",
+      "lat": 20.762058,
+      "lon": 78.598383,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rashi pathology",
+      "kind": "doctor",
+      "lat": 20.74549,
+      "lon": 78.59868,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Rural Hospital, Seloo",
+      "kind": "hospital",
+      "lat": 20.840123,
+      "lon": 78.712655,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sahu Hospital",
+      "kind": "hospital",
+      "lat": 20.756906,
+      "lon": 78.600813,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sai Physiotherapy Clinic",
+      "kind": "clinic",
+      "lat": 20.740299,
+      "lon": 78.590212,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sakshi Medicals",
+      "kind": "pharmacy",
+      "lat": 20.756987,
+      "lon": 78.600815,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sanjivani Homeo Clinic",
+      "kind": "hospital",
+      "lat": 20.741876,
+      "lon": 78.594367,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shadija Clinic",
+      "kind": "clinic",
+      "lat": 20.729535,
+      "lon": 78.591026,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shree Hospital",
+      "kind": "hospital",
+      "lat": 20.746842,
+      "lon": 78.597714,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Shwas Multispeciality Hospital",
+      "kind": "hospital",
+      "lat": 20.740424,
+      "lon": 78.59293,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Siddhivinayak Children Hospitals",
+      "kind": "hospital",
+      "lat": 20.754519,
+      "lon": 78.603539,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Skin and Hair Clinic",
+      "kind": "clinic",
+      "lat": 20.741518,
+      "lon": 78.59692,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "SubCentre, Ghorad",
+      "kind": "centre",
+      "lat": 20.850939,
+      "lon": 78.711324,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "SubCentre, Waifad",
+      "kind": "centre",
+      "lat": 20.758401,
+      "lon": 78.438248,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sune Eye Hospital",
+      "kind": "hospital",
+      "lat": 20.739591,
+      "lon": 78.601696,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Sushrut Hospital, Wardha",
+      "kind": "hospital",
+      "lat": 20.742365,
+      "lon": 78.609487,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vanmali Hospital",
+      "kind": "hospital",
+      "lat": 20.744122,
+      "lon": 78.61698,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Varma Nursing Home",
+      "kind": "hospital",
+      "lat": 20.743213,
+      "lon": 78.620684,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Vatsalya Pawade Nursing Home",
+      "kind": "hospital",
+      "lat": 20.749153,
+      "lon": 78.599109,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Veeva Skin Clinic",
+      "kind": "clinic",
+      "lat": 20.741086,
+      "lon": 78.59909,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Wellness Forever Pharmacy",
+      "kind": "pharmacy",
+      "lat": 20.739207,
+      "lon": 78.599552,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "Zadshi PHC",
+      "kind": "centre",
+      "lat": 20.865087,
+      "lon": 78.636725,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    },
+    {
+      "name": "sanewadi UPHC",
+      "kind": "centre",
+      "lat": 20.734704,
+      "lon": 78.585169,
+      "district": "Wardha",
+      "address": "",
+      "phone": ""
+    }
+  ]
+}

@@ -18,6 +18,7 @@ import { formatElapsed, statusLabel } from '@/components/sehat/agent-status';
 import { useConsultation } from '@/components/sehat/consultation-provider';
 import { EcgVisualizer, type Speaker } from '@/components/sehat/ecg-visualizer';
 import { EmergencyBanner } from '@/components/sehat/emergency-banner';
+import { FacilityCard } from '@/components/sehat/facility-card';
 import { MicDeniedNotice } from '@/components/sehat/mic-denied-notice';
 import { RecordTranscript } from '@/components/sehat/record-transcript';
 import { SpeakerCaption } from '@/components/sehat/speaker-caption';
@@ -92,6 +93,7 @@ export const SessionView = ({
   const {
     elapsedMs,
     escalation,
+    facilities,
     messages,
     isReconnecting,
     micFailure,
@@ -145,6 +147,10 @@ export const SessionView = ({
 
         {/* An escalation stays on screen for the rest of the call. */}
         {escalation && <EmergencyBanner notice={escalation} className="mt-4 shrink-0" />}
+
+        {/* Below the emergency banner, never above it: if both are on screen the
+            ambulance number is the one that must be read first. */}
+        {facilities && <FacilityCard notice={facilities} className="mt-4 shrink-0" />}
 
         {/* A dropped link must not read as a hang-up. */}
         {isReconnecting && (

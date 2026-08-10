@@ -114,6 +114,42 @@ identity of the thing.
 
 ---
 
+## Where the facility data comes from
+
+**The nearby-clinic lookup uses a local file, not a live API.** This matters
+enough to say plainly.
+
+`find_nearest_facility` reads `backend/data/facilities.json`, a snapshot of
+health facilities taken from **OpenStreetMap** ahead of time by
+`backend/scripts/build_facilities.py`. Nothing queries the internet during a
+call.
+
+That is a deliberate trade, made after measuring. Overpass — the OpenStreetMap
+query API — took **21 to 37 seconds** against these districts, and its main
+instance returned `504 Gateway Timeout`. The agent's entire budget from button
+press to first audio is under eight seconds, so a live lookup would have made
+every caller wait longer than the rest of the call.
+
+What that costs, and what the agent says about it:
+
+| | |
+|---|---|
+| **Coverage** | Only the districts downloaded — currently Wardha, Nagpur, Varanasi and Patna. Anywhere else the agent says it has no listings and gives the 104 helpline. It never guesses a clinic. |
+| **Freshness** | The snapshot carries the OpenStreetMap timestamp, and the agent speaks it: *"this is from map data dated …"*. A clinic may have moved or closed. |
+| **Accuracy** | Community-maintained, so imperfect — one entry in testing was a railway station tagged as a hospital. The agent tells callers to phone ahead before travelling. |
+| **Distances** | Straight-line, not road distance. Wardha to Nagpur is 61 km in a straight line and about 75 km by road, which is why the agent says "about". |
+
+Refresh or extend it:
+
+```bash
+cd backend
+uv run python scripts/build_facilities.py
+uv run python scripts/build_facilities.py --districts "Bhopal, Madhya Pradesh, India"
+```
+
+Runs merge rather than overwrite, because Overpass fails a district at a time.
+Data © OpenStreetMap contributors, ODbL.
+
 ## Architecture
 
 ```
