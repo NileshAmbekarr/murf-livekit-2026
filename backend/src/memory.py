@@ -76,12 +76,37 @@ TRIAGE_OUTCOMES: tuple[str, ...] = (
 
 LANGUAGES: tuple[str, ...] = ("hindi", "english", "mixed")
 
+
+def _storable_districts() -> tuple[str, ...]:
+    """Districts a caller may be recorded as living in.
+
+    Deliberately not "any district in India". The allowed values are exactly the
+    districts the facility extract covers, which keeps two promises at once: the
+    Day 4 rule that every stored value comes from a closed set rather than free
+    text, and the Day 5 rule that we never imply coverage we do not have. A
+    district we cannot look up is a district we have no reason to remember.
+
+    Imported lazily so `memory.py` keeps working — with no districts storable —
+    if the facility data is missing entirely.
+    """
+    try:
+        import facilities
+
+        return facilities.covered_districts()
+    except Exception:  # pragma: no cover - defensive
+        return ()
+
+
 #: key -> the closed set of values it accepts.
 ALLOWED_FACTS: dict[str, tuple[str, ...]] = {
     "age_band": AGE_BANDS,
     "ongoing_condition": CONDITIONS,
     "last_triage_outcome": TRIAGE_OUTCOMES,
     "language_preference": LANGUAGES,
+    # Coarse — an Indian district averages around two million people, so this is
+    # closer to an age band than to an address. It exists so a returning caller
+    # is not asked where they live on every single call.
+    "district": _storable_districts(),
 }
 
 

@@ -46,6 +46,7 @@ from livekit.agents.worker import ServerEnvOption
 from livekit.plugins import deepgram, google, murf, noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
+import facilities
 from health_resources import (
     EMERGENCY_AMBULANCE,
     NATIONAL_EMERGENCY,
@@ -116,6 +117,10 @@ CALLER_ID_PREFIX = "sehat-caller-"
 # Topic the frontend listens on to learn that an escalation fired, so the screen
 # can show the ambulance number the caller is being told out loud.
 ESCALATION_TOPIC = "sehat.escalation"
+
+# Topic the frontend listens on for nearby facilities, so an address the caller
+# cannot memorise is on screen while the agent speaks it.
+FACILITIES_TOPIC = "sehat.facilities"
 
 # --- Silence handling --------------------------------------------------------
 # Callers on a bad line go quiet a lot. Re-prompt once, then close gracefully
@@ -355,6 +360,8 @@ Only these, through `remember_about_caller`:
 - ongoing_condition: a long-term condition they told you they have
 - last_triage_outcome: how this call ended
 - language_preference: hindi, english or mixed
+- district: the district or town they live in, so you can find them a clinic
+  next time without asking again
 - their first name, to greet them by
 
 You must never store what someone described feeling today, how long a symptom
@@ -366,6 +373,31 @@ them into a field that is allowed either.
 If a caller asks to be forgotten, in any wording, call `forget_me` immediately.
 Do not ask them to justify it, and do not try to talk them out of it. Confirm
 that it is done.
+
+# WHERE TO GO
+
+Telling someone to "visit your nearest PHC" without saying where it is puts the
+work back on them. When you give that advice, give them a place too.
+
+Call `find_nearest_facility` when the caller asks where to go or where the
+nearest clinic, hospital or health centre is — and also straight after you
+suggest a clinic visit, so the suggestion lands with somewhere to go.
+
+You need their district or town. If `recall_caller` already told you, use it and
+do not ask again. Otherwise ask once, in one short question.
+
+Three things about the answer:
+
+- Say the nearest one or two, not a list of three. Two names and roughly how far
+  is what someone can hold in their head.
+- Say where the listing came from, in one clause: it is public map data, so they
+  should phone ahead or ask locally before travelling. A clinic may have moved.
+- If the tool says it has no data for their area, say exactly that and give the
+  one zero four helpline. Never name a clinic the tool did not give you. A place
+  you invented is a wasted journey for someone who may be ill.
+
+Never do any of this during an emergency. A danger sign means an ambulance, and
+a nearby clinic is not a substitute for one.
 
 # STYLE
 Your words are spoken aloud, so write for the ear and never for a screen.
@@ -603,6 +635,7 @@ class SehatSathi(Agent):
         ongoing_condition: str = "",
         last_triage_outcome: str = "",
         language_preference: str = "",
+        district: str = "",
     ) -> str:
         """Save a few facts so the next call can pick up where this one left off.
 
@@ -623,6 +656,8 @@ class SehatSathi(Agent):
                 advised clinic visit, advised asha worker, information only, or
                 scheme guidance.
             language_preference: hindi, english or mixed.
+            district: The district or town they live in, so you do not have to
+                ask again next time before looking up a nearby clinic.
         """
         if not self._caller_id:
             return "No caller id on this call, so nothing can be saved. Carry on helping them."
@@ -632,6 +667,7 @@ class SehatSathi(Agent):
             "ongoing_condition": ongoing_condition,
             "last_triage_outcome": last_triage_outcome,
             "language_preference": language_preference,
+            "district": district,
         }
         facts = {key: value for key, value in candidates.items() if value}
 
@@ -681,11 +717,113 @@ class SehatSathi(Agent):
         )
 
     @function_tool
+    async def find_nearest_facility(
+        self, context: RunContext, place: str = "", kind: str = ""
+    ) -> str:
+        """Find real clinics, hospitals and health centres near the caller.
+
+        Use this when the caller asks where to go, where the nearest clinic or
+        hospital is, or where they can get checked, tested or treated. Also use
+        it right after you tell someone to visit a PHC, so that advice comes with
+        an actual place instead of leaving them to work it out.
+
+        Do NOT use this for a phone helpline or a government scheme — that is
+        `find_health_service`. Do NOT use it during an emergency: someone with a
+        danger sign needs an ambulance called, not a clinic recommended.
+
+        Args:
+            place: The caller's district or town, as they said it, e.g.
+                "Wardha", "Patna". Leave empty only if they have not said where
+                they are and you are about to ask.
+            kind: Optional filter — "hospital", "clinic", "health centre" or
+                "pharmacy". Leave empty to get whatever is closest.
+        """
+        if not place.strip():
+            return (
+                "You do not know where the caller is yet. Ask which district or "
+                "town they are in, then call this again."
+            )
+
+        found = facilities.find_nearby(place, kind=kind or None, limit=3)
+        logger.info(
+            "facility lookup",
+            extra={"place": place, "kind": kind, "results": len(found)},
+        )
+
+        if not found:
+            # Never guess a facility. Sending a frightened person to a clinic
+            # that does not exist is worse than admitting the gap.
+            covered = ", ".join(d.title() for d in facilities.covered_districts())
+            return (
+                f"NO DATA for '{place}'. Do not name any clinic or hospital — you "
+                "do not have one, and inventing one would send them somewhere that "
+                "may not exist. Tell them you do not have listings for their area "
+                "yet, give them the national health helpline one zero four, and "
+                "suggest their ASHA worker or the nearest primary health centre. "
+                + (f"Areas you do have: {covered}." if covered else "")
+            )
+
+        await self._signal_facilities_to_frontend(found)
+
+        lines = "; ".join(item.spoken() for item in found)
+        as_of = facilities.data_as_of()
+        dated = f" This listing is from map data dated {as_of}." if as_of else ""
+
+        return (
+            f"Found near {place}: {lines}."
+            f"{dated}\n"
+            "Say the nearest one or two out loud, naturally, with roughly how far. "
+            "Do not read out a list of three. Then tell them in one short clause "
+            "that this comes from public map data and they should phone ahead or "
+            "ask locally before travelling, because a place may have moved or "
+            "closed. Do not invent an address, a phone number or opening hours."
+        )
+
+    async def _signal_facilities_to_frontend(
+        self, found: list[facilities.Facility]
+    ) -> None:
+        """Put the facilities on screen as well as in the caller's ear.
+
+        An address is the classic thing people cannot hold in their head. Same
+        best-effort contract as the escalation signal: wrapped and swallowed,
+        because the spoken answer is the product and the card is a convenience.
+        """
+        try:
+            payload = json.dumps(
+                {
+                    "type": "facilities",
+                    "as_of": facilities.data_as_of(),
+                    "items": [
+                        {
+                            "name": item.name,
+                            "kind": item.kind_word,
+                            "distanceKm": round(item.distance_km, 1),
+                            "lat": item.lat,
+                            "lon": item.lon,
+                            "address": item.address,
+                        }
+                        for item in found
+                    ],
+                }
+            ).encode()
+
+            room = get_job_context().room
+            await room.local_participant.publish_data(
+                payload, reliable=True, topic=FACILITIES_TOPIC
+            )
+        except Exception:
+            logger.exception("could not signal facilities to the frontend")
+
+    @function_tool
     async def find_health_service(self, context: RunContext, topic: str) -> str:
         """Look up Indian health helplines and government schemes for a topic.
 
-        Use this whenever the caller asks where to go, what help exists, whether
-        something is free, or how to afford treatment.
+        Use this for phone helplines, government schemes, and what care costs or
+        whether it is free.
+
+        Do NOT use this to find a nearby clinic or hospital — that is
+        `find_nearest_facility`. This tool knows national numbers and
+        programmes; it does not know any physical place near the caller.
 
         Args:
             topic: What the caller needs help with, e.g. "pregnancy", "TB

@@ -17,6 +17,7 @@ import {
   useSessionMessages,
 } from '@livekit/components-react';
 import { type EscalationNotice, useEscalationSignal } from '@/hooks/useEscalationSignal';
+import { type FacilityNotice, useFacilitySignal } from '@/hooks/useFacilitySignal';
 import { type MicFailureKind, useMicPermission } from '@/hooks/useMicPermission';
 
 /**
@@ -57,6 +58,8 @@ interface ConsultationContextValue {
   elapsedMs: number;
   /** Set when the agent escalates. Never cleared mid-call — see below. */
   escalation: EscalationNotice | null;
+  /** Nearby facilities from the most recent lookup, or null. */
+  facilities: FacilityNotice | null;
   /** Populated on the live -> ended transition. */
   summary: ConsultationSummary | null;
   messages: ReceivedMessage[];
@@ -91,6 +94,10 @@ export function ConsultationProvider({ children }: { children: React.ReactNode }
   const agent = useAgent();
   const { messages } = useSessionMessages(session);
   const { notice: escalation, clear: clearEscalation } = useEscalationSignal(session.room);
+  // Replaced each time the agent looks up somewhere new, rather than latched
+  // like the escalation: a stale list of clinics for the previous district would
+  // be actively misleading, where an emergency number never goes out of date.
+  const { notice: facilities, clear: clearFacilities } = useFacilitySignal(session.room);
   const mic = useMicPermission(session.room);
 
   const { connectionState, isConnected } = session;
@@ -227,16 +234,18 @@ export function ConsultationProvider({ children }: { children: React.ReactNode }
     setElapsedMs(0);
     setHasBeenLive(false);
     clearEscalation();
+    clearFacilities();
     // Otherwise the previous call's record would bleed into the next slip.
     latest.current = { messages: [], escalation: null, startedAt: null };
     await start(lastStartOptions.current);
-  }, [clearEscalation, start]);
+  }, [clearEscalation, clearFacilities, start]);
 
   const value = useMemo<ConsultationContextValue>(
     () => ({
       phase,
       elapsedMs,
       escalation,
+      facilities,
       summary,
       messages,
       agentUnavailable,
@@ -253,6 +262,7 @@ export function ConsultationProvider({ children }: { children: React.ReactNode }
       phase,
       elapsedMs,
       escalation,
+      facilities,
       summary,
       messages,
       agentUnavailable,
