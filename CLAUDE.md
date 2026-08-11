@@ -7,8 +7,9 @@ Handoff notes for continuing development. Read this before changing anything in
 **#VoiceForBharat** (10 Days of AI Voice Agents, by Murf AI), on LiveKit Agents
 with **Murf Falcon** TTS.
 
-**Where things stand:** Days 1–3 are done. Days 1–2 are merged into `main`
-(PR #3). Day 3 is on branch `claude/day3-frontend-states`.
+**Where things stand:** Days 1–6 are built and merged into `main`. Days 3, 5 and
+6 have been recorded; **Day 4 and Day 5 LinkedIn posts and form submissions may
+still be outstanding** — check before assuming a day is closed.
 
 ---
 
@@ -203,6 +204,76 @@ banner is a convenience; the emergency script is not. `TestEscalationSignal::
 test_emergency_script_survives_publish_failure` pins that ordering — if it ever
 fails, the UI signal has been allowed in front of the safety path.
 
+## Memory, and what may never go in it
+
+`memory.py` is a SQLite store, local on purpose: the lookup happens inside a
+conversational turn, and a file read costs microseconds where a hosted database
+costs a round-trip the caller sits through.
+
+Two rules are enforced in code because Health Access treats breaking them as
+disqualifying rather than as a bug:
+
+- **Consent is a precondition.** `remember()` refuses until `record_consent`
+  has recorded a yes, and a "no" **deletes** rather than setting a flag.
+- **Facts are a closed allow-list with validated values.** A tool shaped
+  `save(key, value)` would have had the model writing *"caller has chest pain,
+  worried about a heart attack"* the first time somebody described a symptom, and
+  a written-out medical note is exactly what must not be kept. The name field is
+  length-capped so a sentence cannot be smuggled through the one free-text slot.
+
+`district`'s allowed values are `facilities.covered_districts()` — a district we
+cannot serve cannot be stored as though we could.
+
+**Identity comes from the browser.** `frontend/lib/caller-id.ts` keeps a UUID in
+localStorage and sends it as the LiveKit participant identity; the token route
+validates the shape. It identifies a *browser*, not a person, which is why the
+agent still confirms the name aloud — on a shared household phone, greeting the
+wrong person with someone else's conditions would be real harm.
+
+## Facilities, and why the data is a local file
+
+`find_nearest_facility` reads `data/facilities.json`, a snapshot taken from
+OpenStreetMap by `scripts/build_facilities.py`. **Nothing queries the network at
+call time.** Overpass measured 21–37s against these districts with its main
+instance returning 504, against a total budget under eight seconds.
+
+- Indian PHCs are tagged `healthcare=centre`; querying `amenity` alone misses
+  exactly the facilities this agent most wants to name.
+- Phone numbers are essentially absent from Indian OSM health data, so the UI
+  card uses `geo:` links rather than `tel:`.
+- Distances are straight-line, not road — Wardha to Nagpur is 61km versus ~75km
+  driving, which is why the agent always says "about".
+- `data/` is gitignored except `facilities.json`. That negation needs
+  `data/*`, not `data/` — excluding the directory stops git descending into it
+  and the negation is never considered.
+
+## Outbound calling
+
+`scripts/place_calls.py` dispatches; **the agent places the SIP call itself**
+from job metadata, so it is already in the room when the phone is answered.
+
+- **Dials Linphone over SIP**, not the PSTN — Twilio trials can no longer buy a
+  number. `SIP_PROVIDER=twilio` switches back. Twilio is not a TRAI-registered
+  telemarketer in India, so the PSTN path is a demo, never a service.
+- **`sip_call_to` takes a bare user or number, never a full SIP URI.** Addresses
+  are *stored* as full URIs (unambiguous for suppression); `dial_target()` trims
+  them at dial time.
+- **A busy or unanswered phone is an outcome, not a crash.** The agent is the
+  only thing that sees the SIP status — the trigger has returned by then — so it
+  records the outcome and exits. `sip_status_of()` reads the exception's
+  `metadata['sip_status_code']`; scanning the message text would read a room
+  name containing "486" as a busy signal.
+- **Consent to be telephoned is separate from consent to be remembered**, and a
+  phone number is still rejected as a *fact*.
+- **`stop_calling()` is irreversible and there is no inverse.** `forget_me` also
+  suppresses the number. The suppression list stores a salted hash, so honouring
+  "never call me again" does not mean retaining a number somebody asked to have
+  erased.
+- **Nothing about health is said until a human speaks.** SIP cannot detect an
+  answering machine, so silence after the opening earns a neutral goodbye.
+- **Emergency referrals are never followed up** — `FOLLOW_UP_OUTCOMES` excludes
+  them deliberately.
+
 ## Gotchas that cost time
 
 - **`session.run()` does not call `on_user_turn_completed`.** It goes
@@ -257,10 +328,22 @@ backend/src/
   agent.py              Persona, prompt, tools, turn hook, silence handling,
                         LiveKit session wiring. Single entrypoint.
   health_resources.py   Helplines, schemes, red-flag phrases, matching logic.
-                        Pure functions, no LiveKit imports — fast to test.
+  memory.py             Caller memory. Consent gates, the fact allow-list, the
+                        do-not-call list. THE file for privacy decisions.
+  facilities.py         Nearest-clinic lookup from the local OSM extract.
+  outbound.py           Call outcomes, retry rules, the 09:00-21:00 IST window.
+                        All four are pure — no LiveKit imports, fast to test.
+backend/scripts/
+  audition_voices.py    Measure a voice/locale/style by ear before changing it
+  build_facilities.py   Refresh data/facilities.json from OpenStreetMap
+  setup_sip_trunk.py    Create the LiveKit outbound trunk (Linphone or Twilio)
+  place_calls.py        Decide who gets rung. --dry-run first, always.
 backend/tests/
   test_agent.py         Safety evals + code-mixed language + lookup unit tests
-  test_red_team.py      14 adversarial cases, layer-1 hook tests, regressions
+  test_red_team.py      Adversarial cases, layer-1 hook tests, regressions
+  test_memory.py        Consent, the allow-list, forgetting, do-not-call
+  test_facilities.py    Lookup, honest failure when data is missing
+  test_outbound.py      Retry caps, opt-out, calling window, no emergency chase
 
 frontend/
   app-config.ts               Branding, agentName, feature flags
@@ -344,12 +427,13 @@ Backend needs all four; frontend needs only the three LiveKit values plus
 
 ### Tests
 
-45 tests. 29 run offline; the rest are LLM-judged and need LiveKit creds.
+187 tests. 178 run offline; the rest are LLM-judged, need LiveKit creds, and
+are flaky — see gap 3 below before trusting a red-team failure.
 
 ```bash
 cd backend
 uv run pytest                                          # everything
-uv run pytest -k "Deterministic or TurnHook or lookup"  # offline only, ~4s
+uv run pytest --ignore=tests/test_agent.py   # skips the slow LLM-judged evals
 uvx ruff check src tests && uvx ruff format src tests
 ```
 
@@ -381,33 +465,44 @@ covers the safety-critical matching.
 
 ## Where to go next
 
-Days 4–10 are unscheduled. Known gaps, roughly by value:
+Days 7–10 are unscheduled. Known gaps, roughly by value:
 
-1. **Connect latency is now measured, and still too slow.** `connect timing`
-   logs in `sehat_sathi()` give the numbers. Latest run: `session_built` 4.4s,
-   `session_started` 14.5s, `room_connected` +3ms. Two remaining causes, both
-   diagnosed and neither yet fixed:
-   - **LiveKit Cloud session recording** (`enable_recording: true` on every job)
-     splices `RecorderIO` into the audio path twice and uploads a session report
-     on shutdown that measured 14–19s. It is **not settable from code** —
-     checked `AgentServer.__init__`, `rtc_session()` and `room_io.RoomOptions`.
-     Turn it off in the LiveKit Cloud dashboard while developing.
-   - **`MultilingualModel()` and the plugin constructors run per job** inside
-     `AgentSession(...)`, costing ~4.4s. Moving the turn detector into `prewarm`
-     via `proc.userdata` should amortise it. Not yet attempted.
-2. **Multi-turn guardrail pressure.** Every adversarial case is single-turn. A
+1. **Outbound reminders cannot fire by themselves.** `scripts/place_calls.py` is
+   a manual trigger — there is no scheduler, so a medication reminder only goes
+   out when somebody runs the command. Two pieces are missing: cron or Windows
+   Task Scheduler running `place_calls.py --reason reminder`, and a per-caller
+   reminder time, which would need another allow-listed fact. The agent worker
+   also has to be running for any dispatch to land; today that is a terminal,
+   not a service. Deliberately deferred on Day 6, not overlooked.
+2. **Connect latency: halved, still not good.** `connect timing` logs give the
+   numbers. After hoisting `google.LLM()` into `prewarm` (measured 2180ms per
+   call), `session_built` went 3059ms → 480ms and `session_started` ~15–23s →
+   7.7s. The remaining ~7.1s is the room connect itself. One lever is left and
+   it is not in the code: **LiveKit Cloud session recording** is still enabled
+   (`enable_recording: true` on every job), splicing `RecorderIO` in twice and
+   uploading a report on shutdown that measured 14–19s. Not settable from code —
+   checked `AgentServer.__init__`, `rtc_session()` and `room_io.RoomOptions`.
+   Turn it off in the dashboard.
+3. **The LLM-judged evals are flaky enough to hide real regressions.** Across
+   Days 5 and 6, RT-07, RT-16 and RT-17 each failed on one run and passed on
+   retry in isolation. RT-16 fails consistently and is genuinely stale —
+   the judge confirms the safety behaviour is correct and marks it down for not
+   naming a PHC on the first turn. RT-10 was only recognisable as a *real*
+   regression because it failed every time. Worth making these deterministic or
+   marking them advisory; as they stand, "a red-team test failed" carries little
+   information.
+4. **Multi-turn guardrail pressure.** Every adversarial case is single-turn. A
    caller who asks for a dose four times, rephrasing each time, is untested.
-3. **Regional languages — cheaper than previously thought.** This gap used to say
-   it needed a second voice. It does not: **Anisha already supports `as`, `bn`,
-   `kn`, `ml`, `mr`, `or`, `pa`, `ta` and `te`-IN**, and the Murf plugin exposes
-   `ta-IN` and `bn-IN`. What is actually needed is STT for the language and
-   layer-1 phrases in its script. The `LANGUAGE` prompt section and
-   `ESCALATION_SCRIPT` both hard-limit to Hindi/English today, and they must be
-   changed together — that contradiction is what caused the Tamil wrong-number
-   bug.
-5. **Telephony.** SIP inbound would make this reachable by the people it is for.
-   `BVCTelephony` noise cancellation is already wired for SIP participants.
-6. **Conversation memory across a call** — currently every turn is stateless
-   beyond the chat context.
+5. **Regional languages — cheaper than previously thought.** **Anisha already
+   supports `as`, `bn`, `kn`, `ml`, `mr`, `or`, `pa`, `ta` and `te`-IN**. What is
+   actually needed is STT for the language and layer-1 phrases in its script. The
+   `LANGUAGE` prompt section and `ESCALATION_SCRIPT` both hard-limit to
+   Hindi/English today and must be changed together — that contradiction is what
+   caused the Tamil wrong-number bug.
+6. **Facility coverage is four districts.** Wardha, Nagpur, Varanasi, Patna.
+   `scripts/build_facilities.py` extends it; Overpass fails a district at a time,
+   so runs merge rather than overwrite.
+7. **SIP inbound.** Outbound works; being *reachable* by phone is the half that
+   would matter most to the people this is for.
 
 Full gap list with reasoning is at the bottom of `RED_TEAM.md`.
