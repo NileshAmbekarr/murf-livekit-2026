@@ -114,6 +114,36 @@ identity of the thing.
 
 ---
 
+## Outbound calls — and why this one is a demo, not a service
+
+The agent can telephone people: a follow-up after it advised a clinic visit, or a
+reminder. `scripts/place_calls.py --dry-run` shows who would be rung and why;
+`scripts/setup_sip_trunk.py` documents the Twilio side.
+
+**Read this before pointing it at anyone but yourself.** Twilio is not a
+TRAI-registered telemarketer in India. Automated commercial calls to Indian
+numbers must go through one, or they are flagged and blocked. DND scrubbing is
+mandatory, calling is restricted to 09:00–21:00, caller ID must use the 140/160
+series, and penalties reach ₹10 lakh.
+
+So calling your own verified number to build and demonstrate this is fine.
+**Calling real patients this way is not, and no code changes that** — a
+production version needs an Indian registered provider such as Exotel, Ozonetel
+or Knowlarity, which is enterprise KYC onboarding.
+
+What the code does about the parts it *can* control:
+
+| | |
+|---|---|
+| **Two consents, not one** | Agreeing to be remembered is not agreeing to be telephoned. A number is only stored via `ask_to_call_back`, never as a fact — the Day 4 rule rejecting `phone` as a fact still stands and is still tested. |
+| **The opt-out is real** | "Call mat kijiye" suppresses the number permanently. There is no un-suppress, deliberately: a stop that a later conversation could reverse is not a stop. |
+| **Forgetting also stops calls** | `forget_me` adds the number to the suppression list on the way out. Being erased and then rung the next morning would fail the same person twice. |
+| **The suppression list holds a hash** | Honouring an opt-out means recognising the number again; storing it readable is more than that needs. So "we deleted your data" stays true. |
+| **Nothing is said to silence** | SIP cannot tell a human from an answering machine, so the agent requires someone to speak before it mentions health at all. A triage outcome must not be recited to a family answerphone. |
+| **Attempts are capped** | Two per reason, counted on the row. A decline or a hang-up is treated as an answer and never retried. |
+| **Emergencies are never followed up** | `FOLLOW_UP_OUTCOMES` excludes `emergency referral`. Someone told to call an ambulance needed help then; a call the next day must never resemble the safety net for it. |
+| **Calling hours enforced in code** | 09:00–21:00 IST, in the dialler, not left to whoever runs the script. |
+
 ## Where the facility data comes from
 
 **The nearby-clinic lookup uses a local file, not a live API.** This matters
