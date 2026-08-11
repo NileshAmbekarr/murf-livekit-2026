@@ -7,14 +7,19 @@ enforced in `memory.py` rather than in the prompt, and both are pinned here.
     uv run pytest tests/test_memory.py -q      # offline, fast
 """
 
+import sqlite3
+
 import pytest
 
 from memory import (
     ConsentRequiredError,
+    DoNotCallError,
     FactNotAllowedError,
+    InvalidPhoneError,
     MemoryStore,
     clean_name,
     normalise_fact,
+    normalise_phone,
 )
 
 
@@ -180,3 +185,206 @@ class TestAgentSummary:
         summary = record.summary_for_agent()
         assert "Ramesh" in summary
         assert "diabetes" in summary
+
+
+class TestBeingCalled:
+    """Permission to telephone someone, which is not permission to remember them."""
+
+    def test_a_number_needs_its_own_consent(self, store):
+        """Agreeing to be remembered is not agreeing to be rung."""
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+
+        assert store.get("caller-1").callback_consent is False
+        assert store.get("caller-1").phone == ""
+
+    def test_storing_a_number(self, store):
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="+91 98765 43210")
+
+        record = store.get("caller-1")
+        assert record.phone == "+919876543210"
+        assert record.callback_consent is True
+
+    def test_a_number_cannot_be_stored_without_being_remembered_first(self, store):
+        with pytest.raises(ConsentRequiredError):
+            store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
+
+    @pytest.mark.parametrize(
+        "bad",
+        [
+            # No country code, so it is ambiguous rather than dialable. It must
+            # not be mistaken for a SIP username either.
+            "9876543210",
+            "+91",
+            "not a number",
+            "",
+            "+0123456789",
+            "12345",
+            "sip:@sip.linphone.org",
+            "sip:nobody",
+        ],
+    )
+    def test_unreachable_destinations_are_refused(self, bad):
+        with pytest.raises(InvalidPhoneError):
+            normalise_phone(bad)
+
+    @pytest.mark.parametrize(
+        "given,expected",
+        [
+            ("+919876543210", "+919876543210"),
+            ("+91 98765-43210", "+919876543210"),
+            # Twilio's free tier stopped allowing trial numbers, so demos run
+            # over Linphone. A bare username is completed to a full SIP address.
+            ("nilesh123", "sip:nilesh123@sip.linphone.org"),
+            ("sip:nilesh123@sip.linphone.org", "sip:nilesh123@sip.linphone.org"),
+            ("SIP:Bob@sip.linphone.org", "sip:Bob@sip.linphone.org"),
+        ],
+    )
+    def test_both_phone_numbers_and_sip_addresses_are_accepted(self, given, expected):
+        assert normalise_phone(given) == expected
+
+    def test_a_sip_address_gets_the_same_consent_and_suppression(self, store):
+        """Reaching someone over SIP is still reaching them.
+
+        The consent gate and the do-not-call list must not care which kind of
+        address it is, or the softphone path would quietly be the unprotected
+        one.
+        """
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="nilesh123")
+
+        assert store.get("caller-1").phone == "sip:nilesh123@sip.linphone.org"
+
+        store.stop_calling("nilesh123")
+        assert store.is_do_not_call("sip:nilesh123@sip.linphone.org") is True
+
+    def test_a_phone_number_is_still_not_a_storable_fact(self):
+        """Day 4's rule stands: the model cannot write a number as a fact.
+
+        The only way one gets stored is the explicit consent path above.
+        """
+        with pytest.raises(FactNotAllowedError):
+            normalise_fact("phone", "+919876543210")
+
+
+class TestDoNotCall:
+    """ "How do I make it stop" has to have an answer that actually stops it."""
+
+    def test_opting_out_suppresses_the_number(self, store):
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
+
+        store.stop_calling("+919876543210")
+
+        assert store.is_do_not_call("+919876543210") is True
+        assert store.get("caller-1").phone == ""
+        assert store.get("caller-1").callback_consent is False
+
+    def test_an_opt_out_cannot_be_undone_by_consenting_again(self, store):
+        """The whole point. A suppression a later chat could reverse is not one."""
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.stop_calling("+919876543210")
+
+        with pytest.raises(DoNotCallError):
+            store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
+
+    def test_being_forgotten_also_stops_the_calls(self, store):
+        """Forgotten and then rung the next morning is failing someone twice."""
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
+
+        store.forget("caller-1")
+
+        assert store.get("caller-1") is None
+        assert store.is_do_not_call("+919876543210") is True
+
+    def test_the_suppression_list_does_not_keep_the_number(self, store):
+        """It holds a fingerprint, so "we deleted your data" stays true.
+
+        Honouring an opt-out means recognising the number again; storing it in
+        readable form is more than that requires.
+        """
+        store.stop_calling("+919876543210")
+
+        with sqlite3.connect(store._path) as raw:
+            blob = " ".join(str(r) for r in raw.execute("SELECT * FROM do_not_call"))
+
+        assert "9876543210" not in blob
+        assert store.is_do_not_call("+919876543210") is True
+
+    def test_declining_a_callback_erases_any_number_held(self, store):
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
+
+        store.record_call_consent("caller-1", agreed=False)
+
+        assert store.get("caller-1").phone == ""
+        assert store.is_do_not_call("+919876543210") is True
+
+    def test_an_unusable_destination_reads_as_suppressed(self, store):
+        """Failing towards not calling is the safe direction.
+
+        Note "garbage" would now be a perfectly valid Linphone username, so the
+        example has to be something no address form accepts.
+        """
+        assert store.is_do_not_call("not a valid destination!") is True
+
+
+class TestWhoGetsRung:
+    def _consented_caller(self, store, user_id, phone):
+        store.record_consent(user_id, agreed=True)
+        store.remember(user_id, name="Ramesh")
+        store.record_call_consent(user_id, agreed=True, phone=phone)
+
+    def test_only_callers_who_agreed_are_listed(self, store):
+        self._consented_caller(store, "yes", "+919876543210")
+        store.record_consent("no-phone", agreed=True)
+        store.remember("no-phone", name="Someone")
+
+        due = store.callers_to_ring(reason="follow_up", max_attempts=2)
+
+        assert [c.user_id for c in due] == ["yes"]
+
+    def test_the_attempt_cap_removes_someone_from_the_list(self, store):
+        self._consented_caller(store, "caller-1", "+919876543210")
+
+        assert (
+            store.record_call_attempt(
+                "caller-1", reason="follow_up", outcome="no_answer"
+            )
+            == 1
+        )
+        assert len(store.callers_to_ring(reason="follow_up", max_attempts=2)) == 1
+
+        store.record_call_attempt("caller-1", reason="follow_up", outcome="no_answer")
+        assert store.callers_to_ring(reason="follow_up", max_attempts=2) == []
+
+    def test_attempts_are_counted_per_reason(self, store):
+        self._consented_caller(store, "caller-1", "+919876543210")
+        store.record_call_attempt("caller-1", reason="follow_up", outcome="busy")
+        store.record_call_attempt("caller-1", reason="follow_up", outcome="busy")
+
+        assert store.callers_to_ring(reason="follow_up", max_attempts=2) == []
+        assert len(store.callers_to_ring(reason="reminder", max_attempts=2)) == 1
+
+    def test_a_suppressed_caller_is_never_listed(self, store):
+        self._consented_caller(store, "caller-1", "+919876543210")
+        store.stop_calling("+919876543210")
+
+        assert store.callers_to_ring(reason="follow_up", max_attempts=2) == []
+
+    def test_saving_a_fact_does_not_wipe_the_number(self, store):
+        """A later remember() must not look like it revoked permission."""
+        self._consented_caller(store, "caller-1", "+919876543210")
+        store.remember("caller-1", facts={"age_band": "senior"})
+
+        record = store.get("caller-1")
+        assert record.phone == "+919876543210"
+        assert record.callback_consent is True
