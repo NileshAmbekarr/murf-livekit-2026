@@ -34,7 +34,7 @@ from livekit import api
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from memory import MemoryStore
+from memory import InvalidPhoneError, MemoryStore, normalise_phone
 from outbound import (
     IST,
     MAX_ATTEMPTS,
@@ -96,7 +96,11 @@ async def main() -> int:
         "--reason", default=Reason.FOLLOW_UP.value, choices=[r.value for r in Reason]
     )
     parser.add_argument(
-        "--to", help="Ring one number and skip the caller list entirely"
+        "--to",
+        help=(
+            "Ring one destination and skip the caller list entirely. Either a "
+            "phone number (+919876543210) or a Linphone username."
+        ),
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="List who would be called"
@@ -121,6 +125,13 @@ async def main() -> int:
     # One-off dial, for testing against your own handset.
     if args.to:
         store = MemoryStore(os.getenv("MEMORY_DB_PATH", "data/callers.db"))
+        try:
+            # Turns a bare Linphone username into sip:user@sip.linphone.org, and
+            # rejects anything that is not somewhere we can actually call.
+            args.to = normalise_phone(args.to)
+        except InvalidPhoneError as bad:
+            print(bad, file=sys.stderr)
+            return 1
         if store.is_do_not_call(args.to):
             print(f"{args.to} has opted out. Refusing.", file=sys.stderr)
             return 1

@@ -212,11 +212,54 @@ class TestBeingCalled:
             store.record_call_consent("caller-1", agreed=True, phone="+919876543210")
 
     @pytest.mark.parametrize(
-        "bad", ["9876543210", "+91", "not a number", "", "+0123456789", "12345"]
+        "bad",
+        [
+            # No country code, so it is ambiguous rather than dialable. It must
+            # not be mistaken for a SIP username either.
+            "9876543210",
+            "+91",
+            "not a number",
+            "",
+            "+0123456789",
+            "12345",
+            "sip:@sip.linphone.org",
+            "sip:nobody",
+        ],
     )
-    def test_unusable_numbers_are_refused(self, bad):
+    def test_unreachable_destinations_are_refused(self, bad):
         with pytest.raises(InvalidPhoneError):
             normalise_phone(bad)
+
+    @pytest.mark.parametrize(
+        "given,expected",
+        [
+            ("+919876543210", "+919876543210"),
+            ("+91 98765-43210", "+919876543210"),
+            # Twilio's free tier stopped allowing trial numbers, so demos run
+            # over Linphone. A bare username is completed to a full SIP address.
+            ("nilesh123", "sip:nilesh123@sip.linphone.org"),
+            ("sip:nilesh123@sip.linphone.org", "sip:nilesh123@sip.linphone.org"),
+            ("SIP:Bob@sip.linphone.org", "sip:Bob@sip.linphone.org"),
+        ],
+    )
+    def test_both_phone_numbers_and_sip_addresses_are_accepted(self, given, expected):
+        assert normalise_phone(given) == expected
+
+    def test_a_sip_address_gets_the_same_consent_and_suppression(self, store):
+        """Reaching someone over SIP is still reaching them.
+
+        The consent gate and the do-not-call list must not care which kind of
+        address it is, or the softphone path would quietly be the unprotected
+        one.
+        """
+        store.record_consent("caller-1", agreed=True)
+        store.remember("caller-1", name="Ramesh")
+        store.record_call_consent("caller-1", agreed=True, phone="nilesh123")
+
+        assert store.get("caller-1").phone == "sip:nilesh123@sip.linphone.org"
+
+        store.stop_calling("nilesh123")
+        assert store.is_do_not_call("sip:nilesh123@sip.linphone.org") is True
 
     def test_a_phone_number_is_still_not_a_storable_fact(self):
         """Day 4's rule stands: the model cannot write a number as a fact.
@@ -285,9 +328,13 @@ class TestDoNotCall:
         assert store.get("caller-1").phone == ""
         assert store.is_do_not_call("+919876543210") is True
 
-    def test_an_unusable_number_reads_as_suppressed(self, store):
-        """Failing towards not calling is the safe direction."""
-        assert store.is_do_not_call("garbage") is True
+    def test_an_unusable_destination_reads_as_suppressed(self, store):
+        """Failing towards not calling is the safe direction.
+
+        Note "garbage" would now be a perfectly valid Linphone username, so the
+        example has to be something no address form accepts.
+        """
+        assert store.is_do_not_call("not a valid destination!") is True
 
 
 class TestWhoGetsRung:

@@ -120,6 +120,21 @@ ALLOWED_FACTS: dict[str, tuple[str, ...]] = {
 #: rings is the telephony provider's business, not ours.
 _E164 = re.compile(r"^\+[1-9]\d{7,14}$")
 
+#: A SIP address, for reaching a softphone rather than the telephone network.
+#:
+#: This exists because Twilio's free tier stopped allowing trial accounts to buy
+#: a number, so development and demos run over Linphone instead: the agent dials
+#: `sip:someone@sip.linphone.org` and the app rings. It is a real call over a
+#: real SIP trunk — just not over the PSTN — and it sidesteps the Indian
+#: telemarketing rules entirely, because no telephone network is involved.
+_SIP_URI = re.compile(r"^sip:[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{3,253}$")
+
+#: A bare Linphone username, which is how the dialler is usually invoked.
+_SIP_USER = re.compile(r"^[A-Za-z0-9._-]{2,64}$")
+
+#: Domain used when only a username is given.
+SIP_DOMAIN = os.getenv("SIP_DOMAIN", "sip.linphone.org")
+
 #: Salts the suppression hashes. A default is fine — the hash exists so a
 #: forgotten number is not stored in readable form, not to withstand an attacker
 #: who already has the database and a list of every Indian mobile number. Set
@@ -127,19 +142,53 @@ _E164 = re.compile(r"^\+[1-9]\d{7,14}$")
 _PHONE_SALT = os.getenv("MEMORY_PHONE_SALT", "sehat-sathi")
 
 
-def normalise_phone(phone: str) -> str:
-    """Validate a phone number and return it in E.164, or raise.
+def normalise_phone(contact: str) -> str:
+    """Validate somewhere we can call, and return it canonically, or raise.
 
-    Spaces, dashes and brackets are stripped, because a number read aloud and
-    transcribed arrives in every imaginable format.
+    Two forms are accepted, and both are checked strictly:
+
+    * a phone number in E.164 — `+919876543210`;
+    * a SIP address — `sip:someone@sip.linphone.org`, or a bare username which is
+      completed with `SIP_DOMAIN`.
+
+    Spaces, dashes and brackets are stripped from numbers, because a number read
+    aloud and transcribed arrives in every imaginable format.
+
+    The name is a slight lie now that it takes SIP addresses too, and is kept
+    because everything downstream — the suppression list, the consent gate — is
+    identical either way. What matters is that it is a place we can reach
+    somebody, and that they said we may.
     """
-    cleaned = re.sub(r"[\s\-()]", "", (phone or "").strip())
-    if not _E164.match(cleaned):
-        raise InvalidPhoneError(
-            f"'{phone}' is not a usable phone number. It must be in international "
-            "form, like +919876543210."
-        )
-    return cleaned
+    raw = (contact or "").strip()
+
+    if raw.lower().startswith("sip:"):
+        candidate = "sip:" + raw[4:]
+        if not _SIP_URI.match(candidate):
+            raise InvalidPhoneError(
+                f"'{contact}' is not a usable SIP address. It should look like "
+                "sip:someone@sip.linphone.org."
+            )
+        return candidate
+
+    # Spaces and dashes are stripped only for the number path, where people
+    # genuinely write "+91 98765-43210". Doing it before the username check
+    # would turn "not a number" into the perfectly valid username
+    # "notanumber", which is how a transcription error becomes a call to a
+    # stranger.
+    cleaned = re.sub(r"[\s\-()]", "", raw)
+    if _E164.match(cleaned):
+        return cleaned
+
+    # A bare Linphone username, matched against the raw text so it must already
+    # be a single well-formed token.
+    if _SIP_USER.match(raw) and not raw.isdigit():
+        return f"sip:{raw}@{SIP_DOMAIN}"
+
+    raise InvalidPhoneError(
+        f"'{contact}' is not somewhere we can call. Use a phone number in "
+        "international form like +919876543210, or a SIP address like "
+        "sip:someone@sip.linphone.org."
+    )
 
 
 def _phone_fingerprint(phone: str) -> str:

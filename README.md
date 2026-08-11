@@ -120,7 +120,23 @@ The agent can telephone people: a follow-up after it advised a clinic visit, or 
 reminder. `scripts/place_calls.py --dry-run` shows who would be rung and why;
 `scripts/setup_sip_trunk.py` documents the Twilio side.
 
-**Read this before pointing it at anyone but yourself.** Twilio is not a
+**It calls a softphone, not the telephone network.** Twilio's trial tier no
+longer lets you buy a phone number, so the default provider is
+[Linphone](https://www.linphone.org/): register free, and the agent dials
+`sip:you@sip.linphone.org` so the app on your handset rings. It is a real call
+over a real SIP trunk — just not over the PSTN. `SIP_PROVIDER=twilio` switches to
+a real number if you have a paid account.
+
+```bash
+cd backend
+uv run python scripts/setup_sip_trunk.py            # prints SIP_TRUNK_ID
+uv run python scripts/place_calls.py --to <linphone-username> --dry-run
+```
+
+In the Linphone app, turn **off** Settings → Calls → Advanced call settings →
+*Media encryption mandatory*, or calls fail silently.
+
+**And read this before pointing it at a real phone.** Twilio is not a
 TRAI-registered telemarketer in India. Automated commercial calls to Indian
 numbers must go through one, or they are flagged and blocked. DND scrubbing is
 mandatory, calling is restricted to 09:00–21:00, caller ID must use the 140/160
@@ -129,7 +145,8 @@ series, and penalties reach ₹10 lakh.
 So calling your own verified number to build and demonstrate this is fine.
 **Calling real patients this way is not, and no code changes that** — a
 production version needs an Indian registered provider such as Exotel, Ozonetel
-or Knowlarity, which is enterprise KYC onboarding.
+or Knowlarity, which is enterprise KYC onboarding. Going over SIP to a softphone
+sidesteps this entirely, because no telephone network is involved.
 
 What the code does about the parts it *can* control:
 
