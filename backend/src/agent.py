@@ -176,12 +176,12 @@ PROVIDER_FAILURE_LINE = "माफ़ कीजिए, मुझे सुनन
 # stop" part within a few seconds of picking up.
 OUTBOUND_OPENINGS: dict[str, str] = {
     "follow_up": (
-        "नमस्ते {name}जी, मैं सेहत साथी हूँ। पिछली बार आपने सलाह ली थी, इसलिए हाल पूछने के लिए "
+        "{greeting}, मैं सेहत साथी हूँ। पिछली बार आपने सलाह ली थी, इसलिए हाल पूछने के लिए "
         "कॉल किया है। अगर आप आगे कॉल नहीं चाहते, तो बस कहिए — कॉल मत कीजिए। "
         "बताइए, अब तबीयत कैसी है?"
     ),
     "reminder": (
-        "नमस्ते {name}जी, मैं सेहत साथी हूँ। यह सिर्फ़ एक याद दिलाने वाला कॉल है। "
+        "{greeting}, मैं सेहत साथी हूँ। यह सिर्फ़ एक याद दिलाने वाला कॉल है। "
         "अगर आप आगे कॉल नहीं चाहते, तो कहिए — कॉल मत कीजिए। "
         "क्या आप एक मिनट बात कर सकते हैं?"
     ),
@@ -1283,8 +1283,11 @@ async def _run_outbound_call(
     leaves. Someone's triage outcome must not be recited to an answering machine,
     and since we cannot detect one, silence is treated as one.
     """
-    name = f"{record.name} " if record and record.name else ""
-    await session.say(job.opening_template.format(name=name))
+    # "जी" is an honorific that attaches to a name, so without one the greeting
+    # came out as a dangling "नमस्ते जी". Drop the suffix rather than leave it
+    # hanging — the first thing somebody hears should not sound broken.
+    greeting = f"नमस्ते {record.name}जी" if record and record.name else "नमस्ते"
+    await session.say(job.opening_template.format(greeting=greeting))
 
     heard_a_human = asyncio.Event()
 
