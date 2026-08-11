@@ -68,6 +68,13 @@ from memory import (
     InvalidPhoneError,
     MemoryStore,
 )
+from outbound import (
+    dial_target,
+    is_soft_opt_out,
+    next_attempt,
+    outcome_from_sip_status,
+    sip_status_of,
+)
 
 logger = logging.getLogger("sehat-sathi")
 
@@ -1246,7 +1253,10 @@ async def _dial(ctx: JobContext, job: OutboundJob) -> None:
     await ctx.api.sip.create_sip_participant(
         api.CreateSIPParticipantRequest(
             sip_trunk_id=trunk,
-            sip_call_to=job.phone,
+            # The bare user part, never a full SIP URI — LiveKit rejects one with
+            # "SipCallTo should be a phone number or SIP user". The domain comes
+            # from the trunk.
+            sip_call_to=dial_target(job.phone),
             room_name=ctx.room.name,
             participant_identity=f"caller-{job.phone}",
             participant_name="Caller",
@@ -1380,7 +1390,39 @@ async def sehat_sathi(ctx: JobContext):
         )
         # Ring them before starting the session, so the agent is already present
         # when they say hello rather than joining a second later.
-        await _dial(ctx, outbound)
+        #
+        # A phone that is busy or unanswered is an ordinary result, not a crash.
+        # The agent is the only thing that sees the SIP status — the trigger has
+        # already returned by the time it arrives — so the outcome is recorded
+        # here and the job exits quietly.
+        try:
+            await _dial(ctx, outbound)
+        except Exception as dial_error:
+            status = sip_status_of(dial_error)
+            result = outcome_from_sip_status(status)
+            logger.info(
+                "outbound call not connected",
+                extra={"outcome": result.value, "sip_status": status or "unknown"},
+            )
+
+            if caller_id:
+                attempts = memory_store.record_call_attempt(
+                    caller_id, reason=outbound.reason, outcome=result.value
+                )
+                rule = next_attempt(result, attempts)
+                logger.info(
+                    "retry decision", extra={"retry": rule.retry, "why": rule.why}
+                )
+
+                # Rejecting a call is somebody telling us to stop without using
+                # words, and the only decent response is to hear it.
+                if is_soft_opt_out(result) and record and record.phone:
+                    memory_store.stop_calling(record.phone)
+                    logger.warning("treating the rejection as an opt-out")
+
+            ctx.shutdown(reason=f"outbound {result.value}")
+            return
+
         _mark("callee_answered")
     else:
         caller_id = await _identify_caller(ctx)

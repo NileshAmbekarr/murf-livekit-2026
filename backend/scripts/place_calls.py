@@ -44,26 +44,13 @@ from outbound import (
     next_attempt,
     next_window_opens,
     outcome_from_sip_status,
+    sip_status_of,
     within_calling_window,
 )
 
 load_dotenv(".env.local")
 
 AGENT_NAME = "sehat-sathi"
-
-
-def _sip_status_of(error: Exception) -> int | None:
-    """Dig the SIP response code out of whatever LiveKit raised.
-
-    The status arrives in the error text rather than as a field, so this is
-    deliberately forgiving: an unrecognised failure becomes `FAILED`, which
-    retries, rather than being mistaken for a decline, which would not.
-    """
-    text = str(error)
-    for code in (486, 600, 487, 480, 603, 607, 608):
-        if str(code) in text:
-            return code
-    return None
 
 
 async def place_one(
@@ -81,7 +68,7 @@ async def place_one(
             )
         )
     except Exception as error:
-        status = _sip_status_of(error)
+        status = sip_status_of(error)
         outcome = outcome_from_sip_status(status)
         print(f"  {phone}: {outcome.value} (sip {status or 'unknown'})")
         return outcome

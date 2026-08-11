@@ -80,6 +80,34 @@ def outcome_from_sip_status(status: int | None) -> Outcome:
     return _SIP_OUTCOMES.get(int(status), Outcome.FAILED)
 
 
+def sip_status_of(error: Exception) -> int | None:
+    """Dig the SIP response code out of whatever LiveKit raised.
+
+    LiveKit puts it in the error's `metadata` as `sip_status_code`, which is
+    exact:
+
+        TwirpError(code=resource_exhausted, message=... sip status: 486: Busy
+        here, metadata={'sip_status_code': '486', ...})
+
+    Reading the message text was the first attempt and is a bad idea — a room
+    name or a timestamp containing "486" would have been read as a busy signal —
+    so the text is only a fallback for an error shaped differently.
+    """
+    metadata = getattr(error, "metadata", None) or {}
+    code = metadata.get("sip_status_code")
+    if code:
+        try:
+            return int(code)
+        except (TypeError, ValueError):
+            pass
+
+    text = str(error)
+    for known in _SIP_OUTCOMES:
+        if f"sip status: {known}" in text:
+            return known
+    return None
+
+
 @dataclass(frozen=True)
 class RetryRule:
     """Whether to try again, and how long to wait."""
@@ -164,3 +192,25 @@ FOLLOW_UP_OUTCOMES: frozenset[str] = frozenset(
 def deserves_follow_up(last_triage_outcome: str) -> bool:
     """Whether a previous call's ending warrants ringing someone back."""
     return (last_triage_outcome or "").strip().lower() in FOLLOW_UP_OUTCOMES
+
+
+def dial_target(contact: str) -> str:
+    """What to put in `sip_call_to`, given a stored contact.
+
+    LiveKit rejects a full SIP URI here:
+
+        SipCallTo should be a phone number or SIP user, not a full SIP URI
+
+    The domain comes from the trunk, so only the user part travels in the
+    request. Addresses are stored as complete URIs because that is unambiguous
+    for the suppression list — two records cannot disagree about which domain
+    `nilesh` meant — so the trimming happens at the point of dialling instead.
+
+    Phone numbers pass through untouched.
+    """
+    address = (contact or "").strip()
+    if not address.lower().startswith("sip:"):
+        return address
+
+    user = address[4:].split("@", 1)[0]
+    return user
