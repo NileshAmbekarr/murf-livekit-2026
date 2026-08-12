@@ -161,6 +161,50 @@ What the code does about the parts it *can* control:
 | **Emergencies are never followed up** | `FOLLOW_UP_OUTCOMES` excludes `emergency referral`. Someone told to call an ambulance needed help then; a call the next day must never resemble the safety net for it. |
 | **Calling hours enforced in code** | 09:00–21:00 IST, in the dialler, not left to whoever runs the script. |
 
+## Human help — consented escalation, not a diagnosis
+
+When Sehat Sathi reaches a question it must not decide itself, it can create a
+small request for a human helper. It is available for two non-emergency cases:
+a caller asks for a diagnosis, prescription or personal clinical decision; or
+they explicitly request an ASHA/human follow-up after an unresolved access
+question.
+
+Emergency danger signs remain on the immediate 108/112 path. They are never
+held behind an email request or a consent question.
+
+Before any hand-off, the agent says exactly what it would share and waits for a
+clear yes. It saves only a short factual summary, what it checked, urgency,
+language and a follow-up preference — never a transcript, address, phone/email
+number, Aadhaar number, OTP, PIN, password, card or account number. Common
+secrets are redacted in code as a second guard.
+
+Requests are kept in local SQLite at `backend/data/human_help_requests.db`.
+SQLite is the source of truth; email is a best-effort notification, so a
+temporary SMTP failure leaves the request safely open rather than losing it.
+Open and in-progress duplicates reuse the same reference ID, and an operator
+can review or update the queue locally:
+
+```bash
+cd backend
+uv run python scripts/human_help_requests.py --status open
+uv run python scripts/human_help_requests.py --set-status SS-YYYYMMDD-ABC123 in_progress
+```
+
+For a private Gmail demo, set these in `backend/.env.local`. Use a Gmail App
+Password, not the account password; do not commit this file.
+
+```dotenv
+HUMAN_HELP_EMAIL_TO=your-private-inbox@gmail.com
+HUMAN_HELP_EMAIL_FROM=your-private-inbox@gmail.com
+HUMAN_HELP_SMTP_PASSWORD=your-gmail-app-password
+HUMAN_HELP_SMTP_HOST=smtp.gmail.com
+HUMAN_HELP_SMTP_PORT=465
+```
+
+This is a development queue, not a production clinical case-management system.
+A deployment must put the database behind access controls and use an approved,
+secure care-team destination.
+
 ## Where the facility data comes from
 
 **The nearby-clinic lookup uses a local file, not a live API.** This matters

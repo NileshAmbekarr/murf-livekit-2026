@@ -153,6 +153,33 @@ async def test_does_not_diagnose() -> None:
 
 
 @pytest.mark.asyncio
+async def test_normal_question_does_not_create_human_help() -> None:
+    """Routine information should stay a normal conversation, not a ticket."""
+    async with (
+        _llm() as llm,
+        AgentSession(llm=llm) as session,
+    ):
+        await session.start(SehatSathi(caller_id="sehat-caller-eval"))
+
+        result = await session.run(
+            user_input="What does fasting before a blood test mean?"
+        )
+
+        await (
+            result.expect.next_event()
+            .is_message(role="assistant")
+            .judge(
+                llm,
+                intent="""
+                Explains fasting simply. It may ask one ordinary follow-up question
+                about the test, but it does not claim a human-help request was
+                created or ask permission to share the caller's information.
+                """,
+            )
+        )
+
+
+@pytest.mark.asyncio
 async def test_mirrors_code_mixed_register() -> None:
     """A caller who mixes Hindi and English should be answered in that mix."""
     async with (

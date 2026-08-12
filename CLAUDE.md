@@ -7,9 +7,10 @@ Handoff notes for continuing development. Read this before changing anything in
 **#VoiceForBharat** (10 Days of AI Voice Agents, by Murf AI), on LiveKit Agents
 with **Murf Falcon** TTS.
 
-**Where things stand:** Days 1–6 are built and merged into `main`. Days 3, 5 and
-6 have been recorded; **Day 4 and Day 5 LinkedIn posts and form submissions may
-still be outstanding** — check before assuming a day is closed.
+**Where things stand:** Days 1–6 are built and merged into `main`. Day 7 is
+implemented on `day7/human-help`, awaiting one real browser-flow demo and the
+user's manual commit/push. Days 3, 5 and 6 were recorded; check LinkedIn/form
+completion with the user instead of treating old notes as current.
 
 ---
 
@@ -274,15 +275,60 @@ from job metadata, so it is already in the room when the phone is answered.
 - **Emergency referrals are never followed up** — `FOLLOW_UP_OUTCOMES` excludes
   them deliberately.
 
+## Human help (Day 7)
+
+Day 7 is a **consented hand-off**, not a quiet extension of caller memory and
+not an alternative to emergency care.
+
+- **Two reasons only:** an explicit request for a diagnosis, prescription or
+  personal clinical decision (`clinical_decision`); or an explicit request to
+  speak to a human/ASHA worker after an unresolved access question
+  (`human_follow_up`). Ordinary health-information questions must not open a
+  request.
+- **Emergency always wins.** `detect_red_flags()` runs first. A danger sign
+  injects the existing 108/112 instruction and returns before the human-help
+  detector is considered. Never ask consent before immediate emergency advice.
+- **The human-help trigger is deterministic.**
+  `detect_human_help_reason()` in `human_help.py` has deliberately narrow,
+  phrase-level English, romanised-Hindi and Devanagari triggers. On a match,
+  `on_user_turn_completed` injects a permission-first instruction. This exists
+  because the LLM twice chose a PHC referral after a diagnosis request despite
+  a prompt rule.
+- **There are three different consents:** caller memory (Day 4), callback
+  number (Day 6), and sharing today's summary with a human (Day 7). They do not
+  imply one another. `record_human_help_consent` is a per-session latch; a no
+  prevents a request and a second ask in that call.
+- **SQLite is source of truth; email only notifies.** `human_help.py` stores
+  requests in `data/human_help_requests.db`; an SMTP failure becomes
+  `notification_status=pending`, never a lost request. The agent must not say a
+  human was notified in that path.
+- **The Day 7 record is bounded but does contain a consented issue summary.**
+  It is separate from `memory.py`, whose strict allow-list still prohibits
+  today's symptoms. A request contains only first name if known, reason, short
+  redacted summary, what the agent checked, low/medium/high urgency, language,
+  follow-up method, reference ID and status. It never holds a transcript,
+  address, phone/email, Aadhaar, OTP, PIN, password, card or account number.
+- **Duplicate protection is for unresolved work.** An identical summary from
+  the same caller/reason reuses an open/in-progress reference and refreshes its
+  timestamp; a resolved request can become a new issue later.
+- **For the Gmail demo:** set `HUMAN_HELP_EMAIL_TO`,
+  `HUMAN_HELP_EMAIL_FROM` and `HUMAN_HELP_SMTP_PASSWORD` in
+  `backend/.env.local`. Both addresses may be the user's private inbox. Use a
+  Google App Password, never the ordinary Gmail password, and never commit it.
+- **Status is intentionally operator-only for now.**
+  `scripts/human_help_requests.py` lists the local queue and moves a reference
+  through `open`, `in_progress`, and `resolved`. A public dashboard is deferred
+  until it can have actual access control.
+
 ## Gotchas that cost time
 
 - **`session.run()` does not call `on_user_turn_completed`.** It goes
   `generate_reply()` → `_pipeline_reply_task()` directly. The hook only fires
-  from `on_end_of_turn()` on the *voice* path. So layer 1 is invisible to the
-  test harness. Test it directly (`TestTurnHook` in `tests/test_red_team.py`),
-  or seed the injected instruction with `agent.update_chat_ctx()` before
-  `session.run()` — `test_rt13_escalates_when_layer_one_has_fired` shows the
-  pattern.
+  from `on_end_of_turn()` on the *voice* path. So deterministic emergency **and
+  Day 7 human-help** triggers are invisible to that harness. Test them directly
+  (`TestTurnHook` in `tests/test_red_team.py` and `TestHumanHelpTrigger` in
+  `tests/test_human_help.py`), or seed an instruction with
+  `agent.update_chat_ctx()` before `session.run()`.
 - **Next.js ignores `app/` folders starting with `_`.** A route at
   `app/__preview/` silently 404s. Name scratch routes without the underscore.
 - **`AGENT_NAME` must match on both sides.** Backend registers under it,
@@ -330,6 +376,8 @@ backend/src/
   health_resources.py   Helplines, schemes, red-flag phrases, matching logic.
   memory.py             Caller memory. Consent gates, the fact allow-list, the
                         do-not-call list. THE file for privacy decisions.
+  human_help.py         Day 7 consented hand-off queue, redaction, duplicate
+                        prevention, request states and SMTP notification.
   facilities.py         Nearest-clinic lookup from the local OSM extract.
   outbound.py           Call outcomes, retry rules, the 09:00-21:00 IST window.
                         All four are pure — no LiveKit imports, fast to test.
@@ -338,12 +386,14 @@ backend/scripts/
   build_facilities.py   Refresh data/facilities.json from OpenStreetMap
   setup_sip_trunk.py    Create the LiveKit outbound trunk (Linphone or Twilio)
   place_calls.py        Decide who gets rung. --dry-run first, always.
+  human_help_requests.py  Local operator queue: list requests and set status.
 backend/tests/
   test_agent.py         Safety evals + code-mixed language + lookup unit tests
   test_red_team.py      Adversarial cases, layer-1 hook tests, regressions
   test_memory.py        Consent, the allow-list, forgetting, do-not-call
   test_facilities.py    Lookup, honest failure when data is missing
   test_outbound.py      Retry caps, opt-out, calling window, no emergency chase
+  test_human_help.py    Day 7 trigger, consent-store, privacy and email tests
 
 frontend/
   app-config.ts               Branding, agentName, feature flags
@@ -427,8 +477,9 @@ Backend needs all four; frontend needs only the three LiveKit values plus
 
 ### Tests
 
-187 tests. 178 run offline; the rest are LLM-judged, need LiveKit creds, and
-are flaky — see gap 3 below before trusting a red-team failure.
+The offline suite covers the pure safety modules; the LLM-judged tests need
+LiveKit credentials and can be flaky — see gap 3 below before trusting a
+red-team failure.
 
 ```bash
 cd backend
@@ -449,7 +500,8 @@ covers the safety-critical matching.
 
 ## Conventions
 
-- **Branch:** `claude/sehat-sathi-agent-ydr4cm`. PR #1 tracks it.
+- **Current Day 7 branch:** `day7/human-help`. Do not commit or push unless the
+  user explicitly asks; they prefer to run those commands themselves.
 - **No AI attribution** in commits or PRs — no `Co-Authored-By`, no generated-by
   footer. The user asked for this explicitly.
 - **Commit messages:** explain *why*, not just what. Existing commits are the
@@ -465,7 +517,7 @@ covers the safety-critical matching.
 
 ## Where to go next
 
-Days 7–10 are unscheduled. Known gaps, roughly by value:
+Days 8–10 are unscheduled. Known gaps, roughly by value:
 
 1. **Outbound reminders cannot fire by themselves.** `scripts/place_calls.py` is
    a manual trigger — there is no scheduler, so a medication reminder only goes
@@ -504,5 +556,10 @@ Days 7–10 are unscheduled. Known gaps, roughly by value:
    so runs merge rather than overwrite.
 7. **SIP inbound.** Outbound works; being *reachable* by phone is the half that
    would matter most to the people this is for.
+8. **Human-help dashboard and secure case management.** Day 7's local SQLite
+   queue plus Gmail notification is right for a private demo, not a clinical
+   deployment. A real version needs staff authentication, audit controls,
+   retention rules and a secure care-team destination before any public-facing
+   dashboard or callback-after-resolution feature.
 
 Full gap list with reasoning is at the bottom of `RED_TEAM.md`.
