@@ -60,6 +60,12 @@ from health_resources import (
     looks_long_standing,
     mentions_maternal_context,
 )
+from human_help import (
+    EmailNotifier,
+    HumanHelpStore,
+    HumanHelpValidationError,
+    detect_human_help_reason,
+)
 from memory import (
     CallerRecord,
     ConsentRequiredError,
@@ -119,6 +125,13 @@ STT_LANGUAGE = os.getenv("DEEPGRAM_LANGUAGE", "hi")
 # delete when someone asks to be forgotten.
 MEMORY_DB_PATH = os.getenv("MEMORY_DB_PATH", "data/callers.db")
 memory_store = MemoryStore(MEMORY_DB_PATH)
+
+# Day 7 uses a different SQLite file from caller memory. A hand-off can contain
+# a caller-approved snapshot of today's issue for a human; it must never become
+# a hidden, permanent medical note on the caller record.
+HUMAN_HELP_DB_PATH = os.getenv("HUMAN_HELP_DB_PATH", "data/human_help_requests.db")
+human_help_store = HumanHelpStore(HUMAN_HELP_DB_PATH)
+human_help_notifier = EmailNotifier.from_environment()
 
 # The frontend mints a stable id and sends it as the LiveKit participant
 # identity. Must match `CALLER_ID_PREFIX` in frontend/lib/caller-id.ts.
@@ -422,6 +435,45 @@ If a caller asks to be forgotten, in any wording, call `forget_me` immediately.
 Do not ask them to justify it, and do not try to talk them out of it. Confirm
 that it is done.
 
+# HUMAN HELP
+
+You cannot diagnose, prescribe, or make a personal clinical decision. Human
+help is available for exactly two non-emergency situations:
+- The caller asks you to diagnose them, prescribe something, or make a clinical
+  decision that only a clinician can make.
+- The caller explicitly asks for a human, ASHA worker, or follow-up after you
+  could not fully resolve their access question.
+
+Never use a human-help request instead of the emergency path. A danger sign
+means call `escalate_to_emergency_care` first. Do not delay emergency guidance
+to ask permission for a hand-off.
+
+When someone plainly asks you for a diagnosis, a prescription, or a personal
+clinical decision, this is a human-help trigger even if they have not yet given
+many details. First decline kindly. Then offer the limited human hand-off and
+ask permission. Do not simply send them to a PHC or ask for their district
+instead. A normal information question, such as what fasting means before a
+blood test, is not a trigger and must stay a normal conversation.
+
+Before creating a human-help request, say what you would share: their first
+name if you know it, a short description of the issue, what you already checked,
+the urgency, their language, and how they prefer follow-up. Ask clearly whether
+you may share that with a human helper, then wait. Only after a clear yes call
+`record_human_help_consent` with agreed=true, followed by
+`create_human_help_request`. If they say no, call it with agreed=false. Do not
+create a request, do not ask again this call, and continue helping normally.
+
+The summary is not a medical note or transcript. Keep it short and factual. Do
+not include an address, phone number, email address, Aadhaar number, OTP, PIN,
+password, card or account number. Use `phone` as the follow-up method only when
+the caller has separately agreed to a callback and a number is already on file;
+otherwise use `same_app` or `none`.
+
+After a request is created, give only its reference ID and an honest next step.
+Say a human-help request was created. Do not promise an immediate reply, a
+diagnosis, an appointment, or a callback time. If the tool says notification is
+pending, do not say a human was notified.
+
 # WHERE TO GO
 
 Telling someone to "visit your nearest PHC" without saying where it is puts the
@@ -473,6 +525,10 @@ class SehatSathi(Agent):
         # here, per session, so no amount of prompting can make the agent read or
         # write somebody else's record.
         self._caller_id = caller_id
+        # This is intentionally separate from the Day 4 memory consent and the
+        # Day 6 callback consent. A caller may agree to one without agreeing to
+        # share today's concern with a human helper.
+        self._human_help_consent: bool | None = None
 
     async def on_user_turn_completed(
         self, turn_ctx: llm.ChatContext, new_message: llm.ChatMessage
@@ -489,24 +545,44 @@ class SehatSathi(Agent):
             return
 
         red_flags = detect_red_flags(spoken)
-        if not red_flags:
+        if red_flags:
+            maternal = mentions_maternal_context(spoken)
+            logger.warning(
+                "red flag detected on user turn",
+                extra={"red_flags": red_flags, "maternal": maternal},
+            )
+
+            turn_ctx.add_message(
+                role="system",
+                content=(
+                    "DANGER SIGN DETECTED in what the caller just said: "
+                    f"{', '.join(red_flags)}. "
+                    "Call the escalate_to_emergency_care tool NOW, before replying "
+                    "and before asking anything else. "
+                    f"{'The caller mentioned a pregnancy or a newborn, so pass is_pregnancy_related=True. ' if maternal else ''}"
+                    "Do not diagnose. Do not suggest any medicine."
+                ),
+            )
             return
 
-        maternal = mentions_maternal_context(spoken)
-        logger.warning(
-            "red flag detected on user turn",
-            extra={"red_flags": red_flags, "maternal": maternal},
-        )
+        reason = detect_human_help_reason(spoken)
+        if not reason:
+            return
 
+        logger.info("human-help trigger detected", extra={"reason": reason})
         turn_ctx.add_message(
             role="system",
             content=(
-                "DANGER SIGN DETECTED in what the caller just said: "
-                f"{', '.join(red_flags)}. "
-                "Call the escalate_to_emergency_care tool NOW, before replying "
-                "and before asking anything else. "
-                f"{'The caller mentioned a pregnancy or a newborn, so pass is_pregnancy_related=True. ' if maternal else ''}"
-                "Do not diagnose. Do not suggest any medicine."
+                "HUMAN HELP TRIGGER DETECTED in what the caller just said: "
+                f"{reason}. Do NOT create a request yet. First refuse any diagnosis "
+                "or prescription briefly. Then say you can ask a human helper to "
+                "follow up, name only the limited summary you would share, and ask "
+                "the caller for permission. Do not ask for their district, address, "
+                "phone number, OTP, PIN, password, or more medical history first. "
+                "If they clearly agree, call record_human_help_consent with "
+                "agreed=true; only then may you call create_human_help_request. "
+                "If they decline, call record_human_help_consent with agreed=false "
+                "and continue helping without creating or sharing anything."
             ),
         )
 
@@ -837,6 +913,144 @@ class SehatSathi(Agent):
             "will not bring it up again, and ask how you can help today."
             if existed
             else "There was nothing stored. Tell them there was nothing to erase."
+        )
+
+    @function_tool
+    async def record_human_help_consent(self, context: RunContext, agreed: bool) -> str:
+        """Record the caller's answer after asking to share a short hand-off.
+
+        Use only after you said out loud what would be shared with a human
+        helper and the caller clearly answered. This is separate from consent to
+        remember the caller and from callback consent. A declined answer blocks
+        human-help requests for the rest of this call.
+
+        Args:
+            agreed: True only when the caller clearly agreed to share the
+                described summary. False when they declined.
+        """
+        if self._human_help_consent is False:
+            return (
+                "The caller already declined sharing during this call. Do not ask "
+                "again and do not create a human-help request."
+            )
+
+        self._human_help_consent = bool(agreed)
+        if agreed:
+            return (
+                "Human-help consent recorded for this call. You may now create one "
+                "short request with create_human_help_request."
+            )
+        return (
+            "The caller declined sharing. Nothing was sent or stored. Tell them "
+            "that, then continue helping without asking again this call."
+        )
+
+    @function_tool
+    async def create_human_help_request(
+        self,
+        context: RunContext,
+        reason: str,
+        summary: str,
+        checked: str,
+        urgency: str,
+        language: str,
+        follow_up_method: str,
+    ) -> str:
+        """Create a consented request for a human helper.
+
+        Use this only after `record_human_help_consent` returned that the caller
+        agreed during this call. Use it for only two situations: a caller asks
+        for a diagnosis, prescription, or clinical decision (`clinical_decision`),
+        or they explicitly ask for a human or ASHA follow-up after an unresolved
+        access question (`human_follow_up`). Do NOT use this for emergency danger
+        signs; use `escalate_to_emergency_care` first instead.
+
+        Args:
+            reason: Exactly `clinical_decision` or `human_follow_up`.
+            summary: A factual summary under 280 characters. No transcript,
+                diagnosis, address, number, email, OTP, PIN, password, or account
+                detail.
+            checked: What you already checked, under 180 characters. For example,
+                "Explained the nearest listed PHC and the one zero four helpline."
+            urgency: Exactly `low`, `medium`, or `high`. Never use emergency here.
+            language: Exactly `hindi`, `english`, or `mixed`.
+            follow_up_method: Exactly `same_app`, `phone`, or `none`. Use `phone`
+                only when separate callback consent and a number are already held.
+        """
+        if not self._caller_id:
+            return (
+                "NOT CREATED. This call has no caller identity, so a safe request "
+                "cannot be linked to the person who asked. Continue helping here."
+            )
+        if self._human_help_consent is not True:
+            return (
+                "NOT CREATED. You must first explain what will be shared, ask the "
+                "caller, and record a clear yes with record_human_help_consent."
+            )
+        if detect_red_flags(summary):
+            return (
+                "NOT CREATED. This summary includes a danger sign. Call "
+                "escalate_to_emergency_care immediately and give emergency guidance "
+                "before anything else."
+            )
+
+        record = memory_store.get(self._caller_id)
+        if follow_up_method.strip().lower() == "phone" and not (
+            record and record.callback_consent and record.phone
+        ):
+            return (
+                "NOT CREATED. Phone follow-up needs separate callback consent and "
+                "a number already on file. Ask for that consent or use same_app or "
+                "none."
+            )
+
+        try:
+            result = human_help_store.create_request(
+                caller_id=self._caller_id,
+                caller_name=record.name if record else "",
+                reason=reason,
+                summary=summary,
+                checked=checked,
+                urgency=urgency,
+                language=language,
+                follow_up_method=follow_up_method,
+            )
+        except HumanHelpValidationError as refusal:
+            logger.warning(
+                "human-help request rejected", extra={"reason": str(refusal)}
+            )
+            return f"NOT CREATED. {refusal} Correct it without adding private details."
+
+        if not result.created:
+            return (
+                f"No new request was created because this issue is already open as "
+                f"{result.request.reference_id}. Tell the caller that reference and "
+                "do not promise a response time."
+            )
+
+        notification = await asyncio.to_thread(
+            human_help_notifier.send_request, result.request
+        )
+        human_help_store.record_notification(result.request.reference_id, notification)
+        logger.info(
+            "human-help request created",
+            extra={
+                "reference_id": result.request.reference_id,
+                "urgency": result.request.urgency,
+                "notification_delivered": notification.delivered,
+            },
+        )
+
+        if notification.delivered:
+            return (
+                f"Request {result.request.reference_id} was created and the human "
+                "helper notification was sent. Give the caller that reference, say "
+                "the request is open, and do not promise an immediate reply."
+            )
+        return (
+            f"Request {result.request.reference_id} was created and is safely saved, "
+            "but its email notification is pending. Give the caller that reference "
+            "and do not say a human was notified or promise a reply time."
         )
 
     @function_tool
