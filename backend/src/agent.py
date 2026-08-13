@@ -74,6 +74,7 @@ from memory import (
     InvalidPhoneError,
     MemoryStore,
 )
+from analytics import analytics_store
 from outbound import (
     dial_target,
     is_soft_opt_out,
@@ -529,6 +530,8 @@ class SehatSathi(Agent):
         # Day 6 callback consent. A caller may agree to one without agreeing to
         # share today's concern with a human helper.
         self._human_help_consent: bool | None = None
+        self.success_reason = ""
+        self._turn_count = 0  # incremented each time the user speaks; used by analytics
 
     async def on_user_turn_completed(
         self, turn_ctx: llm.ChatContext, new_message: llm.ChatMessage
@@ -543,6 +546,7 @@ class SehatSathi(Agent):
         spoken = new_message.text_content
         if not spoken:
             return
+        self._turn_count += 1
 
         red_flags = detect_red_flags(spoken)
         if red_flags:
@@ -675,6 +679,7 @@ class SehatSathi(Agent):
             "emergency escalation triggered",
             extra={"danger_sign": danger_sign, "pregnancy": is_pregnancy_related},
         )
+        self.success_reason = "emergency_escalation"
 
         await self._signal_escalation_to_frontend(is_pregnancy_related)
 
@@ -1042,11 +1047,13 @@ class SehatSathi(Agent):
         )
 
         if notification.delivered:
+            self.success_reason = "human_help"
             return (
                 f"Request {result.request.reference_id} was created and the human "
                 "helper notification was sent. Give the caller that reference, say "
                 "the request is open, and do not promise an immediate reply."
             )
+        self.success_reason = "human_help"
         return (
             f"Request {result.request.reference_id} was created and is safely saved, "
             "but its email notification is pending. Give the caller that reference "
@@ -1101,6 +1108,8 @@ class SehatSathi(Agent):
             )
 
         await self._signal_facilities_to_frontend(found)
+
+        self.success_reason = "facility_lookup"
 
         lines = "; ".join(item.spoken() for item in found)
         as_of = facilities.data_as_of()
@@ -1178,6 +1187,8 @@ class SehatSathi(Agent):
                 "centre or their ASHA worker is the right first stop, and that "
                 "the national health helpline is one zero seven five."
             )
+
+        self.success_reason = "scheme_lookup"
 
         parts: list[str] = []
         for helpline in helplines:
@@ -1586,6 +1597,21 @@ async def sehat_sathi(ctx: JobContext):
     _install_failure_handling(session)
     _install_silence_handling(session, ctx)
     _mark("session_built")
+
+    @ctx.room.on("disconnected")
+    def _on_disconnect(*args, **kwargs) -> None:
+        # _turn_count is incremented in on_user_turn_completed — avoids
+        # any fragile inspection of chat_ctx at shutdown time.
+        had_conversation = agent._turn_count > 0
+
+        success = had_conversation
+        reason = "guidance_given" if success else "abandoned"
+
+        if getattr(agent, "success_reason", ""):
+            success = True
+            reason = agent.success_reason
+            
+        analytics_store.record_call(ctx.room.name, successful=success, reason=reason)
 
     # Connect before starting the session so the caller's identity is known in
     # time to look them up. The connect itself measured at 3ms, so doing it here
