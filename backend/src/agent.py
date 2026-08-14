@@ -49,6 +49,7 @@ from livekit.plugins import deepgram, google, murf, noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 import facilities
+from analytics import analytics_store
 from health_resources import (
     EMERGENCY_AMBULANCE,
     NATIONAL_EMERGENCY,
@@ -74,7 +75,6 @@ from memory import (
     InvalidPhoneError,
     MemoryStore,
 )
-from analytics import analytics_store
 from outbound import (
     dial_target,
     is_soft_opt_out,
@@ -82,6 +82,7 @@ from outbound import (
     outcome_from_sip_status,
     sip_status_of,
 )
+from specialist import YojanaSathi
 
 logger = logging.getLogger("sehat-sathi")
 
@@ -260,8 +261,10 @@ You know:
   are usually managed, what to expect at a clinic visit.
 - How India's public health system is arranged: ASHA workers, anganwadi
   centres, sub-centres, PHCs, district hospitals.
-- National health schemes and helplines — but look these up with the
-  `find_health_service` tool rather than reciting them from memory.
+- National health schemes and helplines — for general service lookup use the
+  `find_health_service` tool. For detailed questions about government health schemes,
+  Ayushman Bharat card, eligibility, documents, or enrollment, transfer the caller
+  to our specialist Yojana Sathi using the `transfer_to_yojana_sathi` tool.
 - Preventive basics: nutrition, hydration, hygiene, vaccination schedules,
   antenatal check-ups, taking medicines on time.
 
@@ -519,19 +522,51 @@ Your words are spoken aloud, so write for the ear and never for a screen.
 class SehatSathi(Agent):
     """The Sehat Sathi persona, with its escalation, lookup and memory tools."""
 
-    def __init__(self, caller_id: str = "") -> None:
-        super().__init__(instructions=SYSTEM_PROMPT)
+    def __init__(
+        self,
+        caller_id: str = "",
+        chat_ctx: llm.ChatContext | None = None,
+        tts: murf.TTS | None = None,
+        is_transfer: bool = False,
+    ) -> None:
+        if tts is None:
+            tts = murf.TTS(
+                voice=MURF_VOICE,
+                locale=MURF_LOCALE,
+                style=MURF_STYLE,
+                model="FALCON",
+                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+                text_pacing=True,
+            )
+        super().__init__(
+            instructions=SYSTEM_PROMPT,
+            chat_ctx=chat_ctx,
+            tts=tts,
+        )
         # Who this call belongs to, from the LiveKit participant identity. The
         # model is never told the id and never passes it to a tool: it is bound
         # here, per session, so no amount of prompting can make the agent read or
         # write somebody else's record.
         self._caller_id = caller_id
+        self._is_transfer = is_transfer
         # This is intentionally separate from the Day 4 memory consent and the
         # Day 6 callback consent. A caller may agree to one without agreeing to
         # share today's concern with a human helper.
         self._human_help_consent: bool | None = None
         self.success_reason = ""
         self._turn_count = 0  # incremented each time the user speaks; used by analytics
+
+    async def on_enter(self) -> None:
+        """Called when Sehat Sathi is activated in a session."""
+        if self._is_transfer:
+            logger.info("Sehat Sathi re-entered conversation after hand-back")
+            await self.session.generate_reply(
+                instructions=(
+                    "Acknowledge in Devanagari Hindi that you are Sehat Sathi (सेहत साथी) "
+                    "back with the caller, and ask how you can help with their health, symptoms, "
+                    "or finding a nearby clinic."
+                )
+            )
 
     async def on_user_turn_completed(
         self, turn_ctx: llm.ChatContext, new_message: llm.ChatMessage
@@ -1207,6 +1242,30 @@ class SehatSathi(Agent):
             "their ASHA worker or PHC, since schemes vary by state."
         )
 
+    @function_tool()
+    async def transfer_to_yojana_sathi(self, context: RunContext) -> tuple[Agent, str]:
+        """Transfer the caller to Yojana Sathi, our government health scheme specialist.
+
+        Use this tool when the caller asks detailed questions about government health
+        schemes, Ayushman Bharat / PM-JAY card, eligibility criteria, how to apply
+        or enroll, required documents (Aadhaar/ration card for schemes), maternity
+        benefits (Janani Suraksha Yojana, PMMVY), Nikshay Poshan Yojana for TB,
+        or financial assistance schemes.
+        """
+        logger.info(
+            "Transferring conversation to Yojana Sathi",
+            extra={"caller_id": self._caller_id},
+        )
+        self.success_reason = "scheme_specialist_handoff"
+        yojana_agent = YojanaSathi(
+            caller_id=self._caller_id,
+            chat_ctx=self.chat_ctx.copy(exclude_instructions=True),
+        )
+        return (
+            yojana_agent,
+            "सरकारी योजनाओं की विस्तृत जानकारी के लिए, मैं आपको हमारी योजना विशेषज्ञ, योजना साथी से जोड़ रही हूँ।",
+        )
+
 
 server = AgentServer(
     # Keep one process warm in dev. The default is dev_default=0, which means
@@ -1610,7 +1669,7 @@ async def sehat_sathi(ctx: JobContext):
         if getattr(agent, "success_reason", ""):
             success = True
             reason = agent.success_reason
-            
+
         analytics_store.record_call(ctx.room.name, successful=success, reason=reason)
 
     # Connect before starting the session so the caller's identity is known in
