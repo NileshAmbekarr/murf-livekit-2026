@@ -7,10 +7,10 @@ Handoff notes for continuing development. Read this before changing anything in
 **#VoiceForBharat** (10 Days of AI Voice Agents, by Murf AI), on LiveKit Agents
 with **Murf Falcon** TTS.
 
-**Where things stand:** Days 1–6 are built and merged into `main`. Day 7 is
-implemented on `day7/human-help`, awaiting one real browser-flow demo and the
-user's manual commit/push. Days 3, 5 and 6 were recorded; check LinkedIn/form
-completion with the user instead of treating old notes as current.
+**Where things stand:** Days 1–8 are built and merged/committed. Day 9 is
+implemented on `day9/agent-handoff`, with specialist agent Yojana Sathi (Khyati voice),
+bidirectional handoff/hand-back, duplicated scheme tool, and 4 passing unit tests.
+
 
 ---
 
@@ -320,6 +320,65 @@ not an alternative to emergency care.
   through `open`, `in_progress`, and `resolved`. A public dashboard is deferred
   until it can have actual access control.
 
+## Call Analytics (Day 8)
+
+Day 8 adds a lightweight outcome-tracking layer. It is deliberately separate
+from caller memory and human-help — it contains no PII, just aggregate counts.
+
+- **Success is defined as:** "The caller receives safe guidance or an appropriate
+  escalation." In code: any call where `_turn_count > 0` (the user spoke and
+  the agent replied at least once) counts as `guidance_given`. Tool-triggered
+  successes — emergency escalation, human help, facility lookup, scheme lookup —
+  set a named `success_reason` which overrides the default.
+- **`backend/src/analytics.py`** owns the SQLite store at `data/analytics.db`.
+  Uses WAL journal mode so the Next.js dashboard can read it concurrently.
+  The module is stateless after `__init__` — a module-level `analytics_store`
+  singleton is imported by `agent.py`.
+- **Recording happens in `_on_disconnect`**, a callback registered on
+  `ctx.room.on("disconnected")` inside `sehat_sathi()`. Critical gotcha:
+  **do not try to read `agent.chat_ctx` or `agent.chat_ctx.messages` inside
+  this callback.** At disconnect time, the SDK has already torn down or frozen
+  the context, and `.messages` is a method that is not iterable from that
+  point. Instead, we increment `agent._turn_count` in `on_user_turn_completed`
+  (which fires safely during the call) and read it at disconnect. This is the
+  only reliable pattern.
+- **`success_reason`** is set directly in the tool methods
+  (`escalate_to_emergency_care`, `create_human_help_request`,
+  `find_nearest_facility`, `find_health_service`). If any of these fired, that
+  reason wins over the default `guidance_given`.
+- **The Next.js API route** (`app/api/analytics/route.ts`) reads the SQLite
+  file directly using `sqlite3` (Node). `better-sqlite3` was the first choice
+  but requires a native C++ build (`node-gyp`) and Visual Studio, which is
+  not present on this machine. `sqlite3` has a prebuilt NAPI binary.
+- **The dashboard** (`app/dashboard/page.tsx`) polls `/api/analytics` every
+  3 seconds. It uses the existing paper design system — `register-card`,
+  `field-label` tokens — so no new CSS was introduced.
+- **`data/analytics.db` is local, like the other databases.** For a serverless
+  deployment (Vercel), swap the API route to a hosted DB (Supabase/Postgres);
+  the dashboard component stays unchanged.
+
+## Specialist Agent Handoff (Day 9)
+
+Day 9 introduces multi-agent handoff using LiveKit's native agent-switching mechanism.
+
+- **Specialist: `YojanaSathi` (`backend/src/specialist.py`)** — dedicated to government
+  health schemes and entitlements (Ayushman Bharat / PM-JAY, Janani Suraksha, JSSK,
+  PMMVY, Nikshay Poshan, ABHA ID card, required documents, eligibility, and CSC registration).
+- **Voice Differentiation:** Voiced by Murf Falcon **Khyati** (`Conversational`, `hi-IN`),
+  making the handoff distinct from Sehat Sathi's **Anisha** voice.
+- **Bidirectional Handoff:**
+  - `SehatSathi.transfer_to_yojana_sathi`: triggered when the caller asks for detailed
+    scheme information, eligibility, or documentation.
+  - `YojanaSathi.transfer_back_to_sehat_sathi`: triggered when the caller asks for
+    medical symptoms, clinic/facility locations, emergency signs, or general health guidance.
+- **Context Preservation:** Handoffs use `self.chat_ctx.copy(exclude_instructions=True)`,
+  passing the full conversation history while cleanly swapping the active system prompt.
+- **Self-Introduction on Enter:** Both agents implement `on_enter()` to introduce
+  themselves in natural Devanagari Hindi upon taking over the session.
+- **Testing:** Unit tests in `backend/tests/test_specialist.py` verify agent initialization,
+  voice assignment, bidirectional handoff tools, and context copying.
+
+
 ## Gotchas that cost time
 
 - **`session.run()` does not call `on_user_turn_completed`.** It goes
@@ -365,6 +424,42 @@ not an alternative to emergency care.
 
 ---
 
+- **Next.js ignores `app/` folders starting with `_`.** A route at
+  `app/__preview/` silently 404s. Name scratch routes without the underscore.
+- **`AGENT_NAME` must match on both sides.** Backend registers under it,
+  frontend dispatches to it. A mismatch connects but the agent never speaks —
+  the single most common "it's broken" cause.
+- **Both `.env.local` files need the *same* LiveKit project.** Same failure mode
+  as above.
+- **The evals run on LiveKit Cloud inference**, authenticated with the same
+  `LIVEKIT_API_KEY`/`SECRET`. No separate OpenAI key needed despite the model id
+  saying `openai/gpt-4.1-mini`.
+- **`prefers-reduced-motion` is honoured by the ECG canvas** — if you touch the
+  render loop, keep the static-trace branch working.
+- **Never add a dependency to the ECG's animation effect.** Both trace colours
+  (`--teal` for the agent, `--marigold` for the caller) are read up front and
+  chosen *per frame* from a ref. Adding `speaker` or a colour to the dep array
+  restarts the loop and visibly jumps the trace.
+- **`localParticipant.isSpeaking` is a trap.** The participant is a stable object
+  that mutates in place, so reading the property renders once and then goes
+  stale. Use `useIsSpeaking(participant)`.
+- **`MediaDeviceFailure.getFailure()` returns `Other` for *any* error with a
+  `name`** — which every `Error` has. A bad LiveKit token comes back as `Other`.
+  `classifyMicError` therefore maps only `PermissionDenied`/`NotFound`/
+  `DeviceInUse` and returns `null` for everything else, so a token failure never
+  tells the caller to unblock a microphone that was fine.
+- **`pnpm lint` fails on this machine for every file, including untouched ones.**
+  `core.autocrlf=true` gives CRLF working files while prettier expects LF. It is
+  environmental, not a code fault. A `.gitattributes` with `* text=auto eol=lf`
+  would fix it properly, at the cost of a repo-wide line-ending diff.
+- **Cold start was the real Day 3 bug.** `AgentServer`'s `num_idle_processes`
+  defaults to **0 in dev**, so every call paid a process spawn plus
+  `silero.VAD.load()`. Measured 13.8s from job to audio-ready, and the first test
+  caller hung up one second before the agent came alive. Now pinned to a
+  `ServerEnvOption(dev_default=1, prod_default=12)`.
+
+---
+
 ## File map
 
 Only the files that carry real decisions.
@@ -373,6 +468,8 @@ Only the files that carry real decisions.
 backend/src/
   agent.py              Persona, prompt, tools, turn hook, silence handling,
                         LiveKit session wiring. Single entrypoint.
+  specialist.py         Day 9 Yojana Sathi (Palak voice) scheme specialist agent.
+  analytics.py          Day 8 call-outcome store. WAL SQLite, no PII.
   health_resources.py   Helplines, schemes, red-flag phrases, matching logic.
   memory.py             Caller memory. Consent gates, the fact allow-list, the
                         do-not-call list. THE file for privacy decisions.
@@ -389,6 +486,7 @@ backend/scripts/
   human_help_requests.py  Local operator queue: list requests and set status.
 backend/tests/
   test_agent.py         Safety evals + code-mixed language + lookup unit tests
+  test_specialist.py    Day 9 specialist init, handoff, hand-back and lookup tests
   test_red_team.py      Adversarial cases, layer-1 hook tests, regressions
   test_memory.py        Consent, the allow-list, forgetting, do-not-call
   test_facilities.py    Lookup, honest failure when data is missing
@@ -398,6 +496,8 @@ backend/tests/
 frontend/
   app-config.ts               Branding, agentName, feature flags
   app/layout.tsx              Fonts, masthead, theme provider
+  app/dashboard/page.tsx      Day 8 analytics dashboard (3s live poll)
+  app/api/analytics/route.ts  Reads data/analytics.db, returns aggregate counts
   styles/globals.css          THE design system — palette, type, .register-card,
                               .paper-rules, .record-field, .field-label
   hooks/
@@ -500,8 +600,8 @@ covers the safety-critical matching.
 
 ## Conventions
 
-- **Current Day 7 branch:** `day7/human-help`. Do not commit or push unless the
-  user explicitly asks; they prefer to run those commands themselves.
+- **Current branch:** `day8/call-dashboard`. Committed and pushed.
+  Do not commit or push unless the user explicitly asks.
 - **No AI attribution** in commits or PRs — no `Co-Authored-By`, no generated-by
   footer. The user asked for this explicitly.
 - **Commit messages:** explain *why*, not just what. Existing commits are the
@@ -517,7 +617,7 @@ covers the safety-critical matching.
 
 ## Where to go next
 
-Days 8–10 are unscheduled. Known gaps, roughly by value:
+Days 9–10 are unscheduled. Known gaps, roughly by value:
 
 1. **Outbound reminders cannot fire by themselves.** `scripts/place_calls.py` is
    a manual trigger — there is no scheduler, so a medication reminder only goes
@@ -561,5 +661,11 @@ Days 8–10 are unscheduled. Known gaps, roughly by value:
    deployment. A real version needs staff authentication, audit controls,
    retention rules and a secure care-team destination before any public-facing
    dashboard or callback-after-resolution feature.
+9. **Analytics persistence for production.** Day 8's SQLite analytics works
+   locally and on a VPS. A serverless/Vercel deployment needs the API route
+   repointed at a hosted DB (Supabase Postgres recommended — schema is one table).
+10. **Call history list on the dashboard.** Right now the dashboard shows only
+    totals. A recent-calls table (room name, timestamp, reason — no PII) would
+    help diagnose failure patterns and is a natural next step.
 
 Full gap list with reasoning is at the bottom of `RED_TEAM.md`.
